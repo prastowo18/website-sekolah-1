@@ -1,0 +1,549 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider     = "postgresql"
+  relationMode = "foreignKeys"
+}
+
+enum UserRole {
+  SUPER_ADMIN
+  CONTENT_ADMIN
+  VIEWER
+}
+
+enum SettingValueType {
+  STRING
+  NUMBER
+  BOOLEAN
+  JSON
+  URL
+  COLOR
+}
+
+enum PostStatus {
+  DRAFT
+  SCHEDULED
+  PUBLISHED
+  ARCHIVED
+}
+
+enum AnnouncementPriority {
+  NORMAL
+  IMPORTANT
+  URGENT
+}
+
+enum MediaType {
+  IMAGE
+  VIDEO
+  YOUTUBE
+}
+
+enum AchievementType {
+  STUDENT
+  TEACHER
+  SCHOOL
+}
+
+enum CompetitionLevel {
+  SCHOOL
+  DISTRICT
+  CITY
+  PROVINCE
+  NATIONAL
+  INTERNATIONAL
+}
+
+enum ContactMessageStatus {
+  NEW
+  READ
+  REPLIED
+  CLOSED
+  SPAM
+}
+
+enum PpdbStatus {
+  DRAFT
+  COMING_SOON
+  OPEN
+  CLOSED
+  ANNOUNCEMENT
+  COMPLETED
+}
+
+enum PpdbFeeType {
+  REGISTRATION
+  DEVELOPMENT
+  MONTHLY
+  UNIFORM
+  ACTIVITY
+  OTHER
+}
+
+model User {
+  id                  String    @id @default(uuid()) @db.Uuid
+  name                String    @db.VarChar(120)
+  username            String    @unique @db.VarChar(50)
+  email               String?   @unique @db.VarChar(180)
+  passwordHash        String    @db.VarChar(255)
+  role                UserRole  @default(CONTENT_ADMIN)
+  isActive            Boolean   @default(true)
+  mustChangePassword  Boolean   @default(false)
+  failedLoginAttempts Int       @default(0)
+  lockedUntil         DateTime? @db.Timestamptz(3)
+  lastLoginAt         DateTime? @db.Timestamptz(3)
+  passwordChangedAt   DateTime? @db.Timestamptz(3)
+  createdAt           DateTime  @default(now()) @db.Timestamptz(3)
+  updatedAt           DateTime  @updatedAt @db.Timestamptz(3)
+
+  sessions             UserSession[]
+  authoredPosts        Post[]           @relation("PostAuthor")
+  createdAnnouncements Announcement[]   @relation("AnnouncementCreator")
+  assignedMessages     ContactMessage[] @relation("ContactAssignee")
+  auditLogs            AuditLog[]       @relation("AuditActor")
+
+  @@index([role, isActive])
+}
+
+model UserSession {
+  id         String    @id @default(uuid()) @db.Uuid
+  tokenHash  String    @unique @db.VarChar(255)
+  userId     String    @db.Uuid
+  expiresAt  DateTime  @db.Timestamptz(3)
+  lastSeenAt DateTime? @db.Timestamptz(3)
+  createdAt  DateTime  @default(now()) @db.Timestamptz(3)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([expiresAt])
+}
+
+model SchoolProfile {
+  id                String   @id @default("school") @db.VarChar(30)
+  schoolName        String   @db.VarChar(180)
+  shortName         String?  @db.VarChar(80)
+  npsn              String?  @unique @db.VarChar(20)
+  logoUrl           String?  @db.Text
+  faviconUrl        String?  @db.Text
+  heroImageUrl      String?  @db.Text
+  tagline           String?  @db.VarChar(220)
+  shortDescription  String?  @db.Text
+  history           String?  @db.Text
+  vision            String?  @db.Text
+  mission           String[] @default([])
+  goals             String[] @default([])
+  schoolValues      String[] @default([])
+  accreditation     String?  @db.VarChar(50)
+  foundedYear       Int?
+  principalName     String?  @db.VarChar(120)
+  principalTitle    String?  @db.VarChar(120)
+  principalPhotoUrl String?  @db.Text
+  principalGreeting String?  @db.Text
+  address           String?  @db.Text
+  village           String?  @db.VarChar(120)
+  district          String?  @db.VarChar(120)
+  city              String?  @db.VarChar(120)
+  province          String?  @db.VarChar(120)
+  postalCode        String?  @db.VarChar(10)
+  phone             String?  @db.VarChar(30)
+  whatsapp          String?  @db.VarChar(30)
+  email             String?  @db.VarChar(180)
+  operationalHours  String?  @db.VarChar(180)
+  mapEmbedUrl       String?  @db.Text
+  latitude          Decimal? @db.Decimal(10, 7)
+  longitude         Decimal? @db.Decimal(10, 7)
+  createdAt         DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt         DateTime @updatedAt @db.Timestamptz(3)
+}
+
+model WebsiteSetting {
+  key         String           @id @db.VarChar(100)
+  value       Json
+  valueType   SettingValueType @default(STRING)
+  group       String           @default("general") @db.VarChar(60)
+  description String?          @db.Text
+  isPublic    Boolean          @default(false)
+  createdAt   DateTime         @default(now()) @db.Timestamptz(3)
+  updatedAt   DateTime         @updatedAt @db.Timestamptz(3)
+
+  @@index([group])
+}
+
+model SocialLink {
+  id        String   @id @default(uuid()) @db.Uuid
+  platform  String   @unique @db.VarChar(50)
+  label     String?  @db.VarChar(80)
+  url       String   @db.Text
+  icon      String?  @db.VarChar(80)
+  isActive  Boolean  @default(true)
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt DateTime @updatedAt @db.Timestamptz(3)
+
+  @@index([isActive, sortOrder])
+}
+
+model Program {
+  id               String    @id @default(uuid()) @db.Uuid
+  name             String    @db.VarChar(160)
+  slug             String    @unique @db.VarChar(180)
+  shortDescription String?   @db.VarChar(300)
+  description      String?   @db.Text
+  imageUrl         String?   @db.Text
+  benefits         String[]  @default([])
+  isFeatured       Boolean   @default(false)
+  isActive         Boolean   @default(true)
+  sortOrder        Int       @default(0)
+  publishedAt      DateTime? @db.Timestamptz(3)
+  createdAt        DateTime  @default(now()) @db.Timestamptz(3)
+  updatedAt        DateTime  @updatedAt @db.Timestamptz(3)
+
+  @@index([isActive, isFeatured, sortOrder])
+}
+
+model Facility {
+  id          String   @id @default(uuid()) @db.Uuid
+  name        String   @db.VarChar(160)
+  slug        String   @unique @db.VarChar(180)
+  description String?  @db.Text
+  imageUrl    String?  @db.Text
+  capacity    String?  @db.VarChar(120)
+  condition   String?  @db.VarChar(120)
+  isActive    Boolean  @default(true)
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt   DateTime @updatedAt @db.Timestamptz(3)
+
+  @@index([isActive, sortOrder])
+}
+
+model Teacher {
+  id             String   @id @default(uuid()) @db.Uuid
+  name           String   @db.VarChar(160)
+  slug           String   @unique @db.VarChar(180)
+  employeeNumber String?  @unique @db.VarChar(50)
+  position       String?  @db.VarChar(120)
+  subject        String?  @db.VarChar(120)
+  education      String?  @db.VarChar(180)
+  shortBiography String?  @db.Text
+  photoUrl       String?  @db.Text
+  isPrincipal    Boolean  @default(false)
+  isActive       Boolean  @default(true)
+  sortOrder      Int      @default(0)
+  createdAt      DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt      DateTime @updatedAt @db.Timestamptz(3)
+
+  @@index([isActive, isPrincipal, sortOrder])
+}
+
+model Achievement {
+  id               String            @id @default(uuid()) @db.Uuid
+  title            String            @db.VarChar(220)
+  slug             String            @unique @db.VarChar(240)
+  achievementType  AchievementType
+  category         String?           @db.VarChar(120)
+  winnerName       String?           @db.VarChar(180)
+  competitionLevel CompetitionLevel?
+  rank             String?           @db.VarChar(80)
+  achievementDate  DateTime?         @db.Date
+  description      String?           @db.Text
+  imageUrl         String?           @db.Text
+  isPublished      Boolean           @default(true)
+  publishedAt      DateTime?         @db.Timestamptz(3)
+  createdAt        DateTime          @default(now()) @db.Timestamptz(3)
+  updatedAt        DateTime          @updatedAt @db.Timestamptz(3)
+
+  @@index([isPublished, achievementDate])
+  @@index([achievementType, competitionLevel])
+}
+
+model Extracurricular {
+  id            String   @id @default(uuid()) @db.Uuid
+  name          String   @db.VarChar(160)
+  slug          String   @unique @db.VarChar(180)
+  description   String?  @db.Text
+  schedule      String?  @db.VarChar(180)
+  coach         String?  @db.VarChar(160)
+  targetClasses String[] @default([])
+  imageUrl      String?  @db.Text
+  isActive      Boolean  @default(true)
+  sortOrder     Int      @default(0)
+  createdAt     DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt     DateTime @updatedAt @db.Timestamptz(3)
+
+  @@index([isActive, sortOrder])
+}
+
+model PostCategory {
+  id          String   @id @default(uuid()) @db.Uuid
+  name        String   @db.VarChar(120)
+  slug        String   @unique @db.VarChar(140)
+  description String?  @db.Text
+  createdAt   DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt   DateTime @updatedAt @db.Timestamptz(3)
+
+  posts Post[]
+}
+
+model Post {
+  id               String     @id @default(uuid()) @db.Uuid
+  title            String     @db.VarChar(240)
+  slug             String     @unique @db.VarChar(260)
+  excerpt          String?    @db.VarChar(360)
+  content          String     @db.Text
+  featuredImageUrl String?    @db.Text
+  status           PostStatus @default(DRAFT)
+  publishedAt      DateTime?  @db.Timestamptz(3)
+  scheduledAt      DateTime?  @db.Timestamptz(3)
+  authorId         String?    @db.Uuid
+  categoryId       String?    @db.Uuid
+  viewCount        Int        @default(0)
+  seoTitle         String?    @db.VarChar(180)
+  seoDescription   String?    @db.VarChar(320)
+  createdAt        DateTime   @default(now()) @db.Timestamptz(3)
+  updatedAt        DateTime   @updatedAt @db.Timestamptz(3)
+
+  author   User?         @relation("PostAuthor", fields: [authorId], references: [id], onDelete: SetNull)
+  category PostCategory? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+
+  @@index([status, publishedAt])
+  @@index([categoryId, status])
+  @@index([authorId])
+}
+
+model Announcement {
+  id            String               @id @default(uuid()) @db.Uuid
+  title         String               @db.VarChar(220)
+  slug          String               @unique @db.VarChar(240)
+  content       String               @db.Text
+  priority      AnnouncementPriority @default(NORMAL)
+  attachmentUrl String?              @db.Text
+  startDate     DateTime?            @db.Timestamptz(3)
+  endDate       DateTime?            @db.Timestamptz(3)
+  isPinned      Boolean              @default(false)
+  isActive      Boolean              @default(true)
+  createdById   String?              @db.Uuid
+  createdAt     DateTime             @default(now()) @db.Timestamptz(3)
+  updatedAt     DateTime             @updatedAt @db.Timestamptz(3)
+
+  createdBy User? @relation("AnnouncementCreator", fields: [createdById], references: [id], onDelete: SetNull)
+
+  @@index([isActive, isPinned, priority])
+  @@index([startDate, endDate])
+  @@index([createdById])
+}
+
+model GalleryAlbum {
+  id            String    @id @default(uuid()) @db.Uuid
+  title         String    @db.VarChar(200)
+  slug          String    @unique @db.VarChar(220)
+  description   String?   @db.Text
+  eventDate     DateTime? @db.Date
+  coverImageUrl String?   @db.Text
+  isPublished   Boolean   @default(true)
+  publishedAt   DateTime? @db.Timestamptz(3)
+  createdAt     DateTime  @default(now()) @db.Timestamptz(3)
+  updatedAt     DateTime  @updatedAt @db.Timestamptz(3)
+
+  media GalleryMedia[]
+
+  @@index([isPublished, eventDate])
+}
+
+model GalleryMedia {
+  id           String    @id @default(uuid()) @db.Uuid
+  albumId      String    @db.Uuid
+  mediaType    MediaType @default(IMAGE)
+  fileUrl      String    @db.Text
+  thumbnailUrl String?   @db.Text
+  caption      String?   @db.VarChar(300)
+  altText      String?   @db.VarChar(220)
+  sortOrder    Int       @default(0)
+  createdAt    DateTime  @default(now()) @db.Timestamptz(3)
+  updatedAt    DateTime  @updatedAt @db.Timestamptz(3)
+
+  album GalleryAlbum @relation(fields: [albumId], references: [id], onDelete: Cascade)
+
+  @@index([albumId, sortOrder])
+}
+
+model DownloadDocument {
+  id            String   @id @default(uuid()) @db.Uuid
+  name          String   @db.VarChar(200)
+  slug          String   @unique @db.VarChar(220)
+  description   String?  @db.Text
+  category      String?  @db.VarChar(100)
+  fileUrl       String   @db.Text
+  fileName      String   @db.VarChar(255)
+  fileSizeBytes Int?
+  fileType      String?  @db.VarChar(80)
+  downloadCount Int      @default(0)
+  isActive      Boolean  @default(true)
+  createdAt     DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt     DateTime @updatedAt @db.Timestamptz(3)
+
+  @@index([isActive, category])
+}
+
+model Faq {
+  id        String   @id @default(uuid()) @db.Uuid
+  question  String   @db.VarChar(300)
+  answer    String   @db.Text
+  category  String?  @db.VarChar(100)
+  isActive  Boolean  @default(true)
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt DateTime @updatedAt @db.Timestamptz(3)
+
+  @@index([isActive, category, sortOrder])
+}
+
+model Testimonial {
+  id          String   @id @default(uuid()) @db.Uuid
+  name        String   @db.VarChar(160)
+  role        String?  @db.VarChar(120)
+  content     String   @db.Text
+  photoUrl    String?  @db.Text
+  isPublished Boolean  @default(false)
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt   DateTime @updatedAt @db.Timestamptz(3)
+
+  @@index([isPublished, sortOrder])
+}
+
+model PpdbInformation {
+  id                             String     @id @default(uuid()) @db.Uuid
+  title                          String     @db.VarChar(220)
+  academicYear                   String     @unique @db.VarChar(20)
+  status                         PpdbStatus @default(DRAFT)
+  shortDescription               String?    @db.VarChar(360)
+  description                    String?    @db.Text
+  quota                          Int?
+  brochureUrl                    String?    @db.Text
+  externalRegistrationUrl        String?    @db.Text
+  registrationLocation           String?    @db.Text
+  contactPerson                  String?    @db.VarChar(160)
+  contactPhone                   String?    @db.VarChar(30)
+  contactEmail                   String?    @db.VarChar(180)
+  serviceHours                   String?    @db.VarChar(180)
+  scholarshipInformation         String?    @db.Text
+  showFee                        Boolean    @default(false)
+  showExternalRegistrationButton Boolean    @default(false)
+  isActive                       Boolean    @default(false)
+  createdAt                      DateTime   @default(now()) @db.Timestamptz(3)
+  updatedAt                      DateTime   @updatedAt @db.Timestamptz(3)
+
+  timelineItems PpdbTimelineItem[]
+  requirements  PpdbRequirement[]
+  flowSteps     PpdbFlowStep[]
+  fees          PpdbFee[]
+
+  @@index([isActive, status])
+}
+
+model PpdbTimelineItem {
+  id          String    @id @default(uuid()) @db.Uuid
+  ppdbId      String    @db.Uuid
+  title       String    @db.VarChar(160)
+  description String?   @db.Text
+  startDate   DateTime? @db.Timestamptz(3)
+  endDate     DateTime? @db.Timestamptz(3)
+  sortOrder   Int       @default(0)
+  createdAt   DateTime  @default(now()) @db.Timestamptz(3)
+  updatedAt   DateTime  @updatedAt @db.Timestamptz(3)
+
+  ppdb PpdbInformation @relation(fields: [ppdbId], references: [id], onDelete: Cascade)
+
+  @@index([ppdbId, sortOrder])
+}
+
+model PpdbRequirement {
+  id          String   @id @default(uuid()) @db.Uuid
+  ppdbId      String   @db.Uuid
+  title       String   @db.VarChar(180)
+  description String?  @db.Text
+  isRequired  Boolean  @default(true)
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt   DateTime @updatedAt @db.Timestamptz(3)
+
+  ppdb PpdbInformation @relation(fields: [ppdbId], references: [id], onDelete: Cascade)
+
+  @@index([ppdbId, sortOrder])
+}
+
+model PpdbFlowStep {
+  id          String   @id @default(uuid()) @db.Uuid
+  ppdbId      String   @db.Uuid
+  title       String   @db.VarChar(180)
+  description String?  @db.Text
+  sortOrder   Int
+  createdAt   DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt   DateTime @updatedAt @db.Timestamptz(3)
+
+  ppdb PpdbInformation @relation(fields: [ppdbId], references: [id], onDelete: Cascade)
+
+  @@unique([ppdbId, sortOrder])
+}
+
+model PpdbFee {
+  id          String      @id @default(uuid()) @db.Uuid
+  ppdbId      String      @db.Uuid
+  name        String      @db.VarChar(180)
+  feeType     PpdbFeeType @default(OTHER)
+  amount      Decimal?    @db.Decimal(14, 2)
+  description String?     @db.Text
+  isOptional  Boolean     @default(false)
+  sortOrder   Int         @default(0)
+  createdAt   DateTime    @default(now()) @db.Timestamptz(3)
+  updatedAt   DateTime    @updatedAt @db.Timestamptz(3)
+
+  ppdb PpdbInformation @relation(fields: [ppdbId], references: [id], onDelete: Cascade)
+
+  @@index([ppdbId, sortOrder])
+}
+
+model ContactMessage {
+  id           String               @id @default(uuid()) @db.Uuid
+  name         String               @db.VarChar(160)
+  email        String?              @db.VarChar(180)
+  phone        String?              @db.VarChar(30)
+  subject      String?              @db.VarChar(220)
+  message      String               @db.Text
+  status       ContactMessageStatus @default(NEW)
+  sourcePage   String?              @db.VarChar(220)
+  assignedToId String?              @db.Uuid
+  readAt       DateTime?            @db.Timestamptz(3)
+  repliedAt    DateTime?            @db.Timestamptz(3)
+  createdAt    DateTime             @default(now()) @db.Timestamptz(3)
+  updatedAt    DateTime             @updatedAt @db.Timestamptz(3)
+
+  assignedTo User? @relation("ContactAssignee", fields: [assignedToId], references: [id], onDelete: SetNull)
+
+  @@index([status, createdAt])
+  @@index([assignedToId])
+}
+
+model AuditLog {
+  id        String   @id @default(uuid()) @db.Uuid
+  actorId   String?  @db.Uuid
+  action    String   @db.VarChar(100)
+  entity    String   @db.VarChar(100)
+  entityId  String?  @db.VarChar(100)
+  oldValue  Json?
+  newValue  Json?
+  ipAddress String?  @db.VarChar(64)
+  userAgent String?  @db.Text
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+
+  actor User? @relation("AuditActor", fields: [actorId], references: [id], onDelete: SetNull)
+
+  @@index([actorId, createdAt])
+  @@index([entity, entityId])
+  @@index([action, createdAt])
+}
