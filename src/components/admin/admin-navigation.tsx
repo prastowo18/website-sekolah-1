@@ -192,12 +192,14 @@ function NavigationGroup({
             return (
               <SidebarMenuItem key={item.href}>
                 <SidebarMenuButton
-                  render={<Link href={item.href} />}
+                  asChild
                   isActive={active}
                   tooltip={item.title}
                 >
-                  <Icon />
-                  <span>{item.title}</span>
+                  <Link href={item.href}>
+                    <Icon />
+                    <span>{item.title}</span>
+                  </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
             );
