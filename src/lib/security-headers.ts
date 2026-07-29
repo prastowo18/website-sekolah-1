@@ -19,7 +19,9 @@ function buildContentSecurityPolicy(): string {
     "style-src 'self' 'unsafe-inline' https:",
     "img-src 'self' data: blob: https:",
     "font-src 'self' data: https:",
-    "connect-src 'self' https: wss:",
+    process.env.NODE_ENV === "development"
+      ? "connect-src 'self' https: wss: ws://localhost:* ws://127.0.0.1:*"
+      : "connect-src 'self' https: wss:",
     "media-src 'self' blob: https:",
     [
       "frame-src",

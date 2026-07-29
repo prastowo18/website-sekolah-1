@@ -64,10 +64,6 @@ const navigationItems = [
     label: "FAQ",
     href: "/faq",
   },
-  {
-    label: "Kontak",
-    href: "/kontak",
-  },
 ] as const;
 
 export function PublicNavigation({
@@ -78,7 +74,6 @@ export function PublicNavigation({
 }: PublicNavigationProps) {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
-
   const safeLogoUrl = getSafePublicUrl(logoUrl);
 
   function isActive(href: string): boolean {
@@ -132,10 +127,6 @@ export function PublicNavigation({
 
     if (href === "/faq") {
       return pathname.startsWith("/faq");
-    }
-
-    if (href === "/kontak") {
-      return pathname.startsWith("/kontak");
     }
 
     return false;
@@ -232,8 +223,6 @@ export function PublicNavigation({
               >
                 <Link
                   href={item.href}
-                  aria-current={isActive(item.href) ? "page" : undefined}
-                  className={isActive(item.href) ? "text-primary" : undefined}
                   onClick={() => {
                     setOpen(false);
                   }}

@@ -25,7 +25,6 @@ type PublicFooterProps = {
     email: string | null;
     operationalHours: string | null;
   };
-
   socialLinks: Array<{
     id: string;
     platform: string;
@@ -49,7 +48,6 @@ function buildAddress(profile: PublicFooterProps["profile"]): string {
 
 export function PublicFooter({ profile, socialLinks }: PublicFooterProps) {
   const address = buildAddress(profile);
-
   const year = new Date().getFullYear();
 
   return (
@@ -92,7 +90,6 @@ export function PublicFooter({ profile, socialLinks }: PublicFooterProps) {
             >
               Profil Sekolah
             </Link>
-
             <Link
               href="/guru"
               className="text-muted-foreground hover:text-foreground"
@@ -134,7 +131,6 @@ export function PublicFooter({ profile, socialLinks }: PublicFooterProps) {
             >
               Berita
             </Link>
-
             <Link
               href="/pengumuman"
               className="text-muted-foreground hover:text-foreground"
@@ -155,21 +151,12 @@ export function PublicFooter({ profile, socialLinks }: PublicFooterProps) {
             >
               Dokumen
             </Link>
-
             <Link
               href="/faq"
               className="text-muted-foreground hover:text-foreground"
             >
               Pertanyaan Umum
             </Link>
-
-            <Link
-              href="/kontak"
-              className="text-muted-foreground hover:text-foreground"
-            >
-              Kontak
-            </Link>
-
             <Link
               href="/testimoni"
               className="text-muted-foreground hover:text-foreground"
@@ -193,7 +180,6 @@ export function PublicFooter({ profile, socialLinks }: PublicFooterProps) {
             {address ? (
               <div className="flex items-start gap-2 text-muted-foreground">
                 <MapPin className="mt-0.5 size-4 shrink-0" />
-
                 <span>{address}</span>
               </div>
             ) : null}
@@ -204,7 +190,6 @@ export function PublicFooter({ profile, socialLinks }: PublicFooterProps) {
                 className="flex items-center gap-2 text-muted-foreground hover:text-foreground"
               >
                 <Phone className="size-4 shrink-0" />
-
                 {profile.phone}
               </a>
             ) : null}
@@ -215,7 +200,6 @@ export function PublicFooter({ profile, socialLinks }: PublicFooterProps) {
                 className="flex items-center gap-2 break-all text-muted-foreground hover:text-foreground"
               >
                 <Mail className="size-4 shrink-0" />
-
                 {profile.email}
               </a>
             ) : null}
@@ -223,7 +207,6 @@ export function PublicFooter({ profile, socialLinks }: PublicFooterProps) {
             {profile.operationalHours ? (
               <div className="flex items-start gap-2 text-muted-foreground">
                 <Clock3 className="mt-0.5 size-4 shrink-0" />
-
                 <span>{profile.operationalHours}</span>
               </div>
             ) : null}
@@ -265,7 +248,6 @@ export function PublicFooter({ profile, socialLinks }: PublicFooterProps) {
                   className="flex items-center gap-2 text-muted-foreground hover:text-foreground"
                 >
                   {link.label || link.platform}
-
                   <ExternalLink className="size-3.5" />
                 </a>
               );

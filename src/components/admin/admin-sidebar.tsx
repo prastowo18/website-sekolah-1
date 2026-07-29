@@ -1,7 +1,4 @@
-import {
-  GraduationCap,
-  LogOut,
-} from "lucide-react";
+import { GraduationCap, LogOut } from "lucide-react";
 import Link from "next/link";
 
 import { AdminNavigation } from "@/components/admin/admin-navigation";
@@ -28,6 +25,8 @@ type AdminSidebarProps = {
     username: string;
     role: AdminRole;
   };
+
+  newMessageCount: number;
 };
 
 function getInitials(name: string): string {
@@ -39,35 +38,25 @@ function getInitials(name: string): string {
     .join("");
 }
 
-export function AdminSidebar({
-  user,
-}: AdminSidebarProps) {
-  const roleLabel =
-    ADMIN_ROLE_LABELS[user.role];
+export function AdminSidebar({ user, newMessageCount }: AdminSidebarProps) {
+  const roleLabel = ADMIN_ROLE_LABELS[user.role];
 
   return (
-    <Sidebar
-      collapsible="icon"
-      variant="inset"
-    >
+    <Sidebar collapsible="icon" variant="inset">
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton
-              asChild
-              size="lg"
-              tooltip="Website Sekolah"
-            >
+            <SidebarMenuButton asChild size="lg" tooltip="Website Sekolah">
               <Link href="/admin/dashboard">
-  <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
+                <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
                   <GraduationCap className="size-4" />
                 </div>
-  
+
                 <div className="grid flex-1 text-left text-sm leading-tight">
                   <span className="truncate font-semibold">
                     Website Sekolah
                   </span>
-  
+
                   <span className="truncate text-xs text-muted-foreground">
                     Panel Administrasi
                   </span>
@@ -81,7 +70,7 @@ export function AdminSidebar({
       <SidebarSeparator />
 
       <SidebarContent>
-        <AdminNavigation role={user.role} />
+        <AdminNavigation role={user.role} newMessageCount={newMessageCount} />
       </SidebarContent>
 
       <SidebarFooter>
@@ -98,9 +87,7 @@ export function AdminSidebar({
               </div>
 
               <div className="grid min-w-0 flex-1 text-left text-sm leading-tight">
-                <span className="truncate font-medium">
-                  {user.name}
-                </span>
+                <span className="truncate font-medium">{user.name}</span>
 
                 <span className="truncate text-xs text-muted-foreground">
                   {roleLabel}
@@ -110,16 +97,14 @@ export function AdminSidebar({
           </SidebarMenuItem>
 
           <SidebarMenuItem>
-            <form
-              action={logoutAction}
-              className="w-full"
-            >
+            <form action={logoutAction} className="w-full">
               <SidebarMenuButton
                 type="submit"
                 tooltip="Keluar"
                 className="w-full"
               >
                 <LogOut />
+
                 <span>Keluar</span>
               </SidebarMenuButton>
             </form>

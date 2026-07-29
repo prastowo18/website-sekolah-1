@@ -118,7 +118,7 @@ const publicationItems: NavigationItem[] = [
   },
   {
     title: "Pesan Masuk",
-    href: "/admin/pesan",
+    href: "/admin/pesan-kontak",
     icon: Mail,
   },
 ];
@@ -144,30 +144,33 @@ const systemItems: NavigationItem[] = [
   },
 ];
 
-function isItemActive(
-  pathname: string,
-  href: string,
-): boolean {
-  return (
-    pathname === href ||
-    pathname.startsWith(`${href}/`)
-  );
+function isItemActive(pathname: string, href: string): boolean {
+  return pathname === href || pathname.startsWith(`${href}/`);
+}
+
+function formatBadgeCount(count: number): string {
+  if (count > 99) {
+    return "99+";
+  }
+
+  return String(count);
 }
 
 function NavigationGroup({
   label,
   items,
   role,
+  newMessageCount = 0,
 }: {
   label: string;
   items: NavigationItem[];
   role: AdminRole;
+  newMessageCount?: number;
 }) {
   const pathname = usePathname();
 
   const visibleItems = items.filter(
-    (item) =>
-      !item.roles || item.roles.includes(role),
+    (item) => !item.roles || item.roles.includes(role),
   );
 
   if (visibleItems.length === 0) {
@@ -176,29 +179,39 @@ function NavigationGroup({
 
   return (
     <SidebarGroup>
-      <SidebarGroupLabel>
-        {label}
-      </SidebarGroupLabel>
+      <SidebarGroupLabel>{label}</SidebarGroupLabel>
 
       <SidebarGroupContent>
         <SidebarMenu>
           {visibleItems.map((item) => {
             const Icon = item.icon;
-            const active = isItemActive(
-              pathname,
-              item.href,
-            );
+
+            const active = isItemActive(pathname, item.href);
+
+            const badgeCount =
+              item.href === "/admin/pesan-kontak" ? newMessageCount : 0;
+
+            const tooltip =
+              badgeCount > 0
+                ? `${item.title} (${badgeCount} baru)`
+                : item.title;
 
             return (
               <SidebarMenuItem key={item.href}>
-                <SidebarMenuButton
-                  asChild
-                  isActive={active}
-                  tooltip={item.title}
-                >
+                <SidebarMenuButton asChild isActive={active} tooltip={tooltip}>
                   <Link href={item.href}>
                     <Icon />
+
                     <span>{item.title}</span>
+
+                    {badgeCount > 0 ? (
+                      <span
+                        aria-label={`${badgeCount} pesan baru`}
+                        className="ml-auto flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1.5 text-[10px] font-semibold tabular-nums text-primary-foreground group-data-[collapsible=icon]:hidden"
+                      >
+                        {formatBadgeCount(badgeCount)}
+                      </span>
+                    ) : null}
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
@@ -212,28 +225,23 @@ function NavigationGroup({
 
 export function AdminNavigation({
   role,
+  newMessageCount,
 }: {
   role: AdminRole;
+  newMessageCount: number;
 }) {
   return (
     <>
-      <NavigationGroup
-        label="Utama"
-        items={primaryItems}
-        role={role}
-      />
+      <NavigationGroup label="Utama" items={primaryItems} role={role} />
 
       <NavigationGroup
         label="Publikasi"
         items={publicationItems}
         role={role}
+        newMessageCount={newMessageCount}
       />
 
-      <NavigationGroup
-        label="Sistem"
-        items={systemItems}
-        role={role}
-      />
+      <NavigationGroup label="Sistem" items={systemItems} role={role} />
     </>
   );
 }

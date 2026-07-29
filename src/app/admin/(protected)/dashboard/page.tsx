@@ -18,13 +18,13 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { ContactMessageDashboardCard } from "@/features/contact-message/components/contact-message-dashboard-card";
 import { requireAdminSession } from "@/lib/auth/require-session";
 import { prisma } from "@/lib/prisma";
 
 export const metadata: Metadata = {
   title: "Dashboard | Panel Administrasi",
-  description:
-    "Ringkasan pengelolaan website sekolah.",
+  description: "Ringkasan pengelolaan website sekolah.",
 };
 
 const ppdbStatusLabels: Record<string, string> = {
@@ -38,17 +38,27 @@ const ppdbStatusLabels: Record<string, string> = {
 
 const actionLabels: Record<string, string> = {
   PASSWORD_CHANGED: "Mengubah password",
+
   USER_CREATED: "Membuat pengguna",
+
   USER_UPDATED: "Memperbarui pengguna",
+
   POST_CREATED: "Membuat berita",
+
   POST_UPDATED: "Memperbarui berita",
+
   POST_PUBLISHED: "Menerbitkan berita",
+
+  CONTACT_MESSAGE_READ: "Membaca pesan kontak",
+
+  CONTACT_MESSAGE_UPDATED: "Memperbarui pesan kontak",
 };
 
 function formatDate(date: Date): string {
   return new Intl.DateTimeFormat("id-ID", {
     dateStyle: "medium",
     timeStyle: "short",
+    timeZone: "Asia/Jakarta",
   }).format(date);
 }
 
@@ -108,6 +118,7 @@ export default async function DashboardPage() {
       where: {
         isActive: true,
       },
+
       select: {
         academicYear: true,
         status: true,
@@ -117,14 +128,17 @@ export default async function DashboardPage() {
 
     prisma.auditLog.findMany({
       take: 5,
+
       orderBy: {
         createdAt: "desc",
       },
+
       select: {
         id: true,
         action: true,
         entity: true,
         createdAt: true,
+
         actor: {
           select: {
             name: true,
@@ -181,7 +195,7 @@ export default async function DashboardPage() {
 
   return (
     <div className="space-y-6">
-      <div>
+      <header>
         <h1 className="text-2xl font-bold tracking-tight md:text-3xl">
           Dashboard
         </h1>
@@ -189,7 +203,7 @@ export default async function DashboardPage() {
         <p className="mt-1 text-sm text-muted-foreground">
           Ringkasan konten dan aktivitas website sekolah.
         </p>
-      </div>
+      </header>
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {statistics.map((statistic) => {
@@ -206,9 +220,7 @@ export default async function DashboardPage() {
               </CardHeader>
 
               <CardContent>
-                <div className="text-2xl font-bold">
-                  {statistic.value}
-                </div>
+                <div className="text-2xl font-bold">{statistic.value}</div>
 
                 <p className="text-xs text-muted-foreground">
                   {statistic.description}
@@ -219,14 +231,14 @@ export default async function DashboardPage() {
         })}
       </div>
 
+      <ContactMessageDashboardCard />
+
       <div className="grid gap-6 lg:grid-cols-2">
         <Card>
           <CardHeader>
             <div className="flex items-start justify-between gap-4">
               <div>
-                <CardTitle>
-                  Informasi PPDB
-                </CardTitle>
+                <CardTitle>Informasi PPDB</CardTitle>
 
                 <CardDescription>
                   Periode informasi PPDB yang sedang aktif.
@@ -242,19 +254,13 @@ export default async function DashboardPage() {
               <div className="space-y-3">
                 <div className="flex flex-wrap items-center gap-2">
                   <Badge>
-                    {ppdbStatusLabels[
-                      activePpdb.status
-                    ] ?? activePpdb.status}
+                    {ppdbStatusLabels[activePpdb.status] ?? activePpdb.status}
                   </Badge>
 
-                  <Badge variant="outline">
-                    {activePpdb.academicYear}
-                  </Badge>
+                  <Badge variant="outline">{activePpdb.academicYear}</Badge>
                 </div>
 
-                <p className="font-medium">
-                  {activePpdb.title}
-                </p>
+                <p className="font-medium">{activePpdb.title}</p>
               </div>
             ) : (
               <div className="rounded-lg border border-dashed p-6 text-center">
@@ -263,8 +269,7 @@ export default async function DashboardPage() {
                 </p>
 
                 <p className="mt-1 text-xs text-muted-foreground">
-                  Informasi PPDB dapat dibuat melalui menu
-                  Informasi PPDB.
+                  Informasi PPDB dapat dibuat melalui menu Informasi PPDB.
                 </p>
               </div>
             )}
@@ -273,9 +278,7 @@ export default async function DashboardPage() {
 
         <Card>
           <CardHeader>
-            <CardTitle>
-              Aktivitas Terbaru
-            </CardTitle>
+            <CardTitle>Aktivitas Terbaru</CardTitle>
 
             <CardDescription>
               Lima aktivitas administrasi terakhir.
@@ -292,14 +295,11 @@ export default async function DashboardPage() {
                   >
                     <div className="min-w-0">
                       <p className="truncate text-sm font-medium">
-                        {actionLabels[log.action] ??
-                          log.action}
+                        {actionLabels[log.action] ?? log.action}
                       </p>
 
                       <p className="truncate text-xs text-muted-foreground">
-                        {log.actor?.name ??
-                          "Sistem"}{" "}
-                        · {log.entity}
+                        {log.actor?.name ?? "Sistem"} · {log.entity}
                       </p>
                     </div>
 

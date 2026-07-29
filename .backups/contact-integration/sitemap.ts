@@ -1,7 +1,7 @@
-import type { MetadataRoute } from "next";
+import type { MetadataRoute } from 'next';
 
-import { prisma } from "@/lib/prisma";
-import { getSiteUrl } from "@/lib/site-url";
+import { prisma } from '@/lib/prisma';
+import { getSiteUrl } from '@/lib/site-url';
 
 type SitemapEntry = MetadataRoute.Sitemap[number];
 
@@ -13,7 +13,7 @@ function createEntry({
 }: {
   path: string;
   lastModified?: Date;
-  changeFrequency: SitemapEntry["changeFrequency"];
+  changeFrequency: SitemapEntry['changeFrequency'];
   priority: number;
 }): SitemapEntry {
   return {
@@ -27,73 +27,73 @@ function createEntry({
 function getStaticEntries(): MetadataRoute.Sitemap {
   return [
     createEntry({
-      path: "/",
-      changeFrequency: "weekly",
+      path: '/',
+      changeFrequency: 'weekly',
       priority: 1,
     }),
     createEntry({
-      path: "/profil",
-      changeFrequency: "monthly",
+      path: '/profil',
+      changeFrequency: 'monthly',
       priority: 0.9,
     }),
     createEntry({
-      path: "/program",
-      changeFrequency: "weekly",
+      path: '/program',
+      changeFrequency: 'weekly',
       priority: 0.9,
     }),
     createEntry({
-      path: "/fasilitas",
-      changeFrequency: "monthly",
+      path: '/fasilitas',
+      changeFrequency: 'monthly',
       priority: 0.8,
     }),
     createEntry({
-      path: "/guru",
-      changeFrequency: "monthly",
+      path: '/guru',
+      changeFrequency: 'monthly',
       priority: 0.8,
     }),
     createEntry({
-      path: "/prestasi",
-      changeFrequency: "weekly",
+      path: '/prestasi',
+      changeFrequency: 'weekly',
       priority: 0.8,
     }),
     createEntry({
-      path: "/ekstrakurikuler",
-      changeFrequency: "monthly",
+      path: '/ekstrakurikuler',
+      changeFrequency: 'monthly',
       priority: 0.8,
     }),
     createEntry({
-      path: "/berita",
-      changeFrequency: "daily",
+      path: '/berita',
+      changeFrequency: 'daily',
       priority: 0.9,
     }),
     createEntry({
-      path: "/pengumuman",
-      changeFrequency: "daily",
+      path: '/pengumuman',
+      changeFrequency: 'daily',
       priority: 0.9,
     }),
     createEntry({
-      path: "/galeri",
-      changeFrequency: "weekly",
+      path: '/galeri',
+      changeFrequency: 'weekly',
       priority: 0.8,
     }),
     createEntry({
-      path: "/dokumen",
-      changeFrequency: "weekly",
+      path: '/dokumen',
+      changeFrequency: 'weekly',
       priority: 0.7,
     }),
     createEntry({
-      path: "/faq",
-      changeFrequency: "monthly",
+      path: '/faq',
+      changeFrequency: 'monthly',
       priority: 0.7,
     }),
     createEntry({
-      path: "/testimoni",
-      changeFrequency: "monthly",
+      path: '/testimoni',
+      changeFrequency: 'monthly',
       priority: 0.7,
     }),
     createEntry({
-      path: "/ppdb",
-      changeFrequency: "weekly",
+      path: '/ppdb',
+      changeFrequency: 'weekly',
       priority: 0.9,
     }),
   ];
@@ -117,7 +117,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ] = await Promise.all([
       prisma.post.findMany({
         where: {
-          status: "PUBLISHED",
+          status: 'PUBLISHED',
           OR: [
             {
               publishedAt: null,
@@ -277,7 +277,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         createEntry({
           path: `/berita/${post.slug}`,
           lastModified: post.updatedAt,
-          changeFrequency: "monthly",
+          changeFrequency: 'monthly',
           priority: 0.8,
         }),
       ),
@@ -286,7 +286,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         createEntry({
           path: `/pengumuman/${announcement.slug}`,
           lastModified: announcement.updatedAt,
-          changeFrequency: "weekly",
+          changeFrequency: 'weekly',
           priority: 0.8,
         }),
       ),
@@ -295,7 +295,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         createEntry({
           path: `/galeri/${album.slug}`,
           lastModified: album.updatedAt,
-          changeFrequency: "monthly",
+          changeFrequency: 'monthly',
           priority: 0.7,
         }),
       ),
@@ -304,7 +304,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         createEntry({
           path: `/dokumen/${document.slug}`,
           lastModified: document.updatedAt,
-          changeFrequency: "monthly",
+          changeFrequency: 'monthly',
           priority: 0.6,
         }),
       ),
@@ -313,7 +313,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         createEntry({
           path: `/program/${program.slug}`,
           lastModified: program.updatedAt,
-          changeFrequency: "monthly",
+          changeFrequency: 'monthly',
           priority: 0.8,
         }),
       ),
@@ -322,7 +322,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         createEntry({
           path: `/fasilitas/${facility.slug}`,
           lastModified: facility.updatedAt,
-          changeFrequency: "monthly",
+          changeFrequency: 'monthly',
           priority: 0.7,
         }),
       ),
@@ -331,7 +331,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         createEntry({
           path: `/prestasi/${achievement.slug}`,
           lastModified: achievement.updatedAt,
-          changeFrequency: "monthly",
+          changeFrequency: 'monthly',
           priority: 0.7,
         }),
       ),
@@ -340,7 +340,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         createEntry({
           path: `/ekstrakurikuler/${extracurricular.slug}`,
           lastModified: extracurricular.updatedAt,
-          changeFrequency: "monthly",
+          changeFrequency: 'monthly',
           priority: 0.7,
         }),
       ),
@@ -349,7 +349,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         createEntry({
           path: `/guru/${teacher.slug}`,
           lastModified: teacher.updatedAt,
-          changeFrequency: "monthly",
+          changeFrequency: 'monthly',
           priority: 0.6,
         }),
       ),
@@ -357,7 +357,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
     return [...staticEntries, ...dynamicEntries];
   } catch (error) {
-    console.error("Gagal membangun sitemap dinamis:", error);
+    console.error('Gagal membangun sitemap dinamis:', error);
 
     return staticEntries;
   }
