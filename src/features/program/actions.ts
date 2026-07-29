@@ -9,7 +9,7 @@ import { prisma } from '@/lib/prisma';
 
 import { programFormSchema, programIdSchema } from './schemas';
 import type { ProgramActionState, ProgramFieldName } from './types';
-import { createSlug } from './utils';
+import { createSlug } from '@/lib/slug';
 
 const editableRoles = [UserRole.SUPER_ADMIN, UserRole.CONTENT_ADMIN] as const;
 
