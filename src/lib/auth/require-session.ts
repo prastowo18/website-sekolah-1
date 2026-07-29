@@ -6,11 +6,11 @@ export async function requireAdminSession() {
   const session = await getCurrentSession();
 
   if (!session) {
-    redirect("/admin/login");
+    redirect("/konsol-8m4q7x2k9v6d/login");
   }
 
   if (session.user.mustChangePassword) {
-    redirect("/admin/ubah-password");
+    redirect("/konsol-8m4q7x2k9v6d/ubah-password");
   }
 
   return session;

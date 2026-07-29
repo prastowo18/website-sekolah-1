@@ -13,13 +13,10 @@ export type AchievementFieldName =
 export type AchievementActionState = {
   status: "idle" | "success" | "error";
   message?: string;
-  fieldErrors?: Partial<
-    Record<AchievementFieldName, string[]>
-  >;
+  fieldErrors?: Partial<Record<AchievementFieldName, string[]>>;
   achievementId?: string;
 };
 
-export const initialAchievementActionState: AchievementActionState =
-  {
-    status: "idle",
-  };
+export const initialAchievementActionState: AchievementActionState = {
+  status: "idle",
+};

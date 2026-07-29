@@ -82,7 +82,7 @@ export async function ContactMessageDashboardCard() {
               {summary.recentMessages.map((message) => (
                 <Link
                   key={message.id}
-                  href={`/admin/pesan-kontak/${message.id}`}
+                  href={`/konsol-8m4q7x2k9v6d/pesan-kontak/${message.id}`}
                   className="flex items-start justify-between gap-4 p-4 transition-colors hover:bg-muted/50"
                 >
                   <div className="min-w-0">
@@ -125,7 +125,7 @@ export async function ContactMessageDashboardCard() {
         )}
 
         <Button variant="outline" asChild>
-          <Link href="/admin/pesan-kontak">
+          <Link href="/konsol-8m4q7x2k9v6d/pesan-kontak">
             Kelola semua pesan
             <ArrowRight className="size-4" />
           </Link>

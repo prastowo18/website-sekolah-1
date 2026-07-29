@@ -47,7 +47,7 @@ export function AdminSidebar({ user, newMessageCount }: AdminSidebarProps) {
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton asChild size="lg" tooltip="Website Sekolah">
-              <Link href="/admin/dashboard">
+              <Link href="/konsol-8m4q7x2k9v6d/dashboard">
                 <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
                   <GraduationCap className="size-4" />
                 </div>

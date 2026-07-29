@@ -1,16 +1,9 @@
 "use client";
 
 import { Pencil, Plus } from "lucide-react";
-import {
-  startTransition,
-  useActionState,
-  useState,
-} from "react";
+import { startTransition, useActionState, useState } from "react";
 
-import {
-  Alert,
-  AlertDescription,
-} from "@/components/ui/alert";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -71,37 +64,29 @@ const emptyValues: TeacherFormValues = {
   isActive: true,
 };
 
-export function TeacherFormDialog({
-  teacher,
-}: TeacherFormDialogProps) {
+export function TeacherFormDialog({ teacher }: TeacherFormDialogProps) {
   const [open, setOpen] = useState(false);
   const isEdit = teacher !== undefined;
 
-  const action = isEdit
-    ? updateTeacherAction
-    : createTeacherAction;
+  const action = isEdit ? updateTeacherAction : createTeacherAction;
 
-  const [state, formAction, isPending] =
-    useActionState(
-      async (
-        previousState: TeacherActionState,
-        formData: FormData,
-      ): Promise<TeacherActionState> => {
-        const nextState = await action(
-          previousState,
-          formData,
-        );
+  const [state, formAction, isPending] = useActionState(
+    async (
+      previousState: TeacherActionState,
+      formData: FormData,
+    ): Promise<TeacherActionState> => {
+      const nextState = await action(previousState, formData);
 
-        if (nextState.status === "success") {
-          startTransition(() => {
-            setOpen(false);
-          });
-        }
+      if (nextState.status === "success") {
+        startTransition(() => {
+          setOpen(false);
+        });
+      }
 
-        return nextState;
-      },
-      initialTeacherActionState,
-    );
+      return nextState;
+    },
+    initialTeacherActionState,
+  );
 
   useActionToast(state);
 
@@ -109,42 +94,31 @@ export function TeacherFormDialog({
     ? {
         name: teacher.name,
         slug: teacher.slug,
-        employeeNumber:
-          teacher.employeeNumber ?? "",
+        employeeNumber: teacher.employeeNumber ?? "",
         position: teacher.position ?? "",
         subject: teacher.subject ?? "",
         education: teacher.education ?? "",
-        shortBiography:
-          teacher.shortBiography ?? "",
+        shortBiography: teacher.shortBiography ?? "",
         sortOrder: teacher.sortOrder,
         isPrincipal: teacher.isPrincipal,
         isActive: teacher.isActive,
       }
     : emptyValues;
 
-  const formId = teacher
-    ? `edit-teacher-${teacher.id}`
-    : "create-teacher";
+  const formId = teacher ? `edit-teacher-${teacher.id}` : "create-teacher";
 
   const formVersion = teacher
     ? `${teacher.id}-${teacher.updatedAt}`
     : `create-${state.teacherId ?? "new"}`;
 
   return (
-    <Dialog
-      open={open}
-      onOpenChange={setOpen}
-    >
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button
           variant={isEdit ? "outline" : "default"}
           size={isEdit ? "sm" : "default"}
         >
-          {isEdit ? (
-            <Pencil className="size-4" />
-          ) : (
-            <Plus className="size-4" />
-          )}
+          {isEdit ? <Pencil className="size-4" /> : <Plus className="size-4" />}
 
           {isEdit ? "Edit" : "Tambah guru"}
         </Button>
@@ -152,11 +126,7 @@ export function TeacherFormDialog({
 
       <DialogContent className="max-h-[90svh] overflow-y-auto sm:max-w-2xl">
         <DialogHeader>
-          <DialogTitle>
-            {isEdit
-              ? "Edit data guru"
-              : "Tambah guru"}
-          </DialogTitle>
+          <DialogTitle>{isEdit ? "Edit data guru" : "Tambah guru"}</DialogTitle>
 
           <DialogDescription>
             {isEdit
@@ -165,25 +135,14 @@ export function TeacherFormDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <form
-          action={formAction}
-          className="space-y-6"
-          noValidate
-        >
+        <form action={formAction} className="space-y-6" noValidate>
           {teacher ? (
-            <input
-              type="hidden"
-              name="id"
-              value={teacher.id}
-            />
+            <input type="hidden" name="id" value={teacher.id} />
           ) : null}
 
-          {state.status === "error" &&
-          state.message ? (
+          {state.status === "error" && state.message ? (
             <Alert variant="destructive">
-              <AlertDescription>
-                {state.message}
-              </AlertDescription>
+              <AlertDescription>{state.message}</AlertDescription>
             </Alert>
           ) : null}
 
@@ -197,19 +156,12 @@ export function TeacherFormDialog({
 
           <DialogFooter>
             <DialogClose asChild>
-              <Button
-                type="button"
-                variant="outline"
-                disabled={isPending}
-              >
+              <Button type="button" variant="outline" disabled={isPending}>
                 Batal
               </Button>
             </DialogClose>
 
-            <Button
-              type="submit"
-              disabled={isPending}
-            >
+            <Button type="submit" disabled={isPending}>
               {isPending ? (
                 <>
                   <Spinner data-icon="inline-start" />

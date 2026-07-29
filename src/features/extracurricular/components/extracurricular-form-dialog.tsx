@@ -1,16 +1,9 @@
 "use client";
 
 import { Pencil, Plus } from "lucide-react";
-import {
-  startTransition,
-  useActionState,
-  useState,
-} from "react";
+import { startTransition, useActionState, useState } from "react";
 
-import {
-  Alert,
-  AlertDescription,
-} from "@/components/ui/alert";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -77,50 +70,38 @@ export function ExtracurricularFormDialog({
     ? updateExtracurricularAction
     : createExtracurricularAction;
 
-  const [state, formAction, isPending] =
-    useActionState(
-      async (
-        previousState: ExtracurricularActionState,
-        formData: FormData,
-      ): Promise<ExtracurricularActionState> => {
-        const nextState = await action(
-          previousState,
-          formData,
-        );
+  const [state, formAction, isPending] = useActionState(
+    async (
+      previousState: ExtracurricularActionState,
+      formData: FormData,
+    ): Promise<ExtracurricularActionState> => {
+      const nextState = await action(previousState, formData);
 
-        if (nextState.status === "success") {
-          startTransition(() => {
-            setOpen(false);
-          });
-        }
+      if (nextState.status === "success") {
+        startTransition(() => {
+          setOpen(false);
+        });
+      }
 
-        return nextState;
-      },
-      initialExtracurricularActionState,
-    );
+      return nextState;
+    },
+    initialExtracurricularActionState,
+  );
 
   useActionToast(state);
 
-  const values: ExtracurricularFormValues =
-    extracurricular
-      ? {
-          name: extracurricular.name,
-          slug: extracurricular.slug,
-          description:
-            extracurricular.description ?? "",
-          schedule:
-            extracurricular.schedule ?? "",
-          coach: extracurricular.coach ?? "",
-          targetClasses:
-            extracurricular.targetClasses.join(
-              "\n",
-            ),
-          sortOrder:
-            extracurricular.sortOrder,
-          isActive:
-            extracurricular.isActive,
-        }
-      : emptyValues;
+  const values: ExtracurricularFormValues = extracurricular
+    ? {
+        name: extracurricular.name,
+        slug: extracurricular.slug,
+        description: extracurricular.description ?? "",
+        schedule: extracurricular.schedule ?? "",
+        coach: extracurricular.coach ?? "",
+        targetClasses: extracurricular.targetClasses.join("\n"),
+        sortOrder: extracurricular.sortOrder,
+        isActive: extracurricular.isActive,
+      }
+    : emptyValues;
 
   const formId = extracurricular
     ? `edit-extracurricular-${extracurricular.id}`
@@ -131,37 +112,22 @@ export function ExtracurricularFormDialog({
     : `create-${state.extracurricularId ?? "new"}`;
 
   return (
-    <Dialog
-      open={open}
-      onOpenChange={setOpen}
-    >
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button
-          variant={
-            isEdit ? "outline" : "default"
-          }
-          size={
-            isEdit ? "sm" : "default"
-          }
+          variant={isEdit ? "outline" : "default"}
+          size={isEdit ? "sm" : "default"}
         >
-          {isEdit ? (
-            <Pencil className="size-4" />
-          ) : (
-            <Plus className="size-4" />
-          )}
+          {isEdit ? <Pencil className="size-4" /> : <Plus className="size-4" />}
 
-          {isEdit
-            ? "Edit"
-            : "Tambah ekstrakurikuler"}
+          {isEdit ? "Edit" : "Tambah ekstrakurikuler"}
         </Button>
       </DialogTrigger>
 
       <DialogContent className="max-h-[90svh] overflow-y-auto sm:max-w-2xl">
         <DialogHeader>
           <DialogTitle>
-            {isEdit
-              ? "Edit ekstrakurikuler"
-              : "Tambah ekstrakurikuler"}
+            {isEdit ? "Edit ekstrakurikuler" : "Tambah ekstrakurikuler"}
           </DialogTitle>
 
           <DialogDescription>
@@ -171,25 +137,14 @@ export function ExtracurricularFormDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <form
-          action={formAction}
-          className="space-y-6"
-          noValidate
-        >
+        <form action={formAction} className="space-y-6" noValidate>
           {extracurricular ? (
-            <input
-              type="hidden"
-              name="id"
-              value={extracurricular.id}
-            />
+            <input type="hidden" name="id" value={extracurricular.id} />
           ) : null}
 
-          {state.status === "error" &&
-          state.message ? (
+          {state.status === "error" && state.message ? (
             <Alert variant="destructive">
-              <AlertDescription>
-                {state.message}
-              </AlertDescription>
+              <AlertDescription>{state.message}</AlertDescription>
             </Alert>
           ) : null}
 
@@ -203,19 +158,12 @@ export function ExtracurricularFormDialog({
 
           <DialogFooter>
             <DialogClose asChild>
-              <Button
-                type="button"
-                variant="outline"
-                disabled={isPending}
-              >
+              <Button type="button" variant="outline" disabled={isPending}>
                 Batal
               </Button>
             </DialogClose>
 
-            <Button
-              type="submit"
-              disabled={isPending}
-            >
+            <Button type="submit" disabled={isPending}>
               {isPending ? (
                 <>
                   <Spinner data-icon="inline-start" />

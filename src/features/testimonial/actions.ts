@@ -60,8 +60,8 @@ function toAuditValue(testimonial: TestimonialRecord) {
 function revalidateTestimonialPaths(): void {
   revalidatePath("/");
   revalidatePath("/testimoni");
-  revalidatePath("/admin/testimoni");
-  revalidatePath("/admin/dashboard");
+  revalidatePath("/konsol-8m4q7x2k9v6d/testimoni");
+  revalidatePath("/konsol-8m4q7x2k9v6d/dashboard");
 }
 
 export async function createTestimonialAction(

@@ -1,10 +1,6 @@
 import { z } from "zod";
 
-const achievementTypeSchema = z.enum([
-  "STUDENT",
-  "TEACHER",
-  "SCHOOL",
-]);
+const achievementTypeSchema = z.enum(["STUDENT", "TEACHER", "SCHOOL"]);
 
 const competitionLevelSchema = z.enum([
   "SCHOOL",
@@ -15,10 +11,7 @@ const competitionLevelSchema = z.enum([
   "INTERNATIONAL",
 ]);
 
-function optionalText(
-  maximumLength: number,
-  message: string,
-) {
+function optionalText(maximumLength: number, message: string) {
   return z
     .string()
     .trim()
@@ -30,35 +23,25 @@ const optionalCompetitionLevel = z
   .string()
   .trim()
   .refine(
-    (value) =>
-      value === "" ||
-      competitionLevelSchema.safeParse(value).success,
+    (value) => value === "" || competitionLevelSchema.safeParse(value).success,
     "Tingkat kompetisi tidak valid.",
   )
   .transform((value) =>
-    value === ""
-      ? null
-      : competitionLevelSchema.parse(value),
+    value === "" ? null : competitionLevelSchema.parse(value),
   );
 
 const optionalDate = z
   .string()
   .trim()
   .refine(
-    (value) =>
-      value === "" ||
-      /^\d{4}-\d{2}-\d{2}$/.test(value),
+    (value) => value === "" || /^\d{4}-\d{2}-\d{2}$/.test(value),
     "Format tanggal prestasi tidak valid.",
   )
   .transform((value) =>
-    value === ""
-      ? null
-      : new Date(`${value}T00:00:00.000Z`),
+    value === "" ? null : new Date(`${value}T00:00:00.000Z`),
   )
   .refine(
-    (value) =>
-      value === null ||
-      !Number.isNaN(value.getTime()),
+    (value) => value === null || !Number.isNaN(value.getTime()),
     "Tanggal prestasi tidak valid.",
   );
 
@@ -70,19 +53,14 @@ const booleanFromForm = z
     z.literal(""),
   ])
   .optional()
-  .transform(
-    (value) => value === "on" || value === "true",
-  );
+  .transform((value) => value === "on" || value === "true");
 
 export const achievementFormSchema = z.object({
   title: z
     .string()
     .trim()
     .min(1, "Judul prestasi wajib diisi.")
-    .max(
-      220,
-      "Judul prestasi maksimal 220 karakter.",
-    ),
+    .max(220, "Judul prestasi maksimal 220 karakter."),
 
   slug: z
     .string()
@@ -93,10 +71,7 @@ export const achievementFormSchema = z.object({
 
   achievementType: achievementTypeSchema,
 
-  category: optionalText(
-    120,
-    "Kategori maksimal 120 karakter.",
-  ),
+  category: optionalText(120, "Kategori maksimal 120 karakter."),
 
   winnerName: optionalText(
     180,
@@ -105,17 +80,11 @@ export const achievementFormSchema = z.object({
 
   competitionLevel: optionalCompetitionLevel,
 
-  rank: optionalText(
-    80,
-    "Peringkat maksimal 80 karakter.",
-  ),
+  rank: optionalText(80, "Peringkat maksimal 80 karakter."),
 
   achievementDate: optionalDate,
 
-  description: optionalText(
-    20_000,
-    "Deskripsi maksimal 20.000 karakter.",
-  ),
+  description: optionalText(20_000, "Deskripsi maksimal 20.000 karakter."),
 
   isPublished: booleanFromForm,
 });

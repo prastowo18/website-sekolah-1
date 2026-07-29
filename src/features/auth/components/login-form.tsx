@@ -1,14 +1,14 @@
-'use client';
+"use client";
 
-import { useActionState } from 'react';
+import { useActionState } from "react";
 
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Spinner } from '@/components/ui/spinner';
-import { loginAction } from '@/features/auth/actions';
-import { initialAuthActionState } from '@/features/auth/types';
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Spinner } from "@/components/ui/spinner";
+import { loginAction } from "@/features/auth/actions";
+import { initialAuthActionState } from "@/features/auth/types";
 
 export function LoginForm() {
   const [state, formAction, isPending] = useActionState(
@@ -22,7 +22,7 @@ export function LoginForm() {
 
   return (
     <form action={formAction} className="space-y-5" noValidate>
-      {state.status === 'error' && state.message ? (
+      {state.status === "error" && state.message ? (
         <Alert variant="destructive" role="alert">
           <AlertDescription>{state.message}</AlertDescription>
         </Alert>
@@ -41,7 +41,7 @@ export function LoginForm() {
           spellCheck={false}
           disabled={isPending}
           aria-invalid={Boolean(identifierError)}
-          aria-describedby={identifierError ? 'identifier-error' : undefined}
+          aria-describedby={identifierError ? "identifier-error" : undefined}
           required
           autoFocus
         />
@@ -64,7 +64,7 @@ export function LoginForm() {
           autoComplete="current-password"
           disabled={isPending}
           aria-invalid={Boolean(passwordError)}
-          aria-describedby={passwordError ? 'password-error' : undefined}
+          aria-describedby={passwordError ? "password-error" : undefined}
           required
         />
 
@@ -82,7 +82,7 @@ export function LoginForm() {
             Memproses...
           </>
         ) : (
-          'Masuk'
+          "Masuk"
         )}
       </Button>
     </form>

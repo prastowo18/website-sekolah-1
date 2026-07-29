@@ -258,12 +258,12 @@ function revalidatePpdbPaths(
 ): void {
   revalidatePath("/");
   revalidatePath("/ppdb");
-  revalidatePath("/admin/ppdb");
-  revalidatePath("/admin/dashboard");
+  revalidatePath("/konsol-8m4q7x2k9v6d/ppdb");
+  revalidatePath("/konsol-8m4q7x2k9v6d/dashboard");
 
   for (const id of new Set(ppdbIds)) {
     if (id) {
-      revalidatePath(`/admin/ppdb/${id}`);
+      revalidatePath(`/konsol-8m4q7x2k9v6d/ppdb/${id}`);
     }
   }
 }

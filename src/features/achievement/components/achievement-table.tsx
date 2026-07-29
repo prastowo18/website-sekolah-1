@@ -1,7 +1,4 @@
-import {
-  ImageOff,
-  Trophy,
-} from "lucide-react";
+import { ImageOff, Trophy } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import {
@@ -23,17 +20,14 @@ import {
   type EditableAchievement,
 } from "./achievement-form-dialog";
 
-export type AchievementListItem =
-  EditableAchievement;
+export type AchievementListItem = EditableAchievement;
 
 type AchievementTableProps = {
   achievements: AchievementListItem[];
   canEdit: boolean;
 };
 
-function formatDate(
-  value: string | null,
-): string {
+function formatDate(value: string | null): string {
   if (!value) {
     return "—";
   }
@@ -41,9 +35,7 @@ function formatDate(
   return new Intl.DateTimeFormat("id-ID", {
     dateStyle: "medium",
     timeZone: "UTC",
-  }).format(
-    new Date(`${value}T00:00:00.000Z`),
-  );
+  }).format(new Date(`${value}T00:00:00.000Z`));
 }
 
 export function AchievementTable({
@@ -55,13 +47,10 @@ export function AchievementTable({
       <div className="rounded-lg border border-dashed p-10 text-center">
         <Trophy className="mx-auto size-8 text-muted-foreground" />
 
-        <p className="mt-3 font-medium">
-          Prestasi tidak ditemukan
-        </p>
+        <p className="mt-3 font-medium">Prestasi tidak ditemukan</p>
 
         <p className="mt-1 text-sm text-muted-foreground">
-          Tambahkan prestasi baru atau ubah
-          pencarian dan filter yang digunakan.
+          Tambahkan prestasi baru atau ubah pencarian dan filter yang digunakan.
         </p>
       </div>
     );
@@ -79,122 +68,85 @@ export function AchievementTable({
             <TableHead>Status</TableHead>
 
             {canEdit ? (
-              <TableHead className="text-right">
-                Tindakan
-              </TableHead>
+              <TableHead className="text-right">Tindakan</TableHead>
             ) : null}
           </TableRow>
         </TableHeader>
 
         <TableBody>
-          {achievements.map(
-            (achievement) => (
-              <TableRow key={achievement.id}>
-                <TableCell>
-                  <div className="flex min-w-72 items-start gap-3">
-                    <div className="flex size-12 shrink-0 items-center justify-center rounded-md border bg-muted">
-                      <ImageOff className="size-5 text-muted-foreground" />
-                    </div>
+          {achievements.map((achievement) => (
+            <TableRow key={achievement.id}>
+              <TableCell>
+                <div className="flex min-w-72 items-start gap-3">
+                  <div className="flex size-12 shrink-0 items-center justify-center rounded-md border bg-muted">
+                    <ImageOff className="size-5 text-muted-foreground" />
+                  </div>
 
-                    <div className="min-w-0">
-                      <p className="font-medium">
-                        {achievement.title}
-                      </p>
+                  <div className="min-w-0">
+                    <p className="font-medium">{achievement.title}</p>
 
-                      <div className="mt-2 flex flex-wrap gap-2">
-                        <Badge variant="outline">
-                          {
-                            achievementTypeLabels[
-                              achievement
-                                .achievementType
-                            ]
-                          }
+                    <div className="mt-2 flex flex-wrap gap-2">
+                      <Badge variant="outline">
+                        {achievementTypeLabels[achievement.achievementType]}
+                      </Badge>
+
+                      {achievement.category ? (
+                        <Badge variant="secondary">
+                          {achievement.category}
                         </Badge>
-
-                        {achievement.category ? (
-                          <Badge variant="secondary">
-                            {
-                              achievement.category
-                            }
-                          </Badge>
-                        ) : null}
-                      </div>
-
-                      <p className="mt-2 text-xs text-muted-foreground">
-                        /prestasi/
-                        {achievement.slug}
-                      </p>
+                      ) : null}
                     </div>
-                  </div>
-                </TableCell>
 
-                <TableCell>
-                  <div className="min-w-36">
-                    <p>
-                      {achievement.winnerName ??
-                        "—"}
+                    <p className="mt-2 text-xs text-muted-foreground">
+                      /prestasi/
+                      {achievement.slug}
                     </p>
+                  </div>
+                </div>
+              </TableCell>
 
-                    {achievement.rank ? (
-                      <p className="mt-1 text-xs text-muted-foreground">
-                        {achievement.rank}
-                      </p>
-                    ) : null}
+              <TableCell>
+                <div className="min-w-36">
+                  <p>{achievement.winnerName ?? "—"}</p>
+
+                  {achievement.rank ? (
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      {achievement.rank}
+                    </p>
+                  ) : null}
+                </div>
+              </TableCell>
+
+              <TableCell>
+                {achievement.competitionLevel
+                  ? competitionLevelLabels[achievement.competitionLevel]
+                  : "—"}
+              </TableCell>
+
+              <TableCell>{formatDate(achievement.achievementDate)}</TableCell>
+
+              <TableCell>
+                <Badge
+                  variant={achievement.isPublished ? "default" : "secondary"}
+                >
+                  {achievement.isPublished ? "Terbit" : "Draft"}
+                </Badge>
+              </TableCell>
+
+              {canEdit ? (
+                <TableCell>
+                  <div className="flex justify-end gap-2">
+                    <AchievementFormDialog achievement={achievement} />
+
+                    <AchievementDeleteDialog
+                      achievementId={achievement.id}
+                      achievementTitle={achievement.title}
+                    />
                   </div>
                 </TableCell>
-
-                <TableCell>
-                  {achievement.competitionLevel
-                    ? competitionLevelLabels[
-                        achievement
-                          .competitionLevel
-                      ]
-                    : "—"}
-                </TableCell>
-
-                <TableCell>
-                  {formatDate(
-                    achievement.achievementDate,
-                  )}
-                </TableCell>
-
-                <TableCell>
-                  <Badge
-                    variant={
-                      achievement.isPublished
-                        ? "default"
-                        : "secondary"
-                    }
-                  >
-                    {achievement.isPublished
-                      ? "Terbit"
-                      : "Draft"}
-                  </Badge>
-                </TableCell>
-
-                {canEdit ? (
-                  <TableCell>
-                    <div className="flex justify-end gap-2">
-                      <AchievementFormDialog
-                        achievement={
-                          achievement
-                        }
-                      />
-
-                      <AchievementDeleteDialog
-                        achievementId={
-                          achievement.id
-                        }
-                        achievementTitle={
-                          achievement.title
-                        }
-                      />
-                    </div>
-                  </TableCell>
-                ) : null}
-              </TableRow>
-            ),
-          )}
+              ) : null}
+            </TableRow>
+          ))}
         </TableBody>
       </Table>
     </div>

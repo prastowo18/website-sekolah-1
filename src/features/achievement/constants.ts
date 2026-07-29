@@ -1,11 +1,6 @@
-export const achievementTypes = [
-  "STUDENT",
-  "TEACHER",
-  "SCHOOL",
-] as const;
+export const achievementTypes = ["STUDENT", "TEACHER", "SCHOOL"] as const;
 
-export type AchievementTypeValue =
-  (typeof achievementTypes)[number];
+export type AchievementTypeValue = (typeof achievementTypes)[number];
 
 export const competitionLevels = [
   "SCHOOL",
@@ -16,22 +11,15 @@ export const competitionLevels = [
   "INTERNATIONAL",
 ] as const;
 
-export type CompetitionLevelValue =
-  (typeof competitionLevels)[number];
+export type CompetitionLevelValue = (typeof competitionLevels)[number];
 
-export const achievementTypeLabels: Record<
-  AchievementTypeValue,
-  string
-> = {
+export const achievementTypeLabels: Record<AchievementTypeValue, string> = {
   STUDENT: "Siswa",
   TEACHER: "Guru",
   SCHOOL: "Sekolah",
 };
 
-export const competitionLevelLabels: Record<
-  CompetitionLevelValue,
-  string
-> = {
+export const competitionLevelLabels: Record<CompetitionLevelValue, string> = {
   SCHOOL: "Sekolah",
   DISTRICT: "Kecamatan",
   CITY: "Kabupaten/Kota",

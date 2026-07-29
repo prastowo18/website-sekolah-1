@@ -1,14 +1,14 @@
-'use client';
+"use client";
 
-import { useActionState } from 'react';
+import { useActionState } from "react";
 
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Spinner } from '@/components/ui/spinner';
-import { changePasswordAction } from '@/features/auth/change-password-actions';
-import { initialChangePasswordActionState } from '@/features/auth/change-password-types';
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Spinner } from "@/components/ui/spinner";
+import { changePasswordAction } from "@/features/auth/change-password-actions";
+import { initialChangePasswordActionState } from "@/features/auth/change-password-types";
 
 export function ChangePasswordForm() {
   const [state, formAction, isPending] = useActionState(
@@ -24,7 +24,7 @@ export function ChangePasswordForm() {
 
   return (
     <form action={formAction} className="space-y-5" noValidate>
-      {state.status === 'error' && state.message ? (
+      {state.status === "error" && state.message ? (
         <Alert variant="destructive" role="alert">
           <AlertDescription>{state.message}</AlertDescription>
         </Alert>
@@ -42,7 +42,7 @@ export function ChangePasswordForm() {
           disabled={isPending}
           aria-invalid={Boolean(currentPasswordError)}
           aria-describedby={
-            currentPasswordError ? 'current-password-error' : undefined
+            currentPasswordError ? "current-password-error" : undefined
           }
           autoFocus
           required
@@ -67,7 +67,7 @@ export function ChangePasswordForm() {
           disabled={isPending}
           aria-invalid={Boolean(newPasswordError)}
           aria-describedby={
-            newPasswordError ? 'new-password-error' : 'new-password-help'
+            newPasswordError ? "new-password-error" : "new-password-help"
           }
           required
         />
@@ -95,7 +95,7 @@ export function ChangePasswordForm() {
           disabled={isPending}
           aria-invalid={Boolean(confirmPasswordError)}
           aria-describedby={
-            confirmPasswordError ? 'confirm-password-error' : undefined
+            confirmPasswordError ? "confirm-password-error" : undefined
           }
           required
         />
@@ -114,7 +114,7 @@ export function ChangePasswordForm() {
             Menyimpan...
           </>
         ) : (
-          'Simpan password baru'
+          "Simpan password baru"
         )}
       </Button>
     </form>

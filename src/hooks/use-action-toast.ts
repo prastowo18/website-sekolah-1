@@ -8,11 +8,8 @@ type ActionToastState = {
   message?: string;
 };
 
-export function useActionToast(
-  state: ActionToastState,
-): void {
-  const previousState =
-    useRef<ActionToastState | null>(null);
+export function useActionToast(state: ActionToastState): void {
+  const previousState = useRef<ActionToastState | null>(null);
 
   useEffect(() => {
     if (previousState.current === state) {
@@ -21,10 +18,7 @@ export function useActionToast(
 
     previousState.current = state;
 
-    if (
-      state.status === "idle" ||
-      !state.message
-    ) {
+    if (state.status === "idle" || !state.message) {
       return;
     }
 

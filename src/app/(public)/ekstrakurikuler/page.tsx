@@ -1,4 +1,4 @@
-import type { Metadata } from 'next';
+import type { Metadata } from "next";
 import {
   CalendarClock,
   ChevronLeft,
@@ -8,30 +8,30 @@ import {
   Search,
   Sparkles,
   UserRound,
-} from 'lucide-react';
-import Link from 'next/link';
+} from "lucide-react";
+import Link from "next/link";
 
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
+} from "@/components/ui/select";
 import {
   getPublicExtracurricularFilters,
   getPublicExtracurricularList,
-} from '@/features/extracurricular/public-queries';
-import { getSafePublicUrl } from '@/lib/public-links';
+} from "@/features/extracurricular/public-queries";
+import { getSafePublicUrl } from "@/lib/public-links";
 
 export const metadata: Metadata = {
-  title: 'Ekstrakurikuler',
+  title: "Ekstrakurikuler",
   description:
-    'Informasi kegiatan ekstrakurikuler untuk mengembangkan minat, bakat, kreativitas, kesehatan, dan keterampilan sosial siswa.',
+    "Informasi kegiatan ekstrakurikuler untuk mengembangkan minat, bakat, kreativitas, kesehatan, dan keterampilan sosial siswa.",
 };
 
 const PAGE_SIZE = 9;
@@ -43,7 +43,7 @@ type SearchParams = {
 };
 
 function firstValue(value: string | string[] | undefined): string {
-  return Array.isArray(value) ? (value[0] ?? '') : (value ?? '');
+  return Array.isArray(value) ? (value[0] ?? "") : (value ?? "");
 }
 
 function normalizePage(value: string): number {
@@ -64,20 +64,20 @@ function buildHref({
   const parameters = new URLSearchParams();
 
   if (q) {
-    parameters.set('q', q);
+    parameters.set("q", q);
   }
 
   if (targetClass) {
-    parameters.set('targetClass', targetClass);
+    parameters.set("targetClass", targetClass);
   }
 
   if (page > 1) {
-    parameters.set('page', String(page));
+    parameters.set("page", String(page));
   }
 
   const query = parameters.toString();
 
-  return query ? `/ekstrakurikuler?${query}` : '/ekstrakurikuler';
+  return query ? `/ekstrakurikuler?${query}` : "/ekstrakurikuler";
 }
 
 export default async function ExtracurricularPage({
@@ -99,7 +99,7 @@ export default async function ExtracurricularPage({
 
   const targetClass = filters.targetClasses.includes(requestedTargetClass)
     ? requestedTargetClass
-    : '';
+    : "";
 
   const result = await getPublicExtracurricularList({
     q,
@@ -152,7 +152,7 @@ export default async function ExtracurricularPage({
                 />
               </div>
 
-              <Select name="targetClass" defaultValue={targetClass || 'all'}>
+              <Select name="targetClass" defaultValue={targetClass || "all"}>
                 <SelectTrigger className="w-full">
                   <SelectValue placeholder="Semua kelas" />
                 </SelectTrigger>

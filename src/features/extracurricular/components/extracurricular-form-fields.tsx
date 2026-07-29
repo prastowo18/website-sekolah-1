@@ -46,10 +46,7 @@ function FieldError({
   }
 
   return (
-    <p
-      id={`${formId}-${field}-error`}
-      className="text-sm text-destructive"
-    >
+    <p id={`${formId}-${field}-error`} className="text-sm text-destructive">
       {message}
     </p>
   );
@@ -60,9 +57,7 @@ function getErrorId(
   field: ExtracurricularFieldName,
   errors?: ExtracurricularFieldErrors,
 ): string | undefined {
-  return errors?.[field]?.length
-    ? `${formId}-${field}-error`
-    : undefined;
+  return errors?.[field]?.length ? `${formId}-${field}-error` : undefined;
 }
 
 export function ExtracurricularFormFields({
@@ -71,17 +66,13 @@ export function ExtracurricularFormFields({
   errors,
   disabled = false,
 }: ExtracurricularFormFieldsProps) {
-  const [isActive, setIsActive] = useState(
-    values.isActive,
-  );
+  const [isActive, setIsActive] = useState(values.isActive);
 
   return (
     <div className="grid gap-5">
       <div className="grid gap-5 md:grid-cols-2">
         <div className="space-y-2">
-          <Label htmlFor={`${formId}-name`}>
-            Nama ekstrakurikuler
-          </Label>
+          <Label htmlFor={`${formId}-name`}>Nama ekstrakurikuler</Label>
 
           <Input
             id={`${formId}-name`}
@@ -90,28 +81,16 @@ export function ExtracurricularFormFields({
             placeholder="Contoh: Pramuka"
             maxLength={160}
             disabled={disabled}
-            aria-invalid={Boolean(
-              errors?.name?.length,
-            )}
-            aria-describedby={getErrorId(
-              formId,
-              "name",
-              errors,
-            )}
+            aria-invalid={Boolean(errors?.name?.length)}
+            aria-describedby={getErrorId(formId, "name", errors)}
             required
           />
 
-          <FieldError
-            formId={formId}
-            field="name"
-            errors={errors}
-          />
+          <FieldError formId={formId} field="name" errors={errors} />
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor={`${formId}-slug`}>
-            Slug
-          </Label>
+          <Label htmlFor={`${formId}-slug`}>Slug</Label>
 
           <Input
             id={`${formId}-slug`}
@@ -120,9 +99,7 @@ export function ExtracurricularFormFields({
             placeholder="Otomatis dari nama"
             maxLength={180}
             disabled={disabled}
-            aria-invalid={Boolean(
-              errors?.slug?.length,
-            )}
+            aria-invalid={Boolean(errors?.slug?.length)}
             aria-describedby={
               errors?.slug?.length
                 ? `${formId}-slug-error`
@@ -134,22 +111,15 @@ export function ExtracurricularFormFields({
             id={`${formId}-slug-help`}
             className="text-xs text-muted-foreground"
           >
-            Kosongkan agar slug dibuat otomatis
-            dari nama ekstrakurikuler.
+            Kosongkan agar slug dibuat otomatis dari nama ekstrakurikuler.
           </p>
 
-          <FieldError
-            formId={formId}
-            field="slug"
-            errors={errors}
-          />
+          <FieldError formId={formId} field="slug" errors={errors} />
         </div>
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor={`${formId}-description`}>
-          Deskripsi
-        </Label>
+        <Label htmlFor={`${formId}-description`}>Deskripsi</Label>
 
         <Textarea
           id={`${formId}-description`}
@@ -159,28 +129,16 @@ export function ExtracurricularFormFields({
           rows={7}
           maxLength={20000}
           disabled={disabled}
-          aria-invalid={Boolean(
-            errors?.description?.length,
-          )}
-          aria-describedby={getErrorId(
-            formId,
-            "description",
-            errors,
-          )}
+          aria-invalid={Boolean(errors?.description?.length)}
+          aria-describedby={getErrorId(formId, "description", errors)}
         />
 
-        <FieldError
-          formId={formId}
-          field="description"
-          errors={errors}
-        />
+        <FieldError formId={formId} field="description" errors={errors} />
       </div>
 
       <div className="grid gap-5 md:grid-cols-2">
         <div className="space-y-2">
-          <Label htmlFor={`${formId}-schedule`}>
-            Jadwal kegiatan
-          </Label>
+          <Label htmlFor={`${formId}-schedule`}>Jadwal kegiatan</Label>
 
           <Input
             id={`${formId}-schedule`}
@@ -189,27 +147,15 @@ export function ExtracurricularFormFields({
             placeholder="Contoh: Jumat, 14.00–16.00"
             maxLength={180}
             disabled={disabled}
-            aria-invalid={Boolean(
-              errors?.schedule?.length,
-            )}
-            aria-describedby={getErrorId(
-              formId,
-              "schedule",
-              errors,
-            )}
+            aria-invalid={Boolean(errors?.schedule?.length)}
+            aria-describedby={getErrorId(formId, "schedule", errors)}
           />
 
-          <FieldError
-            formId={formId}
-            field="schedule"
-            errors={errors}
-          />
+          <FieldError formId={formId} field="schedule" errors={errors} />
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor={`${formId}-coach`}>
-            Pembina
-          </Label>
+          <Label htmlFor={`${formId}-coach`}>Pembina</Label>
 
           <Input
             id={`${formId}-coach`}
@@ -218,44 +164,26 @@ export function ExtracurricularFormFields({
             placeholder="Nama guru atau pembina"
             maxLength={160}
             disabled={disabled}
-            aria-invalid={Boolean(
-              errors?.coach?.length,
-            )}
-            aria-describedby={getErrorId(
-              formId,
-              "coach",
-              errors,
-            )}
+            aria-invalid={Boolean(errors?.coach?.length)}
+            aria-describedby={getErrorId(formId, "coach", errors)}
           />
 
-          <FieldError
-            formId={formId}
-            field="coach"
-            errors={errors}
-          />
+          <FieldError formId={formId} field="coach" errors={errors} />
         </div>
       </div>
 
       <div className="space-y-2">
-        <Label
-          htmlFor={`${formId}-targetClasses`}
-        >
-          Kelompok kelas
-        </Label>
+        <Label htmlFor={`${formId}-targetClasses`}>Kelompok kelas</Label>
 
         <Textarea
           id={`${formId}-targetClasses`}
           name="targetClasses"
           defaultValue={values.targetClasses}
-          placeholder={
-            "Satu kelompok per baris\nContoh:\nKelas 1–3\nKelas 4–6"
-          }
+          placeholder={"Satu kelompok per baris\nContoh:\nKelas 1–3\nKelas 4–6"}
           rows={5}
           maxLength={5000}
           disabled={disabled}
-          aria-invalid={Boolean(
-            errors?.targetClasses?.length,
-          )}
+          aria-invalid={Boolean(errors?.targetClasses?.length)}
           aria-describedby={
             errors?.targetClasses?.length
               ? `${formId}-targetClasses-error`
@@ -267,21 +195,14 @@ export function ExtracurricularFormFields({
           id={`${formId}-targetClasses-help`}
           className="text-xs text-muted-foreground"
         >
-          Tulis satu kelompok kelas pada setiap
-          baris.
+          Tulis satu kelompok kelas pada setiap baris.
         </p>
 
-        <FieldError
-          formId={formId}
-          field="targetClasses"
-          errors={errors}
-        />
+        <FieldError formId={formId} field="targetClasses" errors={errors} />
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor={`${formId}-sortOrder`}>
-          Urutan tampil
-        </Label>
+        <Label htmlFor={`${formId}-sortOrder`}>Urutan tampil</Label>
 
         <Input
           id={`${formId}-sortOrder`}
@@ -291,32 +212,19 @@ export function ExtracurricularFormFields({
           min={0}
           max={9999}
           disabled={disabled}
-          aria-invalid={Boolean(
-            errors?.sortOrder?.length,
-          )}
-          aria-describedby={getErrorId(
-            formId,
-            "sortOrder",
-            errors,
-          )}
+          aria-invalid={Boolean(errors?.sortOrder?.length)}
+          aria-describedby={getErrorId(formId, "sortOrder", errors)}
         />
 
-        <FieldError
-          formId={formId}
-          field="sortOrder"
-          errors={errors}
-        />
+        <FieldError formId={formId} field="sortOrder" errors={errors} />
       </div>
 
       <div className="flex items-center justify-between gap-4 rounded-lg border p-4">
         <div className="space-y-1">
-          <Label htmlFor={`${formId}-isActive`}>
-            Ekstrakurikuler aktif
-          </Label>
+          <Label htmlFor={`${formId}-isActive`}>Ekstrakurikuler aktif</Label>
 
           <p className="text-xs text-muted-foreground">
-            Data aktif dapat ditampilkan pada
-            website publik.
+            Data aktif dapat ditampilkan pada website publik.
           </p>
         </div>
 

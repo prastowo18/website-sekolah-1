@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import { useSyncExternalStore } from 'react';
+import { useSyncExternalStore } from "react";
 
 const MOBILE_BREAKPOINT = 768;
 
@@ -9,10 +9,10 @@ const MOBILE_MEDIA_QUERY = `(max-width: ${MOBILE_BREAKPOINT - 1}px)`;
 function subscribe(callback: () => void) {
   const mediaQuery = window.matchMedia(MOBILE_MEDIA_QUERY);
 
-  mediaQuery.addEventListener('change', callback);
+  mediaQuery.addEventListener("change", callback);
 
   return () => {
-    mediaQuery.removeEventListener('change', callback);
+    mediaQuery.removeEventListener("change", callback);
   };
 }
 

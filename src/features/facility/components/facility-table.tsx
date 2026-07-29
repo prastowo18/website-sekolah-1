@@ -16,28 +16,22 @@ import {
   type EditableFacility,
 } from "./facility-form-dialog";
 
-export type FacilityListItem =
-  EditableFacility;
+export type FacilityListItem = EditableFacility;
 
 type FacilityTableProps = {
   facilities: FacilityListItem[];
   canEdit: boolean;
 };
 
-export function FacilityTable({
-  facilities,
-  canEdit,
-}: FacilityTableProps) {
+export function FacilityTable({ facilities, canEdit }: FacilityTableProps) {
   if (facilities.length === 0) {
     return (
       <div className="rounded-lg border border-dashed p-10 text-center">
-        <p className="font-medium">
-          Fasilitas tidak ditemukan
-        </p>
+        <p className="font-medium">Fasilitas tidak ditemukan</p>
 
         <p className="mt-1 text-sm text-muted-foreground">
-          Tambahkan fasilitas baru atau ubah
-          pencarian dan filter yang digunakan.
+          Tambahkan fasilitas baru atau ubah pencarian dan filter yang
+          digunakan.
         </p>
       </div>
     );
@@ -55,9 +49,7 @@ export function FacilityTable({
             <TableHead>Urutan</TableHead>
 
             {canEdit ? (
-              <TableHead className="text-right">
-                Tindakan
-              </TableHead>
+              <TableHead className="text-right">Tindakan</TableHead>
             ) : null}
           </TableRow>
         </TableHeader>
@@ -72,9 +64,7 @@ export function FacilityTable({
                   </div>
 
                   <div className="min-w-0">
-                    <p className="font-medium">
-                      {facility.name}
-                    </p>
+                    <p className="font-medium">{facility.name}</p>
 
                     <p className="mt-1 text-xs text-muted-foreground">
                       /fasilitas/{facility.slug}
@@ -93,9 +83,7 @@ export function FacilityTable({
                 {facility.capacity ? (
                   facility.capacity
                 ) : (
-                  <span className="text-muted-foreground">
-                    —
-                  </span>
+                  <span className="text-muted-foreground">—</span>
                 )}
               </TableCell>
 
@@ -103,36 +91,22 @@ export function FacilityTable({
                 {facility.condition ? (
                   facility.condition
                 ) : (
-                  <span className="text-muted-foreground">
-                    —
-                  </span>
+                  <span className="text-muted-foreground">—</span>
                 )}
               </TableCell>
 
               <TableCell>
-                <Badge
-                  variant={
-                    facility.isActive
-                      ? "default"
-                      : "secondary"
-                  }
-                >
-                  {facility.isActive
-                    ? "Aktif"
-                    : "Nonaktif"}
+                <Badge variant={facility.isActive ? "default" : "secondary"}>
+                  {facility.isActive ? "Aktif" : "Nonaktif"}
                 </Badge>
               </TableCell>
 
-              <TableCell>
-                {facility.sortOrder}
-              </TableCell>
+              <TableCell>{facility.sortOrder}</TableCell>
 
               {canEdit ? (
                 <TableCell>
                   <div className="flex justify-end gap-2">
-                    <FacilityFormDialog
-                      facility={facility}
-                    />
+                    <FacilityFormDialog facility={facility} />
 
                     <FacilityDeleteDialog
                       facilityId={facility.id}

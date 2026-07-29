@@ -1,4 +1,4 @@
-import type { Metadata } from 'next';
+import type { Metadata } from "next";
 import {
   ArrowRight,
   CalendarDays,
@@ -17,25 +17,25 @@ import {
   School,
   Sparkles,
   Users,
-} from 'lucide-react';
+} from "lucide-react";
 
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   ppdbFeeTypeLabels,
   ppdbStatusLabels,
   type PpdbStatusValue,
-} from '@/features/ppdb/constants';
-import { getActivePublicPpdb } from '@/features/ppdb/public-queries';
+} from "@/features/ppdb/constants";
+import { getActivePublicPpdb } from "@/features/ppdb/public-queries";
 
 export async function generateMetadata(): Promise<Metadata> {
   const ppdb = await getActivePublicPpdb();
 
   if (!ppdb) {
     return {
-      title: 'Informasi PPDB',
-      description: 'Informasi penerimaan peserta didik baru.',
+      title: "Informasi PPDB",
+      description: "Informasi penerimaan peserta didik baru.",
     };
   }
 
@@ -49,31 +49,31 @@ export async function generateMetadata(): Promise<Metadata> {
 
 function getStatusVariant(
   status: PpdbStatusValue,
-): 'default' | 'secondary' | 'outline' | 'destructive' {
-  if (status === 'OPEN') {
-    return 'default';
+): "default" | "secondary" | "outline" | "destructive" {
+  if (status === "OPEN") {
+    return "default";
   }
 
-  if (status === 'ANNOUNCEMENT') {
-    return 'destructive';
+  if (status === "ANNOUNCEMENT") {
+    return "destructive";
   }
 
-  if (status === 'CLOSED' || status === 'COMPLETED') {
-    return 'secondary';
+  if (status === "CLOSED" || status === "COMPLETED") {
+    return "secondary";
   }
 
-  return 'outline';
+  return "outline";
 }
 
 function formatDateTime(value: Date | null): string {
   if (!value) {
-    return 'Belum ditentukan';
+    return "Belum ditentukan";
   }
 
-  return new Intl.DateTimeFormat('id-ID', {
-    dateStyle: 'long',
-    timeStyle: 'short',
-    timeZone: 'Asia/Jakarta',
+  return new Intl.DateTimeFormat("id-ID", {
+    dateStyle: "long",
+    timeStyle: "short",
+    timeZone: "Asia/Jakarta",
   }).format(value);
 }
 
@@ -83,7 +83,7 @@ function formatFee(
   } | null,
 ): string {
   if (!value) {
-    return 'Hubungi sekolah';
+    return "Hubungi sekolah";
   }
 
   const amount = Number(value.toString());
@@ -92,9 +92,9 @@ function formatFee(
     return value.toString();
   }
 
-  return new Intl.NumberFormat('id-ID', {
-    style: 'currency',
-    currency: 'IDR',
+  return new Intl.NumberFormat("id-ID", {
+    style: "currency",
+    currency: "IDR",
     minimumFractionDigits: 0,
     maximumFractionDigits: 2,
   }).format(amount);
@@ -105,21 +105,21 @@ function isSafePublicUrl(value: string | null): value is string {
     return false;
   }
 
-  if (value.startsWith('/')) {
+  if (value.startsWith("/")) {
     return true;
   }
 
   try {
     const url = new URL(value);
 
-    return url.protocol === 'http:' || url.protocol === 'https:';
+    return url.protocol === "http:" || url.protocol === "https:";
   } catch {
     return false;
   }
 }
 
 function phoneHref(value: string): string {
-  return `tel:${value.replace(/[^0-9+]/g, '')}`;
+  return `tel:${value.replace(/[^0-9+]/g, "")}`;
 }
 
 export default async function PublicPpdbPage() {
@@ -260,7 +260,7 @@ export default async function PublicPpdbPage() {
                 <p className="font-semibold">
                   {ppdb.quota !== null
                     ? `${ppdb.quota} siswa`
-                    : 'Belum ditentukan'}
+                    : "Belum ditentukan"}
                 </p>
               </div>
             </CardContent>
@@ -390,9 +390,9 @@ export default async function PublicPpdbPage() {
                         <h3 className="font-semibold">{item.title}</h3>
 
                         <Badge
-                          variant={item.isRequired ? 'default' : 'outline'}
+                          variant={item.isRequired ? "default" : "outline"}
                         >
-                          {item.isRequired ? 'Wajib' : 'Opsional'}
+                          {item.isRequired ? "Wajib" : "Opsional"}
                         </Badge>
                       </div>
 
@@ -492,9 +492,9 @@ export default async function PublicPpdbPage() {
 
                     <Badge
                       className="mt-3"
-                      variant={item.isOptional ? 'outline' : 'secondary'}
+                      variant={item.isOptional ? "outline" : "secondary"}
                     >
-                      {item.isOptional ? 'Opsional' : 'Wajib'}
+                      {item.isOptional ? "Opsional" : "Wajib"}
                     </Badge>
 
                     {item.description ? (

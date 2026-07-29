@@ -181,9 +181,9 @@ async function categoryExists(categoryId: string | null): Promise<boolean> {
 function revalidatePostPaths(slugs: Array<string | null | undefined>): void {
   revalidatePath("/");
   revalidatePath("/berita");
-  revalidatePath("/admin/berita");
-  revalidatePath("/admin/kategori-berita");
-  revalidatePath("/admin/dashboard");
+  revalidatePath("/konsol-8m4q7x2k9v6d/berita");
+  revalidatePath("/konsol-8m4q7x2k9v6d/kategori-berita");
+  revalidatePath("/konsol-8m4q7x2k9v6d/dashboard");
 
   for (const slug of new Set(slugs)) {
     if (slug) {

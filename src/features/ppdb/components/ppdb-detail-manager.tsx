@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import {
   CalendarClock,
@@ -8,10 +8,10 @@ import {
   Pencil,
   Plus,
   Trash2,
-} from 'lucide-react';
-import { startTransition, useActionState, useState } from 'react';
+} from "lucide-react";
+import { startTransition, useActionState, useState } from "react";
 
-import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import {
   AlertDialog,
   AlertDialogCancel,
@@ -21,10 +21,10 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from '@/components/ui/alert-dialog';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+} from "@/components/ui/alert-dialog";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Dialog,
   DialogClose,
@@ -34,18 +34,18 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
-import { Spinner } from '@/components/ui/spinner';
-import { Switch } from '@/components/ui/switch';
+} from "@/components/ui/select";
+import { Spinner } from "@/components/ui/spinner";
+import { Switch } from "@/components/ui/switch";
 import {
   Table,
   TableBody,
@@ -53,8 +53,8 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table';
-import { Textarea } from '@/components/ui/textarea';
+} from "@/components/ui/table";
+import { Textarea } from "@/components/ui/textarea";
 import {
   createPpdbFeeAction,
   createPpdbFlowStepAction,
@@ -68,12 +68,12 @@ import {
   updatePpdbFlowStepAction,
   updatePpdbRequirementAction,
   updatePpdbTimelineAction,
-} from '@/features/ppdb/actions';
+} from "@/features/ppdb/actions";
 import {
   ppdbFeeTypeLabels,
   ppdbFeeTypes,
   type PpdbFeeTypeValue,
-} from '@/features/ppdb/constants';
+} from "@/features/ppdb/constants";
 import {
   initialPpdbFeeActionState,
   initialPpdbFlowStepActionState,
@@ -83,8 +83,8 @@ import {
   type PpdbFlowStepActionState,
   type PpdbRequirementActionState,
   type PpdbTimelineActionState,
-} from '@/features/ppdb/types';
-import { useActionToast } from '@/hooks/use-action-toast';
+} from "@/features/ppdb/types";
+import { useActionToast } from "@/hooks/use-action-toast";
 
 export type EditablePpdbTimeline = {
   id: string;
@@ -151,13 +151,13 @@ function ErrorText({ message }: { message?: string }) {
 
 function isoToWibLocal(value: string | null) {
   if (!value) {
-    return '';
+    return "";
   }
 
   const date = new Date(value);
 
   if (Number.isNaN(date.getTime())) {
-    return '';
+    return "";
   }
 
   const wibDate = new Date(date.getTime() + 7 * 60 * 60 * 1000);
@@ -167,29 +167,29 @@ function isoToWibLocal(value: string | null) {
 
 function wibLocalToIso(value: string) {
   if (!value) {
-    return '';
+    return "";
   }
 
   const date = new Date(`${value}:00+07:00`);
 
-  return Number.isNaN(date.getTime()) ? '' : date.toISOString();
+  return Number.isNaN(date.getTime()) ? "" : date.toISOString();
 }
 
 function formatDateTime(value: string | null) {
   if (!value) {
-    return 'Tidak ditentukan';
+    return "Tidak ditentukan";
   }
 
-  return new Intl.DateTimeFormat('id-ID', {
-    dateStyle: 'medium',
-    timeStyle: 'short',
-    timeZone: 'Asia/Jakarta',
+  return new Intl.DateTimeFormat("id-ID", {
+    dateStyle: "medium",
+    timeStyle: "short",
+    timeZone: "Asia/Jakarta",
   }).format(new Date(value));
 }
 
 function formatAmount(value: string | null) {
   if (!value) {
-    return 'Belum ditentukan';
+    return "Belum ditentukan";
   }
 
   const amount = Number(value);
@@ -198,9 +198,9 @@ function formatAmount(value: string | null) {
     return value;
   }
 
-  return new Intl.NumberFormat('id-ID', {
-    style: 'currency',
-    currency: 'IDR',
+  return new Intl.NumberFormat("id-ID", {
+    style: "currency",
+    currency: "IDR",
     minimumFractionDigits: 0,
     maximumFractionDigits: 2,
   }).format(amount);
@@ -229,7 +229,7 @@ function TimelineDialog({
     ): Promise<PpdbTimelineActionState> => {
       const nextState = await action(previousState, formData);
 
-      if (nextState.status === 'success') {
+      if (nextState.status === "success") {
         startTransition(() => {
           setOpen(false);
         });
@@ -246,18 +246,18 @@ function TimelineDialog({
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button
-          size={isEdit ? 'sm' : 'default'}
-          variant={isEdit ? 'outline' : 'default'}
+          size={isEdit ? "sm" : "default"}
+          variant={isEdit ? "outline" : "default"}
         >
           {isEdit ? <Pencil className="size-4" /> : <Plus className="size-4" />}
-          {isEdit ? 'Edit' : 'Tambah jadwal'}
+          {isEdit ? "Edit" : "Tambah jadwal"}
         </Button>
       </DialogTrigger>
 
       <DialogContent className="max-h-[92svh] overflow-y-auto sm:max-w-2xl">
         <DialogHeader>
           <DialogTitle>
-            {isEdit ? 'Edit jadwal PPDB' : 'Tambah jadwal PPDB'}
+            {isEdit ? "Edit jadwal PPDB" : "Tambah jadwal PPDB"}
           </DialogTitle>
           <DialogDescription>
             Atur periode dan urutan jadwal PPDB. Waktu menggunakan WIB.
@@ -269,7 +269,7 @@ function TimelineDialog({
 
           {item ? <input type="hidden" name="id" value={item.id} /> : null}
 
-          {state.status === 'error' && state.message ? (
+          {state.status === "error" && state.message ? (
             <Alert variant="destructive">
               <AlertDescription>{state.message}</AlertDescription>
             </Alert>
@@ -279,7 +279,7 @@ function TimelineDialog({
             <Label>Judul jadwal</Label>
             <Input
               name="title"
-              defaultValue={item?.title ?? ''}
+              defaultValue={item?.title ?? ""}
               maxLength={160}
               disabled={isPending}
               required
@@ -291,7 +291,7 @@ function TimelineDialog({
             <Label>Deskripsi</Label>
             <Textarea
               name="description"
-              defaultValue={item?.description ?? ''}
+              defaultValue={item?.description ?? ""}
               rows={4}
               maxLength={20000}
               disabled={isPending}
@@ -372,7 +372,7 @@ function TimelineDialog({
                   Menyimpan...
                 </>
               ) : (
-                'Simpan jadwal'
+                "Simpan jadwal"
               )}
             </Button>
           </DialogFooter>
@@ -404,7 +404,7 @@ function RequirementDialog({
     ): Promise<PpdbRequirementActionState> => {
       const nextState = await action(previousState, formData);
 
-      if (nextState.status === 'success') {
+      if (nextState.status === "success") {
         startTransition(() => {
           setOpen(false);
         });
@@ -421,18 +421,18 @@ function RequirementDialog({
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button
-          size={isEdit ? 'sm' : 'default'}
-          variant={isEdit ? 'outline' : 'default'}
+          size={isEdit ? "sm" : "default"}
+          variant={isEdit ? "outline" : "default"}
         >
           {isEdit ? <Pencil className="size-4" /> : <Plus className="size-4" />}
-          {isEdit ? 'Edit' : 'Tambah persyaratan'}
+          {isEdit ? "Edit" : "Tambah persyaratan"}
         </Button>
       </DialogTrigger>
 
       <DialogContent className="sm:max-w-2xl">
         <DialogHeader>
           <DialogTitle>
-            {isEdit ? 'Edit persyaratan' : 'Tambah persyaratan'}
+            {isEdit ? "Edit persyaratan" : "Tambah persyaratan"}
           </DialogTitle>
           <DialogDescription>
             Tambahkan dokumen atau ketentuan yang perlu disiapkan calon siswa.
@@ -444,7 +444,7 @@ function RequirementDialog({
 
           {item ? <input type="hidden" name="id" value={item.id} /> : null}
 
-          {state.status === 'error' && state.message ? (
+          {state.status === "error" && state.message ? (
             <Alert variant="destructive">
               <AlertDescription>{state.message}</AlertDescription>
             </Alert>
@@ -454,7 +454,7 @@ function RequirementDialog({
             <Label>Judul persyaratan</Label>
             <Input
               name="title"
-              defaultValue={item?.title ?? ''}
+              defaultValue={item?.title ?? ""}
               maxLength={180}
               disabled={isPending}
               required
@@ -466,7 +466,7 @@ function RequirementDialog({
             <Label>Deskripsi</Label>
             <Textarea
               name="description"
-              defaultValue={item?.description ?? ''}
+              defaultValue={item?.description ?? ""}
               rows={4}
               maxLength={20000}
               disabled={isPending}
@@ -501,7 +501,7 @@ function RequirementDialog({
               <input
                 type="hidden"
                 name="isRequired"
-                value={isRequired ? 'true' : 'false'}
+                value={isRequired ? "true" : "false"}
               />
 
               <Switch
@@ -526,7 +526,7 @@ function RequirementDialog({
                   Menyimpan...
                 </>
               ) : (
-                'Simpan persyaratan'
+                "Simpan persyaratan"
               )}
             </Button>
           </DialogFooter>
@@ -555,7 +555,7 @@ function FlowStepDialog({
     ): Promise<PpdbFlowStepActionState> => {
       const nextState = await action(previousState, formData);
 
-      if (nextState.status === 'success') {
+      if (nextState.status === "success") {
         startTransition(() => {
           setOpen(false);
         });
@@ -572,18 +572,18 @@ function FlowStepDialog({
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button
-          size={isEdit ? 'sm' : 'default'}
-          variant={isEdit ? 'outline' : 'default'}
+          size={isEdit ? "sm" : "default"}
+          variant={isEdit ? "outline" : "default"}
         >
           {isEdit ? <Pencil className="size-4" /> : <Plus className="size-4" />}
-          {isEdit ? 'Edit' : 'Tambah langkah'}
+          {isEdit ? "Edit" : "Tambah langkah"}
         </Button>
       </DialogTrigger>
 
       <DialogContent className="sm:max-w-2xl">
         <DialogHeader>
           <DialogTitle>
-            {isEdit ? 'Edit langkah alur' : 'Tambah langkah alur'}
+            {isEdit ? "Edit langkah alur" : "Tambah langkah alur"}
           </DialogTitle>
           <DialogDescription>
             Urutan langkah harus unik dalam satu periode PPDB.
@@ -595,7 +595,7 @@ function FlowStepDialog({
 
           {item ? <input type="hidden" name="id" value={item.id} /> : null}
 
-          {state.status === 'error' && state.message ? (
+          {state.status === "error" && state.message ? (
             <Alert variant="destructive">
               <AlertDescription>{state.message}</AlertDescription>
             </Alert>
@@ -605,7 +605,7 @@ function FlowStepDialog({
             <Label>Judul langkah</Label>
             <Input
               name="title"
-              defaultValue={item?.title ?? ''}
+              defaultValue={item?.title ?? ""}
               maxLength={180}
               disabled={isPending}
               required
@@ -617,7 +617,7 @@ function FlowStepDialog({
             <Label>Deskripsi</Label>
             <Textarea
               name="description"
-              defaultValue={item?.description ?? ''}
+              defaultValue={item?.description ?? ""}
               rows={4}
               maxLength={20000}
               disabled={isPending}
@@ -654,7 +654,7 @@ function FlowStepDialog({
                   Menyimpan...
                 </>
               ) : (
-                'Simpan langkah'
+                "Simpan langkah"
               )}
             </Button>
           </DialogFooter>
@@ -673,7 +673,7 @@ function FeeDialog({
 }) {
   const [open, setOpen] = useState(false);
   const [feeType, setFeeType] = useState<PpdbFeeTypeValue>(
-    item?.feeType ?? 'OTHER',
+    item?.feeType ?? "OTHER",
   );
   const [isOptional, setIsOptional] = useState(item?.isOptional ?? false);
 
@@ -687,7 +687,7 @@ function FeeDialog({
     ): Promise<PpdbFeeActionState> => {
       const nextState = await action(previousState, formData);
 
-      if (nextState.status === 'success') {
+      if (nextState.status === "success") {
         startTransition(() => {
           setOpen(false);
         });
@@ -704,18 +704,18 @@ function FeeDialog({
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button
-          size={isEdit ? 'sm' : 'default'}
-          variant={isEdit ? 'outline' : 'default'}
+          size={isEdit ? "sm" : "default"}
+          variant={isEdit ? "outline" : "default"}
         >
           {isEdit ? <Pencil className="size-4" /> : <Plus className="size-4" />}
-          {isEdit ? 'Edit' : 'Tambah biaya'}
+          {isEdit ? "Edit" : "Tambah biaya"}
         </Button>
       </DialogTrigger>
 
       <DialogContent className="sm:max-w-2xl">
         <DialogHeader>
           <DialogTitle>
-            {isEdit ? 'Edit rincian biaya' : 'Tambah rincian biaya'}
+            {isEdit ? "Edit rincian biaya" : "Tambah rincian biaya"}
           </DialogTitle>
           <DialogDescription>
             Biaya hanya ditampilkan apabila pengaturan tampil biaya diaktifkan.
@@ -727,7 +727,7 @@ function FeeDialog({
 
           {item ? <input type="hidden" name="id" value={item.id} /> : null}
 
-          {state.status === 'error' && state.message ? (
+          {state.status === "error" && state.message ? (
             <Alert variant="destructive">
               <AlertDescription>{state.message}</AlertDescription>
             </Alert>
@@ -737,7 +737,7 @@ function FeeDialog({
             <Label>Nama biaya</Label>
             <Input
               name="name"
-              defaultValue={item?.name ?? ''}
+              defaultValue={item?.name ?? ""}
               maxLength={180}
               disabled={isPending}
               required
@@ -779,7 +779,7 @@ function FeeDialog({
               <Input
                 name="amount"
                 type="number"
-                defaultValue={item?.amount ?? ''}
+                defaultValue={item?.amount ?? ""}
                 placeholder="Kosongkan jika belum ditentukan"
                 min={0}
                 max={999999999999}
@@ -794,7 +794,7 @@ function FeeDialog({
             <Label>Deskripsi</Label>
             <Textarea
               name="description"
-              defaultValue={item?.description ?? ''}
+              defaultValue={item?.description ?? ""}
               rows={4}
               maxLength={20000}
               disabled={isPending}
@@ -829,7 +829,7 @@ function FeeDialog({
               <input
                 type="hidden"
                 name="isOptional"
-                value={isOptional ? 'true' : 'false'}
+                value={isOptional ? "true" : "false"}
               />
 
               <Switch
@@ -854,7 +854,7 @@ function FeeDialog({
                   Menyimpan...
                 </>
               ) : (
-                'Simpan biaya'
+                "Simpan biaya"
               )}
             </Button>
           </DialogFooter>
@@ -864,10 +864,10 @@ function FeeDialog({
   );
 }
 
-type DetailKind = 'timeline' | 'requirement' | 'flow' | 'fee';
+type DetailKind = "timeline" | "requirement" | "flow" | "fee";
 
 type DetailDeleteState = {
-  status: 'idle' | 'success' | 'error';
+  status: "idle" | "success" | "error";
   message?: string;
 };
 
@@ -890,27 +890,27 @@ function DetailDeleteDialog({
       let nextState: DetailDeleteState;
 
       switch (kind) {
-        case 'timeline':
+        case "timeline":
           nextState = await deletePpdbTimelineAction(previousState, formData);
           break;
 
-        case 'requirement':
+        case "requirement":
           nextState = await deletePpdbRequirementAction(
             previousState,
             formData,
           );
           break;
 
-        case 'flow':
+        case "flow":
           nextState = await deletePpdbFlowStepAction(previousState, formData);
           break;
 
-        case 'fee':
+        case "fee":
           nextState = await deletePpdbFeeAction(previousState, formData);
           break;
       }
 
-      if (nextState.status === 'success') {
+      if (nextState.status === "success") {
         startTransition(() => {
           setOpen(false);
         });
@@ -919,7 +919,7 @@ function DetailDeleteDialog({
       return nextState;
     },
     {
-      status: 'idle',
+      status: "idle",
     },
   );
 
@@ -946,7 +946,7 @@ function DetailDeleteDialog({
         <form action={formAction} className="space-y-4">
           <input type="hidden" name="id" value={id} />
 
-          {state.status === 'error' && state.message ? (
+          {state.status === "error" && state.message ? (
             <Alert variant="destructive">
               <AlertDescription>{state.message}</AlertDescription>
             </Alert>
@@ -964,7 +964,7 @@ function DetailDeleteDialog({
                   Menghapus...
                 </>
               ) : (
-                'Hapus rincian'
+                "Hapus rincian"
               )}
             </Button>
           </AlertDialogFooter>
@@ -1103,9 +1103,9 @@ export function PpdbDetailManager({
                       </TableCell>
                       <TableCell>
                         <Badge
-                          variant={item.isRequired ? 'default' : 'outline'}
+                          variant={item.isRequired ? "default" : "outline"}
                         >
-                          {item.isRequired ? 'Wajib' : 'Opsional'}
+                          {item.isRequired ? "Wajib" : "Opsional"}
                         </Badge>
                       </TableCell>
                       <TableCell>{item.sortOrder}</TableCell>
@@ -1246,9 +1246,9 @@ export function PpdbDetailManager({
                       <TableCell>{formatAmount(item.amount)}</TableCell>
                       <TableCell>
                         <Badge
-                          variant={item.isOptional ? 'outline' : 'default'}
+                          variant={item.isOptional ? "outline" : "default"}
                         >
-                          {item.isOptional ? 'Opsional' : 'Wajib'}
+                          {item.isOptional ? "Opsional" : "Wajib"}
                         </Badge>
                       </TableCell>
                       <TableCell>{item.sortOrder}</TableCell>

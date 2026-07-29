@@ -105,8 +105,8 @@ function revalidateDocumentPaths(
 ): void {
   revalidatePath("/");
   revalidatePath("/dokumen");
-  revalidatePath("/admin/dokumen");
-  revalidatePath("/admin/dashboard");
+  revalidatePath("/konsol-8m4q7x2k9v6d/dokumen");
+  revalidatePath("/konsol-8m4q7x2k9v6d/dashboard");
 
   for (const slug of new Set(slugs)) {
     if (slug) {

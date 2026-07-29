@@ -1,14 +1,14 @@
-'use server';
+"use server";
 
-import { revalidatePath } from 'next/cache';
-import { z } from 'zod';
+import { revalidatePath } from "next/cache";
+import { z } from "zod";
 
-import { UserRole } from '@/generated/prisma/client';
-import { requireAdminRole } from '@/lib/auth/authorization';
-import { prisma } from '@/lib/prisma';
+import { UserRole } from "@/generated/prisma/client";
+import { requireAdminRole } from "@/lib/auth/authorization";
+import { prisma } from "@/lib/prisma";
 
-import { schoolProfileSchema } from './schemas';
-import type { SchoolProfileActionState, SchoolProfileFieldName } from './types';
+import { schoolProfileSchema } from "./schemas";
+import type { SchoolProfileActionState, SchoolProfileFieldName } from "./types";
 
 const profileSelect = {
   schoolName: true,
@@ -40,10 +40,10 @@ const profileSelect = {
 
 function isPrismaUniqueError(error: unknown): boolean {
   return (
-    typeof error === 'object' &&
+    typeof error === "object" &&
     error !== null &&
-    'code' in error &&
-    error.code === 'P2002'
+    "code" in error &&
+    error.code === "P2002"
   );
 }
 
@@ -57,39 +57,39 @@ export async function updateSchoolProfileAction(
   ]);
 
   const parsed = schoolProfileSchema.safeParse({
-    schoolName: formData.get('schoolName'),
-    shortName: formData.get('shortName'),
-    npsn: formData.get('npsn'),
-    tagline: formData.get('tagline'),
-    shortDescription: formData.get('shortDescription'),
-    history: formData.get('history'),
-    vision: formData.get('vision'),
-    mission: formData.get('mission'),
-    goals: formData.get('goals'),
-    schoolValues: formData.get('schoolValues'),
-    accreditation: formData.get('accreditation'),
-    foundedYear: formData.get('foundedYear'),
-    principalName: formData.get('principalName'),
-    principalTitle: formData.get('principalTitle'),
-    principalGreeting: formData.get('principalGreeting'),
-    address: formData.get('address'),
-    village: formData.get('village'),
-    district: formData.get('district'),
-    city: formData.get('city'),
-    province: formData.get('province'),
-    postalCode: formData.get('postalCode'),
-    phone: formData.get('phone'),
-    whatsapp: formData.get('whatsapp'),
-    email: formData.get('email'),
-    operationalHours: formData.get('operationalHours'),
+    schoolName: formData.get("schoolName"),
+    shortName: formData.get("shortName"),
+    npsn: formData.get("npsn"),
+    tagline: formData.get("tagline"),
+    shortDescription: formData.get("shortDescription"),
+    history: formData.get("history"),
+    vision: formData.get("vision"),
+    mission: formData.get("mission"),
+    goals: formData.get("goals"),
+    schoolValues: formData.get("schoolValues"),
+    accreditation: formData.get("accreditation"),
+    foundedYear: formData.get("foundedYear"),
+    principalName: formData.get("principalName"),
+    principalTitle: formData.get("principalTitle"),
+    principalGreeting: formData.get("principalGreeting"),
+    address: formData.get("address"),
+    village: formData.get("village"),
+    district: formData.get("district"),
+    city: formData.get("city"),
+    province: formData.get("province"),
+    postalCode: formData.get("postalCode"),
+    phone: formData.get("phone"),
+    whatsapp: formData.get("whatsapp"),
+    email: formData.get("email"),
+    operationalHours: formData.get("operationalHours"),
   });
 
   if (!parsed.success) {
     const errors = z.flattenError(parsed.error).fieldErrors;
 
     return {
-      status: 'error',
-      message: 'Periksa kembali data profil sekolah.',
+      status: "error",
+      message: "Periksa kembali data profil sekolah.",
       fieldErrors: errors as Partial<Record<SchoolProfileFieldName, string[]>>,
     };
   }
@@ -97,7 +97,7 @@ export async function updateSchoolProfileAction(
   try {
     const currentProfile = await prisma.schoolProfile.findUnique({
       where: {
-        id: 'school',
+        id: "school",
       },
       select: profileSelect,
     });
@@ -105,10 +105,10 @@ export async function updateSchoolProfileAction(
     await prisma.$transaction(async (transaction) => {
       const updatedProfile = await transaction.schoolProfile.upsert({
         where: {
-          id: 'school',
+          id: "school",
         },
         create: {
-          id: 'school',
+          id: "school",
           ...parsed.data,
         },
         update: parsed.data,
@@ -118,39 +118,39 @@ export async function updateSchoolProfileAction(
       await transaction.auditLog.create({
         data: {
           actorId: session.user.id,
-          action: 'SCHOOL_PROFILE_UPDATED',
-          entity: 'SchoolProfile',
-          entityId: 'school',
+          action: "SCHOOL_PROFILE_UPDATED",
+          entity: "SchoolProfile",
+          entityId: "school",
           oldValue: currentProfile ?? undefined,
           newValue: updatedProfile,
         },
       });
     });
   } catch (error: unknown) {
-    console.error('Gagal memperbarui profil sekolah.', error);
+    console.error("Gagal memperbarui profil sekolah.", error);
 
     if (isPrismaUniqueError(error)) {
       return {
-        status: 'error',
-        message: 'NPSN sudah digunakan pada data lain.',
+        status: "error",
+        message: "NPSN sudah digunakan pada data lain.",
         fieldErrors: {
-          npsn: ['Gunakan NPSN yang belum terdaftar.'],
+          npsn: ["Gunakan NPSN yang belum terdaftar."],
         },
       };
     }
 
     return {
-      status: 'error',
-      message: 'Profil sekolah gagal disimpan. Silakan coba kembali.',
+      status: "error",
+      message: "Profil sekolah gagal disimpan. Silakan coba kembali.",
     };
   }
 
-  revalidatePath('/');
-  revalidatePath('/admin/dashboard');
-  revalidatePath('/admin/profil-sekolah');
+  revalidatePath("/");
+  revalidatePath("/konsol-8m4q7x2k9v6d/dashboard");
+  revalidatePath("/konsol-8m4q7x2k9v6d/profil-sekolah");
 
   return {
-    status: 'success',
-    message: 'Profil sekolah berhasil diperbarui.',
+    status: "success",
+    message: "Profil sekolah berhasil diperbarui.",
   };
 }

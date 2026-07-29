@@ -1,6 +1,6 @@
-import { ExternalLink, FileImage, Film } from 'lucide-react';
+import { ExternalLink, FileImage, Film } from "lucide-react";
 
-import { Badge } from '@/components/ui/badge';
+import { Badge } from "@/components/ui/badge";
 import {
   Table,
   TableBody,
@@ -8,18 +8,18 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table';
+} from "@/components/ui/table";
 import {
   galleryMediaTypeLabels,
   type GalleryMediaTypeValue,
-} from '@/features/gallery/constants';
+} from "@/features/gallery/constants";
 
-import { GalleryMediaDeleteDialog } from './gallery-media-delete-dialog';
+import { GalleryMediaDeleteDialog } from "./gallery-media-delete-dialog";
 import {
   GalleryMediaFormDialog,
   type EditableGalleryMedia,
-} from './gallery-media-form-dialog';
-import type { GalleryAlbumOption } from './gallery-media-form-fields';
+} from "./gallery-media-form-dialog";
+import type { GalleryAlbumOption } from "./gallery-media-form-fields";
 
 type GalleryMediaTableProps = {
   media: EditableGalleryMedia[];
@@ -29,11 +29,11 @@ type GalleryMediaTableProps = {
 };
 
 function MediaIcon({ type }: { type: GalleryMediaTypeValue }) {
-  if (type === 'VIDEO') {
+  if (type === "VIDEO") {
     return <Film className="size-5 text-muted-foreground" />;
   }
 
-  if (type === 'YOUTUBE') {
+  if (type === "YOUTUBE") {
     return <Film className="size-5 text-rose-500" />;
   }
 
@@ -113,7 +113,7 @@ export function GalleryMediaTable({
 
               <TableCell>
                 <p className="max-w-md whitespace-pre-wrap text-sm text-muted-foreground">
-                  {item.caption ?? '—'}
+                  {item.caption ?? "—"}
                 </p>
               </TableCell>
 

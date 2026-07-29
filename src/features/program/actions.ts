@@ -1,15 +1,15 @@
-'use server';
+"use server";
 
-import { revalidatePath } from 'next/cache';
-import { z } from 'zod';
+import { revalidatePath } from "next/cache";
+import { z } from "zod";
 
-import { UserRole } from '@/generated/prisma/client';
-import { requireAdminRole } from '@/lib/auth/authorization';
-import { prisma } from '@/lib/prisma';
+import { UserRole } from "@/generated/prisma/client";
+import { requireAdminRole } from "@/lib/auth/authorization";
+import { prisma } from "@/lib/prisma";
 
-import { programFormSchema, programIdSchema } from './schemas';
-import type { ProgramActionState, ProgramFieldName } from './types';
-import { createSlug } from '@/lib/slug';
+import { programFormSchema, programIdSchema } from "./schemas";
+import type { ProgramActionState, ProgramFieldName } from "./types";
+import { createSlug } from "@/lib/slug";
 
 const editableRoles = [UserRole.SUPER_ADMIN, UserRole.CONTENT_ADMIN] as const;
 
@@ -59,23 +59,23 @@ function toAuditValue(program: {
 
 function isUniqueConstraintError(error: unknown): boolean {
   return (
-    typeof error === 'object' &&
+    typeof error === "object" &&
     error !== null &&
-    'code' in error &&
-    error.code === 'P2002'
+    "code" in error &&
+    error.code === "P2002"
   );
 }
 
 function getFormValues(formData: FormData) {
   return {
-    name: formData.get('name'),
-    slug: formData.get('slug') ?? '',
-    shortDescription: formData.get('shortDescription'),
-    description: formData.get('description'),
-    benefits: formData.get('benefits') ?? '',
-    sortOrder: formData.get('sortOrder') ?? '0',
-    isFeatured: formData.get('isFeatured') ?? '',
-    isActive: formData.get('isActive') ?? '',
+    name: formData.get("name"),
+    slug: formData.get("slug") ?? "",
+    shortDescription: formData.get("shortDescription"),
+    description: formData.get("description"),
+    benefits: formData.get("benefits") ?? "",
+    sortOrder: formData.get("sortOrder") ?? "0",
+    isFeatured: formData.get("isFeatured") ?? "",
+    isActive: formData.get("isActive") ?? "",
   };
 }
 
@@ -83,17 +83,17 @@ function validationErrorState(error: z.ZodError): ProgramActionState {
   const errors = z.flattenError(error).fieldErrors;
 
   return {
-    status: 'error',
-    message: 'Periksa kembali data program.',
+    status: "error",
+    message: "Periksa kembali data program.",
     fieldErrors: errors as Partial<Record<ProgramFieldName, string[]>>,
   };
 }
 
 function revalidateProgramPaths(): void {
-  revalidatePath('/');
-  revalidatePath('/program');
-  revalidatePath('/admin/dashboard');
-  revalidatePath('/admin/program');
+  revalidatePath("/");
+  revalidatePath("/program");
+  revalidatePath("/konsol-8m4q7x2k9v6d/dashboard");
+  revalidatePath("/konsol-8m4q7x2k9v6d/program");
 }
 
 export async function createProgramAction(
@@ -112,10 +112,10 @@ export async function createProgramAction(
 
   if (!slug) {
     return {
-      status: 'error',
-      message: 'Slug program tidak valid.',
+      status: "error",
+      message: "Slug program tidak valid.",
       fieldErrors: {
-        slug: ['Gunakan nama atau slug yang mengandung huruf atau angka.'],
+        slug: ["Gunakan nama atau slug yang mengandung huruf atau angka."],
       },
     };
   }
@@ -140,8 +140,8 @@ export async function createProgramAction(
       await transaction.auditLog.create({
         data: {
           actorId: session.user.id,
-          action: 'PROGRAM_CREATED',
-          entity: 'Program',
+          action: "PROGRAM_CREATED",
+          entity: "Program",
           entityId: program.id,
           newValue: toAuditValue(program),
         },
@@ -153,26 +153,26 @@ export async function createProgramAction(
     revalidateProgramPaths();
 
     return {
-      status: 'success',
-      message: 'Program berhasil ditambahkan.',
+      status: "success",
+      message: "Program berhasil ditambahkan.",
       programId: createdProgram.id,
     };
   } catch (error: unknown) {
-    console.error('Gagal menambahkan program.', error);
+    console.error("Gagal menambahkan program.", error);
 
     if (isUniqueConstraintError(error)) {
       return {
-        status: 'error',
-        message: 'Slug sudah digunakan oleh program lain.',
+        status: "error",
+        message: "Slug sudah digunakan oleh program lain.",
         fieldErrors: {
-          slug: ['Gunakan slug yang berbeda.'],
+          slug: ["Gunakan slug yang berbeda."],
         },
       };
     }
 
     return {
-      status: 'error',
-      message: 'Program gagal ditambahkan. Silakan coba kembali.',
+      status: "error",
+      message: "Program gagal ditambahkan. Silakan coba kembali.",
     };
   }
 }
@@ -184,13 +184,13 @@ export async function updateProgramAction(
   const session = await requireAdminRole(editableRoles);
 
   const idParsed = programIdSchema.safeParse({
-    id: formData.get('id'),
+    id: formData.get("id"),
   });
 
   if (!idParsed.success) {
     return {
-      status: 'error',
-      message: 'ID program tidak valid.',
+      status: "error",
+      message: "ID program tidak valid.",
     };
   }
 
@@ -204,10 +204,10 @@ export async function updateProgramAction(
 
   if (!slug) {
     return {
-      status: 'error',
-      message: 'Slug program tidak valid.',
+      status: "error",
+      message: "Slug program tidak valid.",
       fieldErrors: {
-        slug: ['Gunakan nama atau slug yang mengandung huruf atau angka.'],
+        slug: ["Gunakan nama atau slug yang mengandung huruf atau angka."],
       },
     };
   }
@@ -222,8 +222,8 @@ export async function updateProgramAction(
 
     if (!currentProgram) {
       return {
-        status: 'error',
-        message: 'Program tidak ditemukan.',
+        status: "error",
+        message: "Program tidak ditemukan.",
       };
     }
 
@@ -252,8 +252,8 @@ export async function updateProgramAction(
       await transaction.auditLog.create({
         data: {
           actorId: session.user.id,
-          action: 'PROGRAM_UPDATED',
-          entity: 'Program',
+          action: "PROGRAM_UPDATED",
+          entity: "Program",
           entityId: currentProgram.id,
           oldValue: toAuditValue(currentProgram),
           newValue: toAuditValue(updatedProgram),
@@ -264,26 +264,26 @@ export async function updateProgramAction(
     revalidateProgramPaths();
 
     return {
-      status: 'success',
-      message: 'Program berhasil diperbarui.',
+      status: "success",
+      message: "Program berhasil diperbarui.",
       programId: currentProgram.id,
     };
   } catch (error: unknown) {
-    console.error('Gagal memperbarui program.', error);
+    console.error("Gagal memperbarui program.", error);
 
     if (isUniqueConstraintError(error)) {
       return {
-        status: 'error',
-        message: 'Slug sudah digunakan oleh program lain.',
+        status: "error",
+        message: "Slug sudah digunakan oleh program lain.",
         fieldErrors: {
-          slug: ['Gunakan slug yang berbeda.'],
+          slug: ["Gunakan slug yang berbeda."],
         },
       };
     }
 
     return {
-      status: 'error',
-      message: 'Program gagal diperbarui. Silakan coba kembali.',
+      status: "error",
+      message: "Program gagal diperbarui. Silakan coba kembali.",
     };
   }
 }
@@ -295,13 +295,13 @@ export async function deleteProgramAction(
   const session = await requireAdminRole(editableRoles);
 
   const parsed = programIdSchema.safeParse({
-    id: formData.get('id'),
+    id: formData.get("id"),
   });
 
   if (!parsed.success) {
     return {
-      status: 'error',
-      message: 'ID program tidak valid.',
+      status: "error",
+      message: "ID program tidak valid.",
     };
   }
 
@@ -315,8 +315,8 @@ export async function deleteProgramAction(
 
     if (!currentProgram) {
       return {
-        status: 'error',
-        message: 'Program tidak ditemukan.',
+        status: "error",
+        message: "Program tidak ditemukan.",
       };
     }
 
@@ -330,8 +330,8 @@ export async function deleteProgramAction(
       await transaction.auditLog.create({
         data: {
           actorId: session.user.id,
-          action: 'PROGRAM_DELETED',
-          entity: 'Program',
+          action: "PROGRAM_DELETED",
+          entity: "Program",
           entityId: currentProgram.id,
           oldValue: toAuditValue(currentProgram),
         },
@@ -341,15 +341,15 @@ export async function deleteProgramAction(
     revalidateProgramPaths();
 
     return {
-      status: 'success',
-      message: 'Program berhasil dihapus.',
+      status: "success",
+      message: "Program berhasil dihapus.",
     };
   } catch (error: unknown) {
-    console.error('Gagal menghapus program.', error);
+    console.error("Gagal menghapus program.", error);
 
     return {
-      status: 'error',
-      message: 'Program gagal dihapus. Silakan coba kembali.',
+      status: "error",
+      message: "Program gagal dihapus. Silakan coba kembali.",
     };
   }
 }

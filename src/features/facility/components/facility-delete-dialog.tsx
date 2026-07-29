@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import { startTransition, useActionState, useState } from 'react';
+import { startTransition, useActionState, useState } from "react";
 
-import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import {
   AlertDialog,
   AlertDialogCancel,
@@ -12,16 +12,16 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from '@/components/ui/alert-dialog';
-import { Button } from '@/components/ui/button';
-import { Spinner } from '@/components/ui/spinner';
-import { deleteFacilityAction } from '@/features/facility/actions';
+} from "@/components/ui/alert-dialog";
+import { Button } from "@/components/ui/button";
+import { Spinner } from "@/components/ui/spinner";
+import { deleteFacilityAction } from "@/features/facility/actions";
 import {
   FacilityActionState,
   initialFacilityActionState,
-} from '@/features/facility/types';
-import { useActionToast } from '@/hooks/use-action-toast';
-import { Trash2 } from 'lucide-react';
+} from "@/features/facility/types";
+import { useActionToast } from "@/hooks/use-action-toast";
+import { Trash2 } from "lucide-react";
 
 type FacilityDeleteDialogProps = {
   facilityId: string;
@@ -41,7 +41,7 @@ export function FacilityDeleteDialog({
     ): Promise<FacilityActionState> => {
       const nextState = await deleteFacilityAction(previousState, formData);
 
-      if (nextState.status === 'success') {
+      if (nextState.status === "success") {
         startTransition(() => {
           setOpen(false);
         });
@@ -76,7 +76,7 @@ export function FacilityDeleteDialog({
         <form action={formAction} className="space-y-4">
           <input type="hidden" name="id" value={facilityId} />
 
-          {state.status === 'error' && state.message ? (
+          {state.status === "error" && state.message ? (
             <Alert variant="destructive">
               <AlertDescription>{state.message}</AlertDescription>
             </Alert>
@@ -94,7 +94,7 @@ export function FacilityDeleteDialog({
                   Menghapus...
                 </>
               ) : (
-                'Hapus fasilitas'
+                "Hapus fasilitas"
               )}
             </Button>
           </AlertDialogFooter>

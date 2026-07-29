@@ -5,10 +5,7 @@ export const postCategoryFormSchema = z.object({
     .string()
     .trim()
     .min(1, "Nama kategori wajib diisi.")
-    .max(
-      120,
-      "Nama kategori maksimal 120 karakter.",
-    ),
+    .max(120, "Nama kategori maksimal 120 karakter."),
 
   slug: z
     .string()
@@ -20,15 +17,10 @@ export const postCategoryFormSchema = z.object({
   description: z
     .string()
     .trim()
-    .max(
-      10_000,
-      "Deskripsi maksimal 10.000 karakter.",
-    )
+    .max(10_000, "Deskripsi maksimal 10.000 karakter.")
     .transform((value) => value || null),
 });
 
 export const postCategoryIdSchema = z.object({
-  id: z
-    .string()
-    .uuid("ID kategori berita tidak valid."),
+  id: z.string().uuid("ID kategori berita tidak valid."),
 });

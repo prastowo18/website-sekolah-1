@@ -1,7 +1,4 @@
-import {
-  Crown,
-  UserRound,
-} from "lucide-react";
+import { Crown, UserRound } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import {
@@ -14,10 +11,7 @@ import {
 } from "@/components/ui/table";
 
 import { TeacherDeleteDialog } from "./teacher-delete-dialog";
-import {
-  TeacherFormDialog,
-  type EditableTeacher,
-} from "./teacher-form-dialog";
+import { TeacherFormDialog, type EditableTeacher } from "./teacher-form-dialog";
 
 export type TeacherListItem = EditableTeacher;
 
@@ -26,20 +20,14 @@ type TeacherTableProps = {
   canEdit: boolean;
 };
 
-export function TeacherTable({
-  teachers,
-  canEdit,
-}: TeacherTableProps) {
+export function TeacherTable({ teachers, canEdit }: TeacherTableProps) {
   if (teachers.length === 0) {
     return (
       <div className="rounded-lg border border-dashed p-10 text-center">
-        <p className="font-medium">
-          Data guru tidak ditemukan
-        </p>
+        <p className="font-medium">Data guru tidak ditemukan</p>
 
         <p className="mt-1 text-sm text-muted-foreground">
-          Tambahkan data baru atau ubah
-          pencarian dan filter yang digunakan.
+          Tambahkan data baru atau ubah pencarian dan filter yang digunakan.
         </p>
       </div>
     );
@@ -57,9 +45,7 @@ export function TeacherTable({
             <TableHead>Urutan</TableHead>
 
             {canEdit ? (
-              <TableHead className="text-right">
-                Tindakan
-              </TableHead>
+              <TableHead className="text-right">Tindakan</TableHead>
             ) : null}
           </TableRow>
         </TableHeader>
@@ -75,9 +61,7 @@ export function TeacherTable({
 
                   <div className="min-w-0">
                     <div className="flex flex-wrap items-center gap-2">
-                      <p className="font-medium">
-                        {teacher.name}
-                      </p>
+                      <p className="font-medium">{teacher.name}</p>
 
                       {teacher.isPrincipal ? (
                         <Badge variant="outline">
@@ -102,17 +86,13 @@ export function TeacherTable({
 
               <TableCell>
                 {teacher.employeeNumber ?? (
-                  <span className="text-muted-foreground">
-                    —
-                  </span>
+                  <span className="text-muted-foreground">—</span>
                 )}
               </TableCell>
 
               <TableCell>
                 <div className="min-w-40">
-                  <p>
-                    {teacher.position ?? "—"}
-                  </p>
+                  <p>{teacher.position ?? "—"}</p>
 
                   {teacher.subject ? (
                     <p className="mt-1 text-xs text-muted-foreground">
@@ -123,29 +103,17 @@ export function TeacherTable({
               </TableCell>
 
               <TableCell>
-                <Badge
-                  variant={
-                    teacher.isActive
-                      ? "default"
-                      : "secondary"
-                  }
-                >
-                  {teacher.isActive
-                    ? "Aktif"
-                    : "Nonaktif"}
+                <Badge variant={teacher.isActive ? "default" : "secondary"}>
+                  {teacher.isActive ? "Aktif" : "Nonaktif"}
                 </Badge>
               </TableCell>
 
-              <TableCell>
-                {teacher.sortOrder}
-              </TableCell>
+              <TableCell>{teacher.sortOrder}</TableCell>
 
               {canEdit ? (
                 <TableCell>
                   <div className="flex justify-end gap-2">
-                    <TeacherFormDialog
-                      teacher={teacher}
-                    />
+                    <TeacherFormDialog teacher={teacher} />
 
                     <TeacherDeleteDialog
                       teacherId={teacher.id}

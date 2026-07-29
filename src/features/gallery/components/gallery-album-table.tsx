@@ -105,7 +105,7 @@ export function GalleryAlbumTable({ albums, canEdit }: GalleryAlbumTableProps) {
               <TableCell>
                 <div className="flex justify-end gap-2">
                   <Button variant="outline" size="sm" asChild>
-                    <Link href={`/admin/galeri/${album.id}`}>
+                    <Link href={`/konsol-8m4q7x2k9v6d/galeri/${album.id}`}>
                       <Settings2 className="size-4" />
                       Kelola media
                     </Link>

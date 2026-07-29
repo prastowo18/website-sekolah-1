@@ -11,13 +11,10 @@ export type ExtracurricularFieldName =
 export type ExtracurricularActionState = {
   status: "idle" | "success" | "error";
   message?: string;
-  fieldErrors?: Partial<
-    Record<ExtracurricularFieldName, string[]>
-  >;
+  fieldErrors?: Partial<Record<ExtracurricularFieldName, string[]>>;
   extracurricularId?: string;
 };
 
-export const initialExtracurricularActionState: ExtracurricularActionState =
-  {
-    status: "idle",
-  };
+export const initialExtracurricularActionState: ExtracurricularActionState = {
+  status: "idle",
+};

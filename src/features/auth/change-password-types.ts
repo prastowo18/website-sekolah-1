@@ -1,14 +1,12 @@
 export type ChangePasswordFieldName =
-  | 'currentPassword'
-  | 'newPassword'
-  | 'confirmPassword';
+  "currentPassword" | "newPassword" | "confirmPassword";
 
 export type ChangePasswordActionState = {
-  status: 'idle' | 'error';
+  status: "idle" | "error";
   message?: string;
   fieldErrors?: Partial<Record<ChangePasswordFieldName, string[]>>;
 };
 
 export const initialChangePasswordActionState: ChangePasswordActionState = {
-  status: 'idle',
+  status: "idle",
 };

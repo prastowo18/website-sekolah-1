@@ -1,7 +1,4 @@
-import {
-  Card,
-  CardContent,
-} from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export default function ContactLoading() {
@@ -22,10 +19,7 @@ export default function ContactLoading() {
               {Array.from({
                 length: 3,
               }).map((_, index) => (
-                <div
-                  key={index}
-                  className="flex gap-3"
-                >
+                <div key={index} className="flex gap-3">
                   <Skeleton className="size-5 shrink-0" />
 
                   <div className="flex-1 space-y-2">
@@ -49,10 +43,7 @@ export default function ContactLoading() {
               {Array.from({
                 length: 4,
               }).map((_, index) => (
-                <Skeleton
-                  key={index}
-                  className="h-10 w-full"
-                />
+                <Skeleton key={index} className="h-10 w-full" />
               ))}
             </div>
 

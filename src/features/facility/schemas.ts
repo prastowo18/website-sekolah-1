@@ -1,9 +1,6 @@
 import { z } from "zod";
 
-function optionalText(
-  maximumLength: number,
-  message: string,
-) {
+function optionalText(maximumLength: number, message: string) {
   return z
     .string()
     .trim()
@@ -19,19 +16,14 @@ const booleanFromForm = z
     z.literal(""),
   ])
   .optional()
-  .transform(
-    (value) => value === "on" || value === "true",
-  );
+  .transform((value) => value === "on" || value === "true");
 
 export const facilityFormSchema = z.object({
   name: z
     .string()
     .trim()
     .min(1, "Nama fasilitas wajib diisi.")
-    .max(
-      160,
-      "Nama fasilitas maksimal 160 karakter.",
-    ),
+    .max(160, "Nama fasilitas maksimal 160 karakter."),
 
   slug: z
     .string()
@@ -40,20 +32,11 @@ export const facilityFormSchema = z.object({
     .optional()
     .default(""),
 
-  description: optionalText(
-    20_000,
-    "Deskripsi maksimal 20.000 karakter.",
-  ),
+  description: optionalText(20_000, "Deskripsi maksimal 20.000 karakter."),
 
-  capacity: optionalText(
-    120,
-    "Kapasitas maksimal 120 karakter.",
-  ),
+  capacity: optionalText(120, "Kapasitas maksimal 120 karakter."),
 
-  condition: optionalText(
-    120,
-    "Kondisi fasilitas maksimal 120 karakter.",
-  ),
+  condition: optionalText(120, "Kondisi fasilitas maksimal 120 karakter."),
 
   sortOrder: z.coerce
     .number()
@@ -68,6 +51,4 @@ export const facilityIdSchema = z.object({
   id: z.string().uuid("ID fasilitas tidak valid."),
 });
 
-export type FacilityFormInput = z.infer<
-  typeof facilityFormSchema
->;
+export type FacilityFormInput = z.infer<typeof facilityFormSchema>;

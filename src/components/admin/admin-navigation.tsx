@@ -45,37 +45,37 @@ type NavigationItem = {
 const primaryItems: NavigationItem[] = [
   {
     title: "Dashboard",
-    href: "/admin/dashboard",
+    href: "/konsol-8m4q7x2k9v6d/dashboard",
     icon: LayoutDashboard,
   },
   {
     title: "Profil Sekolah",
-    href: "/admin/profil-sekolah",
+    href: "/konsol-8m4q7x2k9v6d/profil-sekolah",
     icon: School,
   },
   {
     title: "Program",
-    href: "/admin/program",
+    href: "/konsol-8m4q7x2k9v6d/program",
     icon: BookOpen,
   },
   {
     title: "Fasilitas",
-    href: "/admin/fasilitas",
+    href: "/konsol-8m4q7x2k9v6d/fasilitas",
     icon: Building2,
   },
   {
     title: "Guru",
-    href: "/admin/guru",
+    href: "/konsol-8m4q7x2k9v6d/guru",
     icon: Users,
   },
   {
     title: "Prestasi",
-    href: "/admin/prestasi",
+    href: "/konsol-8m4q7x2k9v6d/prestasi",
     icon: Trophy,
   },
   {
     title: "Ekstrakurikuler",
-    href: "/admin/ekstrakurikuler",
+    href: "/konsol-8m4q7x2k9v6d/ekstrakurikuler",
     icon: Shapes,
   },
 ];
@@ -83,42 +83,42 @@ const primaryItems: NavigationItem[] = [
 const publicationItems: NavigationItem[] = [
   {
     title: "Berita",
-    href: "/admin/berita",
+    href: "/konsol-8m4q7x2k9v6d/berita",
     icon: Newspaper,
   },
   {
     title: "Pengumuman",
-    href: "/admin/pengumuman",
+    href: "/konsol-8m4q7x2k9v6d/pengumuman",
     icon: Megaphone,
   },
   {
     title: "Galeri",
-    href: "/admin/galeri",
+    href: "/konsol-8m4q7x2k9v6d/galeri",
     icon: Images,
   },
   {
     title: "Dokumen",
-    href: "/admin/dokumen",
+    href: "/konsol-8m4q7x2k9v6d/dokumen",
     icon: FileText,
   },
   {
     title: "FAQ",
-    href: "/admin/faq",
+    href: "/konsol-8m4q7x2k9v6d/faq",
     icon: CircleHelp,
   },
   {
     title: "Testimoni",
-    href: "/admin/testimoni",
+    href: "/konsol-8m4q7x2k9v6d/testimoni",
     icon: Quote,
   },
   {
     title: "Informasi PPDB",
-    href: "/admin/ppdb",
+    href: "/konsol-8m4q7x2k9v6d/ppdb",
     icon: GraduationCap,
   },
   {
     title: "Pesan Masuk",
-    href: "/admin/pesan-kontak",
+    href: "/konsol-8m4q7x2k9v6d/pesan-kontak",
     icon: Mail,
   },
 ];
@@ -126,19 +126,19 @@ const publicationItems: NavigationItem[] = [
 const systemItems: NavigationItem[] = [
   {
     title: "Pengguna",
-    href: "/admin/pengguna",
+    href: "/konsol-8m4q7x2k9v6d/pengguna",
     icon: UserCog,
     roles: ["SUPER_ADMIN"],
   },
   {
     title: "Pengaturan",
-    href: "/admin/pengaturan",
+    href: "/konsol-8m4q7x2k9v6d/pengaturan",
     icon: Settings,
     roles: ["SUPER_ADMIN"],
   },
   {
     title: "Audit Log",
-    href: "/admin/audit-log",
+    href: "/konsol-8m4q7x2k9v6d/audit-log",
     icon: ShieldCheck,
     roles: ["SUPER_ADMIN"],
   },
@@ -189,7 +189,9 @@ function NavigationGroup({
             const active = isItemActive(pathname, item.href);
 
             const badgeCount =
-              item.href === "/admin/pesan-kontak" ? newMessageCount : 0;
+              item.href === "/konsol-8m4q7x2k9v6d/pesan-kontak"
+                ? newMessageCount
+                : 0;
 
             const tooltip =
               badgeCount > 0

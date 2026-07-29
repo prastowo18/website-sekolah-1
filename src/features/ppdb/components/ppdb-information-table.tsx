@@ -141,7 +141,7 @@ export function PpdbInformationTable({
                 <TableCell>
                   <div className="flex justify-end gap-2">
                     <Button variant="outline" size="sm" asChild>
-                      <Link href={`/admin/ppdb/${item.id}`}>
+                      <Link href={`/konsol-8m4q7x2k9v6d/ppdb/${item.id}`}>
                         <Settings2 className="size-4" />
                         Kelola rincian
                       </Link>

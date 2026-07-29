@@ -1,16 +1,9 @@
 "use client";
 
 import { Pencil, Plus } from "lucide-react";
-import {
-  startTransition,
-  useActionState,
-  useState,
-} from "react";
+import { startTransition, useActionState, useState } from "react";
 
-import {
-  Alert,
-  AlertDescription,
-} from "@/components/ui/alert";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -82,58 +75,42 @@ export function AchievementFormDialog({
   const [open, setOpen] = useState(false);
   const isEdit = achievement !== undefined;
 
-  const action = isEdit
-    ? updateAchievementAction
-    : createAchievementAction;
+  const action = isEdit ? updateAchievementAction : createAchievementAction;
 
-  const [state, formAction, isPending] =
-    useActionState(
-      async (
-        previousState: AchievementActionState,
-        formData: FormData,
-      ): Promise<AchievementActionState> => {
-        const nextState = await action(
-          previousState,
-          formData,
-        );
+  const [state, formAction, isPending] = useActionState(
+    async (
+      previousState: AchievementActionState,
+      formData: FormData,
+    ): Promise<AchievementActionState> => {
+      const nextState = await action(previousState, formData);
 
-        if (nextState.status === "success") {
-          startTransition(() => {
-            setOpen(false);
-          });
-        }
+      if (nextState.status === "success") {
+        startTransition(() => {
+          setOpen(false);
+        });
+      }
 
-        return nextState;
-      },
-      initialAchievementActionState,
-    );
+      return nextState;
+    },
+    initialAchievementActionState,
+  );
 
   useActionToast(state);
 
-  const values: AchievementFormValues =
-    achievement
-      ? {
-          title: achievement.title,
-          slug: achievement.slug,
-          achievementType:
-            achievement.achievementType,
-          category:
-            achievement.category ?? "",
-          winnerName:
-            achievement.winnerName ?? "",
-          competitionLevel:
-            achievement.competitionLevel ??
-            "",
-          rank: achievement.rank ?? "",
-          achievementDate:
-            achievement.achievementDate ??
-            "",
-          description:
-            achievement.description ?? "",
-          isPublished:
-            achievement.isPublished,
-        }
-      : emptyValues;
+  const values: AchievementFormValues = achievement
+    ? {
+        title: achievement.title,
+        slug: achievement.slug,
+        achievementType: achievement.achievementType,
+        category: achievement.category ?? "",
+        winnerName: achievement.winnerName ?? "",
+        competitionLevel: achievement.competitionLevel ?? "",
+        rank: achievement.rank ?? "",
+        achievementDate: achievement.achievementDate ?? "",
+        description: achievement.description ?? "",
+        isPublished: achievement.isPublished,
+      }
+    : emptyValues;
 
   const formId = achievement
     ? `edit-achievement-${achievement.id}`
@@ -144,37 +121,22 @@ export function AchievementFormDialog({
     : `create-${state.achievementId ?? "new"}`;
 
   return (
-    <Dialog
-      open={open}
-      onOpenChange={setOpen}
-    >
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button
-          variant={
-            isEdit ? "outline" : "default"
-          }
-          size={
-            isEdit ? "sm" : "default"
-          }
+          variant={isEdit ? "outline" : "default"}
+          size={isEdit ? "sm" : "default"}
         >
-          {isEdit ? (
-            <Pencil className="size-4" />
-          ) : (
-            <Plus className="size-4" />
-          )}
+          {isEdit ? <Pencil className="size-4" /> : <Plus className="size-4" />}
 
-          {isEdit
-            ? "Edit"
-            : "Tambah prestasi"}
+          {isEdit ? "Edit" : "Tambah prestasi"}
         </Button>
       </DialogTrigger>
 
       <DialogContent className="max-h-[90svh] overflow-y-auto sm:max-w-3xl">
         <DialogHeader>
           <DialogTitle>
-            {isEdit
-              ? "Edit prestasi"
-              : "Tambah prestasi"}
+            {isEdit ? "Edit prestasi" : "Tambah prestasi"}
           </DialogTitle>
 
           <DialogDescription>
@@ -184,25 +146,14 @@ export function AchievementFormDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <form
-          action={formAction}
-          className="space-y-6"
-          noValidate
-        >
+        <form action={formAction} className="space-y-6" noValidate>
           {achievement ? (
-            <input
-              type="hidden"
-              name="id"
-              value={achievement.id}
-            />
+            <input type="hidden" name="id" value={achievement.id} />
           ) : null}
 
-          {state.status === "error" &&
-          state.message ? (
+          {state.status === "error" && state.message ? (
             <Alert variant="destructive">
-              <AlertDescription>
-                {state.message}
-              </AlertDescription>
+              <AlertDescription>{state.message}</AlertDescription>
             </Alert>
           ) : null}
 
@@ -216,19 +167,12 @@ export function AchievementFormDialog({
 
           <DialogFooter>
             <DialogClose asChild>
-              <Button
-                type="button"
-                variant="outline"
-                disabled={isPending}
-              >
+              <Button type="button" variant="outline" disabled={isPending}>
                 Batal
               </Button>
             </DialogClose>
 
-            <Button
-              type="submit"
-              disabled={isPending}
-            >
+            <Button type="submit" disabled={isPending}>
               {isPending ? (
                 <>
                   <Spinner data-icon="inline-start" />

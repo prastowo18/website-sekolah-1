@@ -174,11 +174,11 @@ export async function updateContactMessageAction(
       };
     }
 
-    revalidatePath("/admin/pesan-kontak");
+    revalidatePath("/konsol-8m4q7x2k9v6d/pesan-kontak");
 
-    revalidatePath(`/admin/pesan-kontak/${messageId}`);
+    revalidatePath(`/konsol-8m4q7x2k9v6d/pesan-kontak/${messageId}`);
 
-    revalidatePath("/admin/dashboard");
+    revalidatePath("/konsol-8m4q7x2k9v6d/dashboard");
 
     return {
       status: "success",

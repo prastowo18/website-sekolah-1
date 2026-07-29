@@ -46,15 +46,11 @@ function deriveKey(
 
 export function validatePasswordLength(password: string): void {
   if (password.length < MIN_PASSWORD_LENGTH) {
-    throw new Error(
-      `Password minimal ${MIN_PASSWORD_LENGTH} karakter.`,
-    );
+    throw new Error(`Password minimal ${MIN_PASSWORD_LENGTH} karakter.`);
   }
 
   if (password.length > MAX_PASSWORD_LENGTH) {
-    throw new Error(
-      `Password maksimal ${MAX_PASSWORD_LENGTH} karakter.`,
-    );
+    throw new Error(`Password maksimal ${MAX_PASSWORD_LENGTH} karakter.`);
   }
 }
 
@@ -91,8 +87,7 @@ export async function verifyPassword(
     return false;
   }
 
-  const [algorithm, nValue, rValue, pValue, saltValue, hashValue] =
-    parts;
+  const [algorithm, nValue, rValue, pValue, saltValue, hashValue] = parts;
 
   const n = Number(nValue);
   const r = Number(rValue);
@@ -111,18 +106,11 @@ export async function verifyPassword(
     const salt = Buffer.from(saltValue, "base64url");
     const expectedKey = Buffer.from(hashValue, "base64url");
 
-    if (
-      salt.length !== SALT_LENGTH ||
-      expectedKey.length !== KEY_LENGTH
-    ) {
+    if (salt.length !== SALT_LENGTH || expectedKey.length !== KEY_LENGTH) {
       return false;
     }
 
-    const actualKey = await deriveKey(
-      password,
-      salt,
-      expectedKey.length,
-    );
+    const actualKey = await deriveKey(password, salt, expectedKey.length);
 
     return timingSafeEqual(actualKey, expectedKey);
   } catch {

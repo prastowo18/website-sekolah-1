@@ -6,9 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
-import type {
-  ProgramFieldName,
-} from "@/features/program/types";
+import type { ProgramFieldName } from "@/features/program/types";
 
 export type ProgramFormValues = {
   name: string;
@@ -21,9 +19,7 @@ export type ProgramFormValues = {
   isActive: boolean;
 };
 
-type ProgramFieldErrors = Partial<
-  Record<ProgramFieldName, string[]>
->;
+type ProgramFieldErrors = Partial<Record<ProgramFieldName, string[]>>;
 
 type ProgramFormFieldsProps = {
   formId: string;
@@ -48,10 +44,7 @@ function FieldError({
   }
 
   return (
-    <p
-      id={`${formId}-${field}-error`}
-      className="text-sm text-destructive"
-    >
+    <p id={`${formId}-${field}-error`} className="text-sm text-destructive">
       {message}
     </p>
   );
@@ -62,9 +55,7 @@ function errorDescription(
   field: ProgramFieldName,
   errors?: ProgramFieldErrors,
 ): string | undefined {
-  return errors?.[field]?.length
-    ? `${formId}-${field}-error`
-    : undefined;
+  return errors?.[field]?.length ? `${formId}-${field}-error` : undefined;
 }
 
 export function ProgramFormFields({
@@ -73,19 +64,15 @@ export function ProgramFormFields({
   errors,
   disabled = false,
 }: ProgramFormFieldsProps) {
-  const [isFeatured, setIsFeatured] =
-    useState(values.isFeatured);
+  const [isFeatured, setIsFeatured] = useState(values.isFeatured);
 
-  const [isActive, setIsActive] =
-    useState(values.isActive);
+  const [isActive, setIsActive] = useState(values.isActive);
 
   return (
     <div className="grid gap-5">
       <div className="grid gap-5 md:grid-cols-2">
         <div className="space-y-2">
-          <Label htmlFor={`${formId}-name`}>
-            Nama program
-          </Label>
+          <Label htmlFor={`${formId}-name`}>Nama program</Label>
 
           <Input
             id={`${formId}-name`}
@@ -94,28 +81,16 @@ export function ProgramFormFields({
             placeholder="Contoh: Program Tahfiz"
             maxLength={160}
             disabled={disabled}
-            aria-invalid={Boolean(
-              errors?.name?.length,
-            )}
-            aria-describedby={errorDescription(
-              formId,
-              "name",
-              errors,
-            )}
+            aria-invalid={Boolean(errors?.name?.length)}
+            aria-describedby={errorDescription(formId, "name", errors)}
             required
           />
 
-          <FieldError
-            formId={formId}
-            field="name"
-            errors={errors}
-          />
+          <FieldError formId={formId} field="name" errors={errors} />
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor={`${formId}-slug`}>
-            Slug
-          </Label>
+          <Label htmlFor={`${formId}-slug`}>Slug</Label>
 
           <Input
             id={`${formId}-slug`}
@@ -124,9 +99,7 @@ export function ProgramFormFields({
             placeholder="Otomatis dari nama program"
             maxLength={180}
             disabled={disabled}
-            aria-invalid={Boolean(
-              errors?.slug?.length,
-            )}
+            aria-invalid={Boolean(errors?.slug?.length)}
             aria-describedby={
               errors?.slug?.length
                 ? `${formId}-slug-error`
@@ -138,24 +111,15 @@ export function ProgramFormFields({
             id={`${formId}-slug-help`}
             className="text-xs text-muted-foreground"
           >
-            Kosongkan agar slug dibuat otomatis
-            dari nama program.
+            Kosongkan agar slug dibuat otomatis dari nama program.
           </p>
 
-          <FieldError
-            formId={formId}
-            field="slug"
-            errors={errors}
-          />
+          <FieldError formId={formId} field="slug" errors={errors} />
         </div>
       </div>
 
       <div className="space-y-2">
-        <Label
-          htmlFor={`${formId}-shortDescription`}
-        >
-          Deskripsi singkat
-        </Label>
+        <Label htmlFor={`${formId}-shortDescription`}>Deskripsi singkat</Label>
 
         <Textarea
           id={`${formId}-shortDescription`}
@@ -165,9 +129,7 @@ export function ProgramFormFields({
           rows={3}
           maxLength={300}
           disabled={disabled}
-          aria-invalid={Boolean(
-            errors?.shortDescription?.length,
-          )}
+          aria-invalid={Boolean(errors?.shortDescription?.length)}
           aria-describedby={errorDescription(
             formId,
             "shortDescription",
@@ -175,19 +137,11 @@ export function ProgramFormFields({
           )}
         />
 
-        <FieldError
-          formId={formId}
-          field="shortDescription"
-          errors={errors}
-        />
+        <FieldError formId={formId} field="shortDescription" errors={errors} />
       </div>
 
       <div className="space-y-2">
-        <Label
-          htmlFor={`${formId}-description`}
-        >
-          Deskripsi lengkap
-        </Label>
+        <Label htmlFor={`${formId}-description`}>Deskripsi lengkap</Label>
 
         <Textarea
           id={`${formId}-description`}
@@ -197,27 +151,15 @@ export function ProgramFormFields({
           rows={7}
           maxLength={20000}
           disabled={disabled}
-          aria-invalid={Boolean(
-            errors?.description?.length,
-          )}
-          aria-describedby={errorDescription(
-            formId,
-            "description",
-            errors,
-          )}
+          aria-invalid={Boolean(errors?.description?.length)}
+          aria-describedby={errorDescription(formId, "description", errors)}
         />
 
-        <FieldError
-          formId={formId}
-          field="description"
-          errors={errors}
-        />
+        <FieldError formId={formId} field="description" errors={errors} />
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor={`${formId}-benefits`}>
-          Manfaat program
-        </Label>
+        <Label htmlFor={`${formId}-benefits`}>Manfaat program</Label>
 
         <Textarea
           id={`${formId}-benefits`}
@@ -229,9 +171,7 @@ export function ProgramFormFields({
           rows={6}
           maxLength={10000}
           disabled={disabled}
-          aria-invalid={Boolean(
-            errors?.benefits?.length,
-          )}
+          aria-invalid={Boolean(errors?.benefits?.length)}
           aria-describedby={
             errors?.benefits?.length
               ? `${formId}-benefits-error`
@@ -246,17 +186,11 @@ export function ProgramFormFields({
           Tulis satu manfaat pada setiap baris.
         </p>
 
-        <FieldError
-          formId={formId}
-          field="benefits"
-          errors={errors}
-        />
+        <FieldError formId={formId} field="benefits" errors={errors} />
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor={`${formId}-sortOrder`}>
-          Urutan tampil
-        </Label>
+        <Label htmlFor={`${formId}-sortOrder`}>Urutan tampil</Label>
 
         <Input
           id={`${formId}-sortOrder`}
@@ -266,33 +200,20 @@ export function ProgramFormFields({
           min={0}
           max={9999}
           disabled={disabled}
-          aria-invalid={Boolean(
-            errors?.sortOrder?.length,
-          )}
-          aria-describedby={errorDescription(
-            formId,
-            "sortOrder",
-            errors,
-          )}
+          aria-invalid={Boolean(errors?.sortOrder?.length)}
+          aria-describedby={errorDescription(formId, "sortOrder", errors)}
         />
 
-        <FieldError
-          formId={formId}
-          field="sortOrder"
-          errors={errors}
-        />
+        <FieldError formId={formId} field="sortOrder" errors={errors} />
       </div>
 
       <div className="grid gap-4 rounded-lg border p-4 md:grid-cols-2">
         <div className="flex items-center justify-between gap-4">
           <div className="space-y-1">
-            <Label htmlFor={`${formId}-isActive`}>
-              Program aktif
-            </Label>
+            <Label htmlFor={`${formId}-isActive`}>Program aktif</Label>
 
             <p className="text-xs text-muted-foreground">
-              Program aktif dapat ditampilkan
-              pada website publik.
+              Program aktif dapat ditampilkan pada website publik.
             </p>
           </div>
 
@@ -312,24 +233,17 @@ export function ProgramFormFields({
 
         <div className="flex items-center justify-between gap-4">
           <div className="space-y-1">
-            <Label
-              htmlFor={`${formId}-isFeatured`}
-            >
-              Program unggulan
-            </Label>
+            <Label htmlFor={`${formId}-isFeatured`}>Program unggulan</Label>
 
             <p className="text-xs text-muted-foreground">
-              Program dapat ditampilkan pada
-              bagian unggulan beranda.
+              Program dapat ditampilkan pada bagian unggulan beranda.
             </p>
           </div>
 
           <input
             type="hidden"
             name="isFeatured"
-            value={
-              isFeatured ? "true" : "false"
-            }
+            value={isFeatured ? "true" : "false"}
           />
 
           <Switch

@@ -1,16 +1,9 @@
 "use client";
 
 import { Trash2 } from "lucide-react";
-import {
-  startTransition,
-  useActionState,
-  useState,
-} from "react";
+import { startTransition, useActionState, useState } from "react";
 
-import {
-  Alert,
-  AlertDescription,
-} from "@/components/ui/alert";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import {
   AlertDialog,
   AlertDialogCancel,
@@ -41,42 +34,33 @@ export function ExtracurricularDeleteDialog({
 }: ExtracurricularDeleteDialogProps) {
   const [open, setOpen] = useState(false);
 
-  const [state, formAction, isPending] =
-    useActionState(
-      async (
-        previousState: ExtracurricularActionState,
-        formData: FormData,
-      ): Promise<ExtracurricularActionState> => {
-        const nextState =
-          await deleteExtracurricularAction(
-            previousState,
-            formData,
-          );
+  const [state, formAction, isPending] = useActionState(
+    async (
+      previousState: ExtracurricularActionState,
+      formData: FormData,
+    ): Promise<ExtracurricularActionState> => {
+      const nextState = await deleteExtracurricularAction(
+        previousState,
+        formData,
+      );
 
-        if (nextState.status === "success") {
-          startTransition(() => {
-            setOpen(false);
-          });
-        }
+      if (nextState.status === "success") {
+        startTransition(() => {
+          setOpen(false);
+        });
+      }
 
-        return nextState;
-      },
-      initialExtracurricularActionState,
-    );
+      return nextState;
+    },
+    initialExtracurricularActionState,
+  );
 
   useActionToast(state);
 
   return (
-    <AlertDialog
-      open={open}
-      onOpenChange={setOpen}
-    >
+    <AlertDialog open={open} onOpenChange={setOpen}>
       <AlertDialogTrigger asChild>
-        <Button
-          type="button"
-          variant="destructive"
-          size="sm"
-        >
+        <Button type="button" variant="destructive" size="sm">
           <Trash2 className="size-4" />
           Hapus
         </Button>
@@ -84,52 +68,29 @@ export function ExtracurricularDeleteDialog({
 
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>
-            Hapus ekstrakurikuler?
-          </AlertDialogTitle>
+          <AlertDialogTitle>Hapus ekstrakurikuler?</AlertDialogTitle>
 
           <AlertDialogDescription>
-            Ekstrakurikuler{" "}
-            <strong>
-              {extracurricularName}
-            </strong>{" "}
-            akan dihapus secara permanen.
-            Tindakan ini tidak dapat dibatalkan.
+            Ekstrakurikuler <strong>{extracurricularName}</strong> akan dihapus
+            secara permanen. Tindakan ini tidak dapat dibatalkan.
           </AlertDialogDescription>
         </AlertDialogHeader>
 
-        <form
-          action={formAction}
-          className="space-y-4"
-        >
-          <input
-            type="hidden"
-            name="id"
-            value={extracurricularId}
-          />
+        <form action={formAction} className="space-y-4">
+          <input type="hidden" name="id" value={extracurricularId} />
 
-          {state.status === "error" &&
-          state.message ? (
+          {state.status === "error" && state.message ? (
             <Alert variant="destructive">
-              <AlertDescription>
-                {state.message}
-              </AlertDescription>
+              <AlertDescription>{state.message}</AlertDescription>
             </Alert>
           ) : null}
 
           <AlertDialogFooter>
-            <AlertDialogCancel
-              type="button"
-              disabled={isPending}
-            >
+            <AlertDialogCancel type="button" disabled={isPending}>
               Batal
             </AlertDialogCancel>
 
-            <Button
-              type="submit"
-              variant="destructive"
-              disabled={isPending}
-            >
+            <Button type="submit" variant="destructive" disabled={isPending}>
               {isPending ? (
                 <>
                   <Spinner data-icon="inline-start" />

@@ -1,4 +1,4 @@
-import type { Metadata } from 'next';
+import type { Metadata } from "next";
 import {
   ChevronLeft,
   ChevronRight,
@@ -12,30 +12,30 @@ import {
   Files,
   RotateCcw,
   Search,
-} from 'lucide-react';
-import Link from 'next/link';
-import type { ReactNode } from 'react';
+} from "lucide-react";
+import Link from "next/link";
+import type { ReactNode } from "react";
 
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
+} from "@/components/ui/select";
 import {
   getPublicDocumentFilters,
   getPublicDocumentList,
-} from '@/features/download-document/public-queries';
+} from "@/features/download-document/public-queries";
 
 export const metadata: Metadata = {
-  title: 'Dokumen',
+  title: "Dokumen",
   description:
-    'Unduh dokumen, formulir, kalender, panduan, dan informasi resmi sekolah.',
+    "Unduh dokumen, formulir, kalender, panduan, dan informasi resmi sekolah.",
 };
 
 const PAGE_SIZE = 10;
@@ -48,7 +48,7 @@ type SearchParams = {
 };
 
 function firstValue(value: string | string[] | undefined): string {
-  return Array.isArray(value) ? (value[0] ?? '') : (value ?? '');
+  return Array.isArray(value) ? (value[0] ?? "") : (value ?? "");
 }
 
 function normalizePage(value: string): number {
@@ -58,22 +58,22 @@ function normalizePage(value: string): number {
 }
 
 function formatDate(value: Date): string {
-  return new Intl.DateTimeFormat('id-ID', {
-    dateStyle: 'long',
-    timeZone: 'Asia/Jakarta',
+  return new Intl.DateTimeFormat("id-ID", {
+    dateStyle: "long",
+    timeZone: "Asia/Jakarta",
   }).format(value);
 }
 
 function formatFileSize(bytes: number | null): string {
   if (bytes === null) {
-    return 'Ukuran tidak tersedia';
+    return "Ukuran tidak tersedia";
   }
 
   if (bytes === 0) {
-    return '0 B';
+    return "0 B";
   }
 
-  const units = ['B', 'KB', 'MB', 'GB'];
+  const units = ["B", "KB", "MB", "GB"];
   const unitIndex = Math.min(
     Math.floor(Math.log(bytes) / Math.log(1024)),
     units.length - 1,
@@ -81,7 +81,7 @@ function formatFileSize(bytes: number | null): string {
 
   const value = bytes / Math.pow(1024, unitIndex);
 
-  return `${new Intl.NumberFormat('id-ID', {
+  return `${new Intl.NumberFormat("id-ID", {
     maximumFractionDigits: 2,
   }).format(value)} ${units[unitIndex]}`;
 }
@@ -90,40 +90,40 @@ function getFileIcon(fileType: string | null, fileName: string): ReactNode {
   const normalized = (fileType || fileName).toLowerCase();
 
   if (
-    normalized.includes('spreadsheet') ||
-    normalized.includes('excel') ||
-    normalized.endsWith('.xls') ||
-    normalized.endsWith('.xlsx') ||
-    normalized.endsWith('.csv')
+    normalized.includes("spreadsheet") ||
+    normalized.includes("excel") ||
+    normalized.endsWith(".xls") ||
+    normalized.endsWith(".xlsx") ||
+    normalized.endsWith(".csv")
   ) {
     return <FileSpreadsheet className="size-7" />;
   }
 
   if (
-    normalized.includes('image') ||
-    normalized.endsWith('.jpg') ||
-    normalized.endsWith('.jpeg') ||
-    normalized.endsWith('.png') ||
-    normalized.endsWith('.webp')
+    normalized.includes("image") ||
+    normalized.endsWith(".jpg") ||
+    normalized.endsWith(".jpeg") ||
+    normalized.endsWith(".png") ||
+    normalized.endsWith(".webp")
   ) {
     return <FileImage className="size-7" />;
   }
 
   if (
-    normalized.includes('zip') ||
-    normalized.includes('archive') ||
-    normalized.endsWith('.zip') ||
-    normalized.endsWith('.rar')
+    normalized.includes("zip") ||
+    normalized.includes("archive") ||
+    normalized.endsWith(".zip") ||
+    normalized.endsWith(".rar")
   ) {
     return <FileArchive className="size-7" />;
   }
 
   if (
-    normalized.includes('pdf') ||
-    normalized.includes('word') ||
-    normalized.includes('document') ||
-    normalized.endsWith('.doc') ||
-    normalized.endsWith('.docx')
+    normalized.includes("pdf") ||
+    normalized.includes("word") ||
+    normalized.includes("document") ||
+    normalized.endsWith(".doc") ||
+    normalized.endsWith(".docx")
   ) {
     return <FileText className="size-7" />;
   }
@@ -132,13 +132,13 @@ function getFileIcon(fileType: string | null, fileName: string): ReactNode {
 }
 
 function getFileTypeLabel(fileType: string | null, fileName: string): string {
-  const extension = fileName.split('.').pop()?.trim().toUpperCase();
+  const extension = fileName.split(".").pop()?.trim().toUpperCase();
 
   if (extension && extension !== fileName.toUpperCase()) {
     return extension;
   }
 
-  return fileType ?? 'File';
+  return fileType ?? "File";
 }
 
 function buildHref({
@@ -155,24 +155,24 @@ function buildHref({
   const parameters = new URLSearchParams();
 
   if (q) {
-    parameters.set('q', q);
+    parameters.set("q", q);
   }
 
   if (category) {
-    parameters.set('category', category);
+    parameters.set("category", category);
   }
 
   if (fileType) {
-    parameters.set('fileType', fileType);
+    parameters.set("fileType", fileType);
   }
 
   if (page > 1) {
-    parameters.set('page', String(page));
+    parameters.set("page", String(page));
   }
 
   const query = parameters.toString();
 
-  return query ? `/dokumen?${query}` : '/dokumen';
+  return query ? `/dokumen?${query}` : "/dokumen";
 }
 
 export default async function PublicDocumentPage({
@@ -196,11 +196,11 @@ export default async function PublicDocumentPage({
 
   const category = filters.categories.includes(requestedCategory)
     ? requestedCategory
-    : '';
+    : "";
 
   const fileType = filters.fileTypes.includes(requestedFileType)
     ? requestedFileType
-    : '';
+    : "";
 
   const result = await getPublicDocumentList({
     q,
@@ -253,7 +253,7 @@ export default async function PublicDocumentPage({
                 />
               </div>
 
-              <Select name="category" defaultValue={category || 'all'}>
+              <Select name="category" defaultValue={category || "all"}>
                 <SelectTrigger className="w-full">
                   <SelectValue placeholder="Semua kategori" />
                 </SelectTrigger>
@@ -269,7 +269,7 @@ export default async function PublicDocumentPage({
                 </SelectContent>
               </Select>
 
-              <Select name="fileType" defaultValue={fileType || 'all'}>
+              <Select name="fileType" defaultValue={fileType || "all"}>
                 <SelectTrigger className="w-full">
                   <SelectValue placeholder="Semua tipe file" />
                 </SelectTrigger>

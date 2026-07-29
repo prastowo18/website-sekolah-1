@@ -9,18 +9,10 @@ import {
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PublicContactForm } from "@/features/contact-message/components/public-contact-form";
 import { getPublicSchoolProfile } from "@/features/public-site/queries";
-import {
-  toPhoneHref,
-  toWhatsAppHref,
-} from "@/lib/public-links";
+import { toPhoneHref, toWhatsAppHref } from "@/lib/public-links";
 
 export const metadata: Metadata = {
   title: "Kontak",
@@ -29,20 +21,16 @@ export const metadata: Metadata = {
 };
 
 export default async function ContactPage() {
-  const profile =
-    await getPublicSchoolProfile();
+  const profile = await getPublicSchoolProfile();
 
-  const phoneHref = profile?.phone
-    ? toPhoneHref(profile.phone)
+  const phoneHref = profile?.phone ? toPhoneHref(profile.phone) : null;
+
+  const whatsappHref = profile?.whatsapp
+    ? toWhatsAppHref(
+        profile.whatsapp,
+        `Halo ${profile.schoolName}, saya ingin menanyakan informasi mengenai sekolah.`,
+      )
     : null;
-
-  const whatsappHref =
-    profile?.whatsapp
-      ? toWhatsAppHref(
-          profile.whatsapp,
-          `Halo ${profile.schoolName}, saya ingin menanyakan informasi mengenai sekolah.`,
-        )
-      : null;
 
   return (
     <main>
@@ -59,9 +47,8 @@ export default async function ContactPage() {
             </h1>
 
             <p className="mt-4 text-lg leading-8 text-muted-foreground">
-              Kirim pertanyaan melalui formulir
-              atau hubungi sekolah melalui kanal
-              resmi yang tersedia.
+              Kirim pertanyaan melalui formulir atau hubungi sekolah melalui
+              kanal resmi yang tersedia.
             </p>
           </div>
         </div>
@@ -71,21 +58,16 @@ export default async function ContactPage() {
         <aside className="space-y-5">
           <Card>
             <CardHeader>
-              <CardTitle>
-                Informasi Sekolah
-              </CardTitle>
+              <CardTitle>Informasi Sekolah</CardTitle>
             </CardHeader>
 
             <CardContent className="space-y-5">
-              {profile?.phone &&
-              phoneHref ? (
+              {profile?.phone && phoneHref ? (
                 <div className="flex items-start gap-3">
                   <Phone className="mt-0.5 size-5 shrink-0 text-primary" />
 
                   <div>
-                    <p className="font-medium">
-                      Telepon
-                    </p>
+                    <p className="font-medium">Telepon</p>
 
                     <a
                       href={phoneHref}
@@ -97,15 +79,12 @@ export default async function ContactPage() {
                 </div>
               ) : null}
 
-              {profile?.whatsapp &&
-              whatsappHref ? (
+              {profile?.whatsapp && whatsappHref ? (
                 <div className="flex items-start gap-3">
                   <MessageCircle className="mt-0.5 size-5 shrink-0 text-primary" />
 
                   <div>
-                    <p className="font-medium">
-                      WhatsApp
-                    </p>
+                    <p className="font-medium">WhatsApp</p>
 
                     <a
                       href={whatsappHref}
@@ -124,9 +103,7 @@ export default async function ContactPage() {
                   <Mail className="mt-0.5 size-5 shrink-0 text-primary" />
 
                   <div className="min-w-0">
-                    <p className="font-medium">
-                      Email
-                    </p>
+                    <p className="font-medium">Email</p>
 
                     <a
                       href={`mailto:${profile.email}`}
@@ -138,12 +115,9 @@ export default async function ContactPage() {
                 </div>
               ) : null}
 
-              {!profile?.phone &&
-              !profile?.whatsapp &&
-              !profile?.email ? (
+              {!profile?.phone && !profile?.whatsapp && !profile?.email ? (
                 <div className="rounded-lg border border-dashed p-5 text-sm leading-6 text-muted-foreground">
-                  Informasi kontak sekolah belum
-                  diisi oleh administrator.
+                  Informasi kontak sekolah belum diisi oleh administrator.
                 </div>
               ) : null}
             </CardContent>
@@ -153,28 +127,18 @@ export default async function ContactPage() {
             <CardContent className="pt-6">
               <MapPin className="size-6 text-primary" />
 
-              <h2 className="mt-4 font-semibold">
-                Kunjungan ke Sekolah
-              </h2>
+              <h2 className="mt-4 font-semibold">Kunjungan ke Sekolah</h2>
 
               <p className="mt-2 text-sm leading-6 text-muted-foreground">
-                Hubungi sekolah terlebih dahulu
-                untuk memastikan jadwal pelayanan
-                dan kunjungan.
+                Hubungi sekolah terlebih dahulu untuk memastikan jadwal
+                pelayanan dan kunjungan.
               </p>
             </CardContent>
           </Card>
 
           {whatsappHref ? (
-            <Button
-              className="w-full"
-              asChild
-            >
-              <a
-                href={whatsappHref}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
+            <Button className="w-full" asChild>
+              <a href={whatsappHref} target="_blank" rel="noopener noreferrer">
                 <MessageCircle className="size-4" />
                 Hubungi melalui WhatsApp
               </a>
@@ -184,13 +148,10 @@ export default async function ContactPage() {
 
         <Card>
           <CardHeader>
-            <CardTitle className="text-2xl">
-              Kirim Pesan
-            </CardTitle>
+            <CardTitle className="text-2xl">Kirim Pesan</CardTitle>
 
             <p className="leading-7 text-muted-foreground">
-              Sekolah akan meninjau pesan dan
-              memberikan tanggapan melalui email
+              Sekolah akan meninjau pesan dan memberikan tanggapan melalui email
               atau nomor telepon yang dicantumkan.
             </p>
           </CardHeader>

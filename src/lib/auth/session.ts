@@ -1,18 +1,18 @@
-import { createHash, randomBytes } from 'node:crypto';
+import { createHash, randomBytes } from "node:crypto";
 
-import { cookies } from 'next/headers';
+import { cookies } from "next/headers";
 
-import { prisma } from '@/lib/prisma';
+import { prisma } from "@/lib/prisma";
 
-const SESSION_COOKIE_NAME = 'school_admin_session';
+const SESSION_COOKIE_NAME = "school_admin_session";
 const SESSION_DURATION_MS = 8 * 60 * 60 * 1000;
 
 function hashSessionToken(token: string): string {
-  return createHash('sha256').update(token).digest('hex');
+  return createHash("sha256").update(token).digest("hex");
 }
 
 function generateSessionToken(): string {
-  return randomBytes(32).toString('base64url');
+  return randomBytes(32).toString("base64url");
 }
 
 export async function createSession(userId: string): Promise<void> {
@@ -34,9 +34,9 @@ export async function createSession(userId: string): Promise<void> {
     name: SESSION_COOKIE_NAME,
     value: token,
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'lax',
-    path: '/',
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+    path: "/",
     expires: expiresAt,
   });
 }

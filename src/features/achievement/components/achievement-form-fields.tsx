@@ -1,16 +1,16 @@
-'use client';
+"use client";
 
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
-import { Switch } from '@/components/ui/switch';
-import { Textarea } from '@/components/ui/textarea';
+} from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
+import { Textarea } from "@/components/ui/textarea";
 import {
   achievementTypeLabels,
   achievementTypes,
@@ -18,16 +18,16 @@ import {
   competitionLevels,
   type AchievementTypeValue,
   type CompetitionLevelValue,
-} from '@/features/achievement/constants';
-import type { AchievementFieldName } from '@/features/achievement/types';
-import { useState } from 'react';
+} from "@/features/achievement/constants";
+import type { AchievementFieldName } from "@/features/achievement/types";
+import { useState } from "react";
 export type AchievementFormValues = {
   title: string;
   slug: string;
   achievementType: AchievementTypeValue;
   category: string;
   winnerName: string;
-  competitionLevel: CompetitionLevelValue | '';
+  competitionLevel: CompetitionLevelValue | "";
   rank: string;
   achievementDate: string;
   description: string;
@@ -84,8 +84,8 @@ export function AchievementFormFields({
   );
 
   const [competitionLevel, setCompetitionLevel] = useState<
-    CompetitionLevelValue | 'none'
-  >(values.competitionLevel || 'none');
+    CompetitionLevelValue | "none"
+  >(values.competitionLevel || "none");
 
   const [isPublished, setIsPublished] = useState(values.isPublished);
 
@@ -102,7 +102,7 @@ export function AchievementFormFields({
           maxLength={220}
           disabled={disabled}
           aria-invalid={Boolean(errors?.title?.length)}
-          aria-describedby={getErrorId(formId, 'title', errors)}
+          aria-describedby={getErrorId(formId, "title", errors)}
           required
         />
 
@@ -154,7 +154,7 @@ export function AchievementFormFields({
               id={`${formId}-achievementType`}
               className="w-full"
               aria-invalid={Boolean(errors?.achievementType?.length)}
-              aria-describedby={getErrorId(formId, 'achievementType', errors)}
+              aria-describedby={getErrorId(formId, "achievementType", errors)}
             >
               <SelectValue placeholder="Pilih jenis prestasi" />
             </SelectTrigger>
@@ -184,7 +184,7 @@ export function AchievementFormFields({
             maxLength={120}
             disabled={disabled}
             aria-invalid={Boolean(errors?.category?.length)}
-            aria-describedby={getErrorId(formId, 'category', errors)}
+            aria-describedby={getErrorId(formId, "category", errors)}
           />
 
           <FieldError formId={formId} field="category" errors={errors} />
@@ -201,7 +201,7 @@ export function AchievementFormFields({
             maxLength={180}
             disabled={disabled}
             aria-invalid={Boolean(errors?.winnerName?.length)}
-            aria-describedby={getErrorId(formId, 'winnerName', errors)}
+            aria-describedby={getErrorId(formId, "winnerName", errors)}
           />
 
           <FieldError formId={formId} field="winnerName" errors={errors} />
@@ -217,13 +217,13 @@ export function AchievementFormFields({
           <input
             type="hidden"
             name="competitionLevel"
-            value={competitionLevel === 'none' ? '' : competitionLevel}
+            value={competitionLevel === "none" ? "" : competitionLevel}
           />
 
           <Select
             value={competitionLevel}
             onValueChange={(value) => {
-              setCompetitionLevel(value as CompetitionLevelValue | 'none');
+              setCompetitionLevel(value as CompetitionLevelValue | "none");
             }}
             disabled={disabled}
           >
@@ -231,7 +231,7 @@ export function AchievementFormFields({
               id={`${formId}-competitionLevel`}
               className="w-full"
               aria-invalid={Boolean(errors?.competitionLevel?.length)}
-              aria-describedby={getErrorId(formId, 'competitionLevel', errors)}
+              aria-describedby={getErrorId(formId, "competitionLevel", errors)}
             >
               <SelectValue placeholder="Pilih tingkat" />
             </SelectTrigger>
@@ -265,7 +265,7 @@ export function AchievementFormFields({
             maxLength={80}
             disabled={disabled}
             aria-invalid={Boolean(errors?.rank?.length)}
-            aria-describedby={getErrorId(formId, 'rank', errors)}
+            aria-describedby={getErrorId(formId, "rank", errors)}
           />
 
           <FieldError formId={formId} field="rank" errors={errors} />
@@ -281,7 +281,7 @@ export function AchievementFormFields({
             defaultValue={values.achievementDate}
             disabled={disabled}
             aria-invalid={Boolean(errors?.achievementDate?.length)}
-            aria-describedby={getErrorId(formId, 'achievementDate', errors)}
+            aria-describedby={getErrorId(formId, "achievementDate", errors)}
           />
 
           <FieldError formId={formId} field="achievementDate" errors={errors} />
@@ -300,7 +300,7 @@ export function AchievementFormFields({
           maxLength={20000}
           disabled={disabled}
           aria-invalid={Boolean(errors?.description?.length)}
-          aria-describedby={getErrorId(formId, 'description', errors)}
+          aria-describedby={getErrorId(formId, "description", errors)}
         />
 
         <FieldError formId={formId} field="description" errors={errors} />
@@ -318,7 +318,7 @@ export function AchievementFormFields({
         <input
           type="hidden"
           name="isPublished"
-          value={isPublished ? 'true' : 'false'}
+          value={isPublished ? "true" : "false"}
         />
 
         <Switch

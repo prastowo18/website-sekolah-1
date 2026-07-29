@@ -1,76 +1,76 @@
-import { ImageResponse } from 'next/og';
+import { ImageResponse } from "next/og";
 
-export const alt = 'Website resmi sekolah dasar';
+export const alt = "Website resmi sekolah dasar";
 
 export const size = {
   width: 1200,
   height: 630,
 };
 
-export const contentType = 'image/png';
+export const contentType = "image/png";
 
 export default function OpenGraphImage() {
   const schoolName =
-    process.env.NEXT_PUBLIC_SITE_NAME?.trim() || 'Sekolah Dasar';
+    process.env.NEXT_PUBLIC_SITE_NAME?.trim() || "Sekolah Dasar";
 
-  const themeColor = process.env.NEXT_PUBLIC_THEME_COLOR?.trim() || '#0f172a';
+  const themeColor = process.env.NEXT_PUBLIC_THEME_COLOR?.trim() || "#0f172a";
 
   return new ImageResponse(
     <div
       style={{
-        width: '100%',
-        height: '100%',
-        display: 'flex',
-        position: 'relative',
-        overflow: 'hidden',
+        width: "100%",
+        height: "100%",
+        display: "flex",
+        position: "relative",
+        overflow: "hidden",
         background: themeColor,
-        color: '#ffffff',
-        fontFamily: 'sans-serif',
+        color: "#ffffff",
+        fontFamily: "sans-serif",
       }}
     >
       <div
         style={{
-          position: 'absolute',
+          position: "absolute",
           width: 520,
           height: 520,
-          borderRadius: '50%',
+          borderRadius: "50%",
           top: -220,
           right: -120,
-          background: 'rgba(255,255,255,0.08)',
+          background: "rgba(255,255,255,0.08)",
         }}
       />
 
       <div
         style={{
-          position: 'absolute',
+          position: "absolute",
           width: 380,
           height: 380,
-          borderRadius: '50%',
+          borderRadius: "50%",
           bottom: -190,
           left: -100,
-          background: 'rgba(255,255,255,0.06)',
+          background: "rgba(255,255,255,0.06)",
         }}
       />
 
       <div
         style={{
-          width: '100%',
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'center',
-          padding: '72px 84px',
+          width: "100%",
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "center",
+          padding: "72px 84px",
         }}
       >
         <div
           style={{
             width: 110,
             height: 110,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
             borderRadius: 28,
-            background: 'rgba(255,255,255,0.14)',
-            border: '2px solid rgba(255,255,255,0.25)',
+            background: "rgba(255,255,255,0.14)",
+            border: "2px solid rgba(255,255,255,0.25)",
             fontSize: 54,
             fontWeight: 800,
           }}
@@ -85,7 +85,7 @@ export default function OpenGraphImage() {
             fontSize: 62,
             lineHeight: 1.08,
             fontWeight: 800,
-            letterSpacing: '-2px',
+            letterSpacing: "-2px",
           }}
         >
           {schoolName}
@@ -97,7 +97,7 @@ export default function OpenGraphImage() {
             maxWidth: 850,
             fontSize: 28,
             lineHeight: 1.45,
-            color: 'rgba(255,255,255,0.82)',
+            color: "rgba(255,255,255,0.82)",
           }}
         >
           Informasi resmi sekolah, program pendidikan, kegiatan, prestasi, dan
@@ -107,11 +107,11 @@ export default function OpenGraphImage() {
         <div
           style={{
             marginTop: 44,
-            display: 'flex',
-            alignItems: 'center',
+            display: "flex",
+            alignItems: "center",
             gap: 14,
             fontSize: 22,
-            color: 'rgba(255,255,255,0.72)',
+            color: "rgba(255,255,255,0.72)",
           }}
         >
           <div
@@ -119,7 +119,7 @@ export default function OpenGraphImage() {
               width: 44,
               height: 4,
               borderRadius: 999,
-              background: '#ffffff',
+              background: "#ffffff",
             }}
           />
           Website Resmi Sekolah

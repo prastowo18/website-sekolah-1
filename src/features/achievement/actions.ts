@@ -1,19 +1,19 @@
-'use server';
+"use server";
 
-import { revalidatePath } from 'next/cache';
-import { z } from 'zod';
+import { revalidatePath } from "next/cache";
+import { z } from "zod";
 
 import {
   AchievementType,
   CompetitionLevel,
   UserRole,
-} from '@/generated/prisma/client';
-import { requireAdminRole } from '@/lib/auth/authorization';
-import { prisma } from '@/lib/prisma';
-import { createSlug } from '@/lib/slug';
+} from "@/generated/prisma/client";
+import { requireAdminRole } from "@/lib/auth/authorization";
+import { prisma } from "@/lib/prisma";
+import { createSlug } from "@/lib/slug";
 
-import { achievementFormSchema, achievementIdSchema } from './schemas';
-import type { AchievementActionState, AchievementFieldName } from './types';
+import { achievementFormSchema, achievementIdSchema } from "./schemas";
+import type { AchievementActionState, AchievementFieldName } from "./types";
 
 const editableRoles = [UserRole.SUPER_ADMIN, UserRole.CONTENT_ADMIN] as const;
 
@@ -60,16 +60,16 @@ function toAuditValue(achievement: AchievementRecord) {
 
 function getFormValues(formData: FormData) {
   return {
-    title: formData.get('title'),
-    slug: formData.get('slug') ?? '',
-    achievementType: formData.get('achievementType'),
-    category: formData.get('category') ?? '',
-    winnerName: formData.get('winnerName') ?? '',
-    competitionLevel: formData.get('competitionLevel') ?? '',
-    rank: formData.get('rank') ?? '',
-    achievementDate: formData.get('achievementDate') ?? '',
-    description: formData.get('description') ?? '',
-    isPublished: formData.get('isPublished') ?? '',
+    title: formData.get("title"),
+    slug: formData.get("slug") ?? "",
+    achievementType: formData.get("achievementType"),
+    category: formData.get("category") ?? "",
+    winnerName: formData.get("winnerName") ?? "",
+    competitionLevel: formData.get("competitionLevel") ?? "",
+    rank: formData.get("rank") ?? "",
+    achievementDate: formData.get("achievementDate") ?? "",
+    description: formData.get("description") ?? "",
+    isPublished: formData.get("isPublished") ?? "",
   };
 }
 
@@ -77,46 +77,46 @@ function validationErrorState(error: z.ZodError): AchievementActionState {
   const errors = z.flattenError(error).fieldErrors;
 
   return {
-    status: 'error',
-    message: 'Periksa kembali data prestasi.',
+    status: "error",
+    message: "Periksa kembali data prestasi.",
     fieldErrors: errors as Partial<Record<AchievementFieldName, string[]>>,
   };
 }
 
 function invalidSlugState(): AchievementActionState {
   return {
-    status: 'error',
-    message: 'Slug prestasi tidak valid.',
+    status: "error",
+    message: "Slug prestasi tidak valid.",
     fieldErrors: {
-      slug: ['Gunakan judul atau slug yang mengandung huruf atau angka.'],
+      slug: ["Gunakan judul atau slug yang mengandung huruf atau angka."],
     },
   };
 }
 
 function uniqueSlugState(): AchievementActionState {
   return {
-    status: 'error',
-    message: 'Slug sudah digunakan oleh prestasi lain.',
+    status: "error",
+    message: "Slug sudah digunakan oleh prestasi lain.",
     fieldErrors: {
-      slug: ['Gunakan slug yang berbeda.'],
+      slug: ["Gunakan slug yang berbeda."],
     },
   };
 }
 
 function isUniqueConstraintError(error: unknown): boolean {
   return (
-    typeof error === 'object' &&
+    typeof error === "object" &&
     error !== null &&
-    'code' in error &&
-    error.code === 'P2002'
+    "code" in error &&
+    error.code === "P2002"
   );
 }
 
 function revalidateAchievementPaths(): void {
-  revalidatePath('/');
-  revalidatePath('/prestasi');
-  revalidatePath('/admin/dashboard');
-  revalidatePath('/admin/prestasi');
+  revalidatePath("/");
+  revalidatePath("/prestasi");
+  revalidatePath("/konsol-8m4q7x2k9v6d/dashboard");
+  revalidatePath("/konsol-8m4q7x2k9v6d/prestasi");
 }
 
 export async function createAchievementAction(
@@ -160,8 +160,8 @@ export async function createAchievementAction(
         await transaction.auditLog.create({
           data: {
             actorId: session.user.id,
-            action: 'ACHIEVEMENT_CREATED',
-            entity: 'Achievement',
+            action: "ACHIEVEMENT_CREATED",
+            entity: "Achievement",
             entityId: achievement.id,
             newValue: toAuditValue(achievement),
           },
@@ -174,20 +174,20 @@ export async function createAchievementAction(
     revalidateAchievementPaths();
 
     return {
-      status: 'success',
-      message: 'Prestasi berhasil ditambahkan.',
+      status: "success",
+      message: "Prestasi berhasil ditambahkan.",
       achievementId: createdAchievement.id,
     };
   } catch (error: unknown) {
-    console.error('Gagal menambahkan prestasi.', error);
+    console.error("Gagal menambahkan prestasi.", error);
 
     if (isUniqueConstraintError(error)) {
       return uniqueSlugState();
     }
 
     return {
-      status: 'error',
-      message: 'Prestasi gagal ditambahkan. Silakan coba kembali.',
+      status: "error",
+      message: "Prestasi gagal ditambahkan. Silakan coba kembali.",
     };
   }
 }
@@ -199,13 +199,13 @@ export async function updateAchievementAction(
   const session = await requireAdminRole(editableRoles);
 
   const idParsed = achievementIdSchema.safeParse({
-    id: formData.get('id'),
+    id: formData.get("id"),
   });
 
   if (!idParsed.success) {
     return {
-      status: 'error',
-      message: 'ID prestasi tidak valid.',
+      status: "error",
+      message: "ID prestasi tidak valid.",
     };
   }
 
@@ -231,8 +231,8 @@ export async function updateAchievementAction(
 
     if (!currentAchievement) {
       return {
-        status: 'error',
-        message: 'Data prestasi tidak ditemukan.',
+        status: "error",
+        message: "Data prestasi tidak ditemukan.",
       };
     }
 
@@ -262,8 +262,8 @@ export async function updateAchievementAction(
       await transaction.auditLog.create({
         data: {
           actorId: session.user.id,
-          action: 'ACHIEVEMENT_UPDATED',
-          entity: 'Achievement',
+          action: "ACHIEVEMENT_UPDATED",
+          entity: "Achievement",
           entityId: currentAchievement.id,
           oldValue: toAuditValue(currentAchievement),
           newValue: toAuditValue(updatedAchievement),
@@ -274,20 +274,20 @@ export async function updateAchievementAction(
     revalidateAchievementPaths();
 
     return {
-      status: 'success',
-      message: 'Prestasi berhasil diperbarui.',
+      status: "success",
+      message: "Prestasi berhasil diperbarui.",
       achievementId: currentAchievement.id,
     };
   } catch (error: unknown) {
-    console.error('Gagal memperbarui prestasi.', error);
+    console.error("Gagal memperbarui prestasi.", error);
 
     if (isUniqueConstraintError(error)) {
       return uniqueSlugState();
     }
 
     return {
-      status: 'error',
-      message: 'Prestasi gagal diperbarui. Silakan coba kembali.',
+      status: "error",
+      message: "Prestasi gagal diperbarui. Silakan coba kembali.",
     };
   }
 }
@@ -299,13 +299,13 @@ export async function deleteAchievementAction(
   const session = await requireAdminRole(editableRoles);
 
   const parsed = achievementIdSchema.safeParse({
-    id: formData.get('id'),
+    id: formData.get("id"),
   });
 
   if (!parsed.success) {
     return {
-      status: 'error',
-      message: 'ID prestasi tidak valid.',
+      status: "error",
+      message: "ID prestasi tidak valid.",
     };
   }
 
@@ -319,8 +319,8 @@ export async function deleteAchievementAction(
 
     if (!currentAchievement) {
       return {
-        status: 'error',
-        message: 'Data prestasi tidak ditemukan.',
+        status: "error",
+        message: "Data prestasi tidak ditemukan.",
       };
     }
 
@@ -334,8 +334,8 @@ export async function deleteAchievementAction(
       await transaction.auditLog.create({
         data: {
           actorId: session.user.id,
-          action: 'ACHIEVEMENT_DELETED',
-          entity: 'Achievement',
+          action: "ACHIEVEMENT_DELETED",
+          entity: "Achievement",
           entityId: currentAchievement.id,
           oldValue: toAuditValue(currentAchievement),
         },
@@ -345,15 +345,15 @@ export async function deleteAchievementAction(
     revalidateAchievementPaths();
 
     return {
-      status: 'success',
-      message: 'Prestasi berhasil dihapus.',
+      status: "success",
+      message: "Prestasi berhasil dihapus.",
     };
   } catch (error: unknown) {
-    console.error('Gagal menghapus prestasi.', error);
+    console.error("Gagal menghapus prestasi.", error);
 
     return {
-      status: 'error',
-      message: 'Prestasi gagal dihapus. Silakan coba kembali.',
+      status: "error",
+      message: "Prestasi gagal dihapus. Silakan coba kembali.",
     };
   }
 }

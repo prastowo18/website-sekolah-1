@@ -4,11 +4,7 @@ import { useActionToast } from "@/hooks/use-action-toast";
 import { Pencil, Plus } from "lucide-react";
 import { useActionState } from "react";
 
-import {
-  Alert,
-  AlertDescription,
-  AlertTitle,
-} from "@/components/ui/alert";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -25,9 +21,7 @@ import {
   createProgramAction,
   updateProgramAction,
 } from "@/features/program/actions";
-import {
-  initialProgramActionState,
-} from "@/features/program/types";
+import { initialProgramActionState } from "@/features/program/types";
 
 import {
   ProgramFormFields,
@@ -62,20 +56,15 @@ const emptyValues: ProgramFormValues = {
   isActive: true,
 };
 
-export function ProgramFormDialog({
-  program,
-}: ProgramFormDialogProps) {
+export function ProgramFormDialog({ program }: ProgramFormDialogProps) {
   const isEdit = Boolean(program);
 
-  const action = isEdit
-    ? updateProgramAction
-    : createProgramAction;
+  const action = isEdit ? updateProgramAction : createProgramAction;
 
-  const [state, formAction, isPending] =
-    useActionState(
-      action,
-      initialProgramActionState,
-    );
+  const [state, formAction, isPending] = useActionState(
+    action,
+    initialProgramActionState,
+  );
 
   useActionToast(state);
 
@@ -83,10 +72,8 @@ export function ProgramFormDialog({
     ? {
         name: program.name,
         slug: program.slug,
-        shortDescription:
-          program.shortDescription ?? "",
-        description:
-          program.description ?? "",
+        shortDescription: program.shortDescription ?? "",
+        description: program.description ?? "",
         benefits: program.benefits.join("\n"),
         sortOrder: program.sortOrder,
         isFeatured: program.isFeatured,
@@ -94,9 +81,7 @@ export function ProgramFormDialog({
       }
     : emptyValues;
 
-  const formId = program
-    ? `edit-program-${program.id}`
-    : "create-program";
+  const formId = program ? `edit-program-${program.id}` : "create-program";
 
   const formVersion = program
     ? `${program.id}-${program.updatedAt}`
@@ -109,11 +94,7 @@ export function ProgramFormDialog({
           variant={isEdit ? "outline" : "default"}
           size={isEdit ? "sm" : "default"}
         >
-          {isEdit ? (
-            <Pencil className="size-4" />
-          ) : (
-            <Plus className="size-4" />
-          )}
+          {isEdit ? <Pencil className="size-4" /> : <Plus className="size-4" />}
 
           {isEdit ? "Edit" : "Tambah program"}
         </Button>
@@ -122,9 +103,7 @@ export function ProgramFormDialog({
       <DialogContent className="max-h-[90svh] overflow-y-auto sm:max-w-2xl">
         <DialogHeader>
           <DialogTitle>
-            {isEdit
-              ? "Edit program"
-              : "Tambah program"}
+            {isEdit ? "Edit program" : "Tambah program"}
           </DialogTitle>
 
           <DialogDescription>
@@ -134,26 +113,14 @@ export function ProgramFormDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <form
-          action={formAction}
-          className="space-y-6"
-          noValidate
-        >
+        <form action={formAction} className="space-y-6" noValidate>
           {program ? (
-            <input
-              type="hidden"
-              name="id"
-              value={program.id}
-            />
+            <input type="hidden" name="id" value={program.id} />
           ) : null}
 
           {state.message ? (
             <Alert
-              variant={
-                state.status === "error"
-                  ? "destructive"
-                  : "default"
-              }
+              variant={state.status === "error" ? "destructive" : "default"}
               role="status"
             >
               <AlertTitle>
@@ -162,9 +129,7 @@ export function ProgramFormDialog({
                   : "Data belum tersimpan"}
               </AlertTitle>
 
-              <AlertDescription>
-                {state.message}
-              </AlertDescription>
+              <AlertDescription>{state.message}</AlertDescription>
             </Alert>
           ) : null}
 
@@ -178,19 +143,12 @@ export function ProgramFormDialog({
 
           <DialogFooter>
             <DialogClose asChild>
-              <Button
-                type="button"
-                variant="outline"
-                disabled={isPending}
-              >
+              <Button type="button" variant="outline" disabled={isPending}>
                 Tutup
               </Button>
             </DialogClose>
 
-            <Button
-              type="submit"
-              disabled={isPending}
-            >
+            <Button type="submit" disabled={isPending}>
               {isPending ? (
                 <>
                   <Spinner data-icon="inline-start" />

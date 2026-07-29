@@ -18,9 +18,7 @@ export type FacilityFormValues = {
   isActive: boolean;
 };
 
-type FacilityFieldErrors = Partial<
-  Record<FacilityFieldName, string[]>
->;
+type FacilityFieldErrors = Partial<Record<FacilityFieldName, string[]>>;
 
 type FacilityFormFieldsProps = {
   formId: string;
@@ -45,10 +43,7 @@ function FieldError({
   }
 
   return (
-    <p
-      id={`${formId}-${field}-error`}
-      className="text-sm text-destructive"
-    >
+    <p id={`${formId}-${field}-error`} className="text-sm text-destructive">
       {message}
     </p>
   );
@@ -59,9 +54,7 @@ function getErrorId(
   field: FacilityFieldName,
   errors?: FacilityFieldErrors,
 ): string | undefined {
-  return errors?.[field]?.length
-    ? `${formId}-${field}-error`
-    : undefined;
+  return errors?.[field]?.length ? `${formId}-${field}-error` : undefined;
 }
 
 export function FacilityFormFields({
@@ -70,17 +63,13 @@ export function FacilityFormFields({
   errors,
   disabled = false,
 }: FacilityFormFieldsProps) {
-  const [isActive, setIsActive] = useState(
-    values.isActive,
-  );
+  const [isActive, setIsActive] = useState(values.isActive);
 
   return (
     <div className="grid gap-5">
       <div className="grid gap-5 md:grid-cols-2">
         <div className="space-y-2">
-          <Label htmlFor={`${formId}-name`}>
-            Nama fasilitas
-          </Label>
+          <Label htmlFor={`${formId}-name`}>Nama fasilitas</Label>
 
           <Input
             id={`${formId}-name`}
@@ -89,28 +78,16 @@ export function FacilityFormFields({
             placeholder="Contoh: Perpustakaan"
             maxLength={160}
             disabled={disabled}
-            aria-invalid={Boolean(
-              errors?.name?.length,
-            )}
-            aria-describedby={getErrorId(
-              formId,
-              "name",
-              errors,
-            )}
+            aria-invalid={Boolean(errors?.name?.length)}
+            aria-describedby={getErrorId(formId, "name", errors)}
             required
           />
 
-          <FieldError
-            formId={formId}
-            field="name"
-            errors={errors}
-          />
+          <FieldError formId={formId} field="name" errors={errors} />
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor={`${formId}-slug`}>
-            Slug
-          </Label>
+          <Label htmlFor={`${formId}-slug`}>Slug</Label>
 
           <Input
             id={`${formId}-slug`}
@@ -119,9 +96,7 @@ export function FacilityFormFields({
             placeholder="Otomatis dari nama fasilitas"
             maxLength={180}
             disabled={disabled}
-            aria-invalid={Boolean(
-              errors?.slug?.length,
-            )}
+            aria-invalid={Boolean(errors?.slug?.length)}
             aria-describedby={
               errors?.slug?.length
                 ? `${formId}-slug-error`
@@ -133,22 +108,15 @@ export function FacilityFormFields({
             id={`${formId}-slug-help`}
             className="text-xs text-muted-foreground"
           >
-            Kosongkan untuk membuat slug otomatis
-            dari nama fasilitas.
+            Kosongkan untuk membuat slug otomatis dari nama fasilitas.
           </p>
 
-          <FieldError
-            formId={formId}
-            field="slug"
-            errors={errors}
-          />
+          <FieldError formId={formId} field="slug" errors={errors} />
         </div>
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor={`${formId}-description`}>
-          Deskripsi
-        </Label>
+        <Label htmlFor={`${formId}-description`}>Deskripsi</Label>
 
         <Textarea
           id={`${formId}-description`}
@@ -158,28 +126,16 @@ export function FacilityFormFields({
           rows={7}
           maxLength={20000}
           disabled={disabled}
-          aria-invalid={Boolean(
-            errors?.description?.length,
-          )}
-          aria-describedby={getErrorId(
-            formId,
-            "description",
-            errors,
-          )}
+          aria-invalid={Boolean(errors?.description?.length)}
+          aria-describedby={getErrorId(formId, "description", errors)}
         />
 
-        <FieldError
-          formId={formId}
-          field="description"
-          errors={errors}
-        />
+        <FieldError formId={formId} field="description" errors={errors} />
       </div>
 
       <div className="grid gap-5 md:grid-cols-2">
         <div className="space-y-2">
-          <Label htmlFor={`${formId}-capacity`}>
-            Kapasitas
-          </Label>
+          <Label htmlFor={`${formId}-capacity`}>Kapasitas</Label>
 
           <Input
             id={`${formId}-capacity`}
@@ -188,27 +144,15 @@ export function FacilityFormFields({
             placeholder="Contoh: 30 siswa"
             maxLength={120}
             disabled={disabled}
-            aria-invalid={Boolean(
-              errors?.capacity?.length,
-            )}
-            aria-describedby={getErrorId(
-              formId,
-              "capacity",
-              errors,
-            )}
+            aria-invalid={Boolean(errors?.capacity?.length)}
+            aria-describedby={getErrorId(formId, "capacity", errors)}
           />
 
-          <FieldError
-            formId={formId}
-            field="capacity"
-            errors={errors}
-          />
+          <FieldError formId={formId} field="capacity" errors={errors} />
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor={`${formId}-condition`}>
-            Kondisi
-          </Label>
+          <Label htmlFor={`${formId}-condition`}>Kondisi</Label>
 
           <Input
             id={`${formId}-condition`}
@@ -217,28 +161,16 @@ export function FacilityFormFields({
             placeholder="Contoh: Sangat baik"
             maxLength={120}
             disabled={disabled}
-            aria-invalid={Boolean(
-              errors?.condition?.length,
-            )}
-            aria-describedby={getErrorId(
-              formId,
-              "condition",
-              errors,
-            )}
+            aria-invalid={Boolean(errors?.condition?.length)}
+            aria-describedby={getErrorId(formId, "condition", errors)}
           />
 
-          <FieldError
-            formId={formId}
-            field="condition"
-            errors={errors}
-          />
+          <FieldError formId={formId} field="condition" errors={errors} />
         </div>
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor={`${formId}-sortOrder`}>
-          Urutan tampil
-        </Label>
+        <Label htmlFor={`${formId}-sortOrder`}>Urutan tampil</Label>
 
         <Input
           id={`${formId}-sortOrder`}
@@ -248,32 +180,19 @@ export function FacilityFormFields({
           min={0}
           max={9999}
           disabled={disabled}
-          aria-invalid={Boolean(
-            errors?.sortOrder?.length,
-          )}
-          aria-describedby={getErrorId(
-            formId,
-            "sortOrder",
-            errors,
-          )}
+          aria-invalid={Boolean(errors?.sortOrder?.length)}
+          aria-describedby={getErrorId(formId, "sortOrder", errors)}
         />
 
-        <FieldError
-          formId={formId}
-          field="sortOrder"
-          errors={errors}
-        />
+        <FieldError formId={formId} field="sortOrder" errors={errors} />
       </div>
 
       <div className="flex items-center justify-between gap-4 rounded-lg border p-4">
         <div className="space-y-1">
-          <Label htmlFor={`${formId}-isActive`}>
-            Fasilitas aktif
-          </Label>
+          <Label htmlFor={`${formId}-isActive`}>Fasilitas aktif</Label>
 
           <p className="text-xs text-muted-foreground">
-            Fasilitas aktif dapat ditampilkan pada
-            website publik.
+            Fasilitas aktif dapat ditampilkan pada website publik.
           </p>
         </div>
 

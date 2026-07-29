@@ -1,16 +1,9 @@
 "use client";
 
 import { Pencil, Plus } from "lucide-react";
-import {
-  startTransition,
-  useActionState,
-  useState,
-} from "react";
+import { startTransition, useActionState, useState } from "react";
 
-import {
-  Alert,
-  AlertDescription,
-} from "@/components/ui/alert";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -65,37 +58,29 @@ const emptyValues: FacilityFormValues = {
   isActive: true,
 };
 
-export function FacilityFormDialog({
-  facility,
-}: FacilityFormDialogProps) {
+export function FacilityFormDialog({ facility }: FacilityFormDialogProps) {
   const [open, setOpen] = useState(false);
   const isEdit = facility !== undefined;
 
-  const action = isEdit
-    ? updateFacilityAction
-    : createFacilityAction;
+  const action = isEdit ? updateFacilityAction : createFacilityAction;
 
-  const [state, formAction, isPending] =
-    useActionState(
-      async (
-        previousState: FacilityActionState,
-        formData: FormData,
-      ): Promise<FacilityActionState> => {
-        const nextState = await action(
-          previousState,
-          formData,
-        );
+  const [state, formAction, isPending] = useActionState(
+    async (
+      previousState: FacilityActionState,
+      formData: FormData,
+    ): Promise<FacilityActionState> => {
+      const nextState = await action(previousState, formData);
 
-        if (nextState.status === "success") {
-          startTransition(() => {
-            setOpen(false);
-          });
-        }
+      if (nextState.status === "success") {
+        startTransition(() => {
+          setOpen(false);
+        });
+      }
 
-        return nextState;
-      },
-      initialFacilityActionState,
-    );
+      return nextState;
+    },
+    initialFacilityActionState,
+  );
 
   useActionToast(state);
 
@@ -111,42 +96,29 @@ export function FacilityFormDialog({
       }
     : emptyValues;
 
-  const formId = facility
-    ? `edit-facility-${facility.id}`
-    : "create-facility";
+  const formId = facility ? `edit-facility-${facility.id}` : "create-facility";
 
   const formVersion = facility
     ? `${facility.id}-${facility.updatedAt}`
     : `create-${state.facilityId ?? "new"}`;
 
   return (
-    <Dialog
-      open={open}
-      onOpenChange={setOpen}
-    >
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button
           variant={isEdit ? "outline" : "default"}
           size={isEdit ? "sm" : "default"}
         >
-          {isEdit ? (
-            <Pencil className="size-4" />
-          ) : (
-            <Plus className="size-4" />
-          )}
+          {isEdit ? <Pencil className="size-4" /> : <Plus className="size-4" />}
 
-          {isEdit
-            ? "Edit"
-            : "Tambah fasilitas"}
+          {isEdit ? "Edit" : "Tambah fasilitas"}
         </Button>
       </DialogTrigger>
 
       <DialogContent className="max-h-[90svh] overflow-y-auto sm:max-w-2xl">
         <DialogHeader>
           <DialogTitle>
-            {isEdit
-              ? "Edit fasilitas"
-              : "Tambah fasilitas"}
+            {isEdit ? "Edit fasilitas" : "Tambah fasilitas"}
           </DialogTitle>
 
           <DialogDescription>
@@ -156,25 +128,14 @@ export function FacilityFormDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <form
-          action={formAction}
-          className="space-y-6"
-          noValidate
-        >
+        <form action={formAction} className="space-y-6" noValidate>
           {facility ? (
-            <input
-              type="hidden"
-              name="id"
-              value={facility.id}
-            />
+            <input type="hidden" name="id" value={facility.id} />
           ) : null}
 
-          {state.status === "error" &&
-          state.message ? (
+          {state.status === "error" && state.message ? (
             <Alert variant="destructive">
-              <AlertDescription>
-                {state.message}
-              </AlertDescription>
+              <AlertDescription>{state.message}</AlertDescription>
             </Alert>
           ) : null}
 
@@ -188,19 +149,12 @@ export function FacilityFormDialog({
 
           <DialogFooter>
             <DialogClose asChild>
-              <Button
-                type="button"
-                variant="outline"
-                disabled={isPending}
-              >
+              <Button type="button" variant="outline" disabled={isPending}>
                 Batal
               </Button>
             </DialogClose>
 
-            <Button
-              type="submit"
-              disabled={isPending}
-            >
+            <Button type="submit" disabled={isPending}>
               {isPending ? (
                 <>
                   <Spinner data-icon="inline-start" />

@@ -84,7 +84,7 @@ export async function GET(
   });
 
   revalidatePath("/dokumen");
-  revalidatePath("/admin/dokumen");
+  revalidatePath("/konsol-8m4q7x2k9v6d/dokumen");
   revalidatePath(`/dokumen/${document.slug}`);
 
   return NextResponse.redirect(targetUrl, 302);

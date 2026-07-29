@@ -19,7 +19,7 @@ const nextConfig: NextConfig = {
         headers: securityHeaders,
       },
       {
-        source: "/admin/:path*",
+        source: "/konsol-8m4q7x2k9v6d/:path*",
         headers: sensitiveRouteHeaders,
       },
       {

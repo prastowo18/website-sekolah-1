@@ -1,8 +1,8 @@
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 
 const responseHeaders = {
-  'Cache-Control': 'private, no-store, max-age=0, must-revalidate',
-  'X-Robots-Tag': 'noindex, nofollow, noarchive, nosnippet',
+  "Cache-Control": "private, no-store, max-age=0, must-revalidate",
+  "X-Robots-Tag": "noindex, nofollow, noarchive, nosnippet",
 };
 
 function createResponse(): Response {

@@ -160,8 +160,8 @@ function toMediaAuditValue(media: GalleryMediaRecord) {
 function revalidateGalleryPaths(slugs: Array<string | null | undefined>): void {
   revalidatePath("/");
   revalidatePath("/galeri");
-  revalidatePath("/admin/galeri");
-  revalidatePath("/admin/dashboard");
+  revalidatePath("/konsol-8m4q7x2k9v6d/galeri");
+  revalidatePath("/konsol-8m4q7x2k9v6d/dashboard");
 
   for (const slug of new Set(slugs)) {
     if (slug) {

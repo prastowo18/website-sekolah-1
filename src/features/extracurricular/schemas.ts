@@ -1,9 +1,6 @@
 import { z } from "zod";
 
-function optionalText(
-  maximumLength: number,
-  message: string,
-) {
+function optionalText(maximumLength: number, message: string) {
   return z
     .string()
     .trim()
@@ -13,10 +10,7 @@ function optionalText(
 
 const multilineList = z
   .string()
-  .max(
-    5_000,
-    "Daftar kelompok kelas terlalu panjang.",
-  )
+  .max(5_000, "Daftar kelompok kelas terlalu panjang.")
   .transform((value) =>
     value
       .split(/\r?\n/)
@@ -32,22 +26,14 @@ const booleanFromForm = z
     z.literal(""),
   ])
   .optional()
-  .transform(
-    (value) => value === "on" || value === "true",
-  );
+  .transform((value) => value === "on" || value === "true");
 
 export const extracurricularFormSchema = z.object({
   name: z
     .string()
     .trim()
-    .min(
-      1,
-      "Nama ekstrakurikuler wajib diisi.",
-    )
-    .max(
-      160,
-      "Nama ekstrakurikuler maksimal 160 karakter.",
-    ),
+    .min(1, "Nama ekstrakurikuler wajib diisi.")
+    .max(160, "Nama ekstrakurikuler maksimal 160 karakter."),
 
   slug: z
     .string()
@@ -56,20 +42,11 @@ export const extracurricularFormSchema = z.object({
     .optional()
     .default(""),
 
-  description: optionalText(
-    20_000,
-    "Deskripsi maksimal 20.000 karakter.",
-  ),
+  description: optionalText(20_000, "Deskripsi maksimal 20.000 karakter."),
 
-  schedule: optionalText(
-    180,
-    "Jadwal maksimal 180 karakter.",
-  ),
+  schedule: optionalText(180, "Jadwal maksimal 180 karakter."),
 
-  coach: optionalText(
-    160,
-    "Nama pembina maksimal 160 karakter.",
-  ),
+  coach: optionalText(160, "Nama pembina maksimal 160 karakter."),
 
   targetClasses: multilineList,
 
@@ -83,7 +60,5 @@ export const extracurricularFormSchema = z.object({
 });
 
 export const extracurricularIdSchema = z.object({
-  id: z
-    .string()
-    .uuid("ID ekstrakurikuler tidak valid."),
+  id: z.string().uuid("ID ekstrakurikuler tidak valid."),
 });

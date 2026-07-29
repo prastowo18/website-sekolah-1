@@ -58,8 +58,8 @@ function toAuditValue(faq: FaqRecord) {
 function revalidateFaqPaths(): void {
   revalidatePath("/");
   revalidatePath("/faq");
-  revalidatePath("/admin/faq");
-  revalidatePath("/admin/dashboard");
+  revalidatePath("/konsol-8m4q7x2k9v6d/faq");
+  revalidatePath("/konsol-8m4q7x2k9v6d/dashboard");
 }
 
 export async function createFaqAction(

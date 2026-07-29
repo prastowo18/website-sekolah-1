@@ -1,11 +1,11 @@
-'use server';
+"use server";
 
-import { redirect } from 'next/navigation';
-import { z } from 'zod';
+import { redirect } from "next/navigation";
+import { z } from "zod";
 
-import { verifyPassword } from '@/lib/auth/password';
-import { createSession } from '@/lib/auth/session';
-import { prisma } from '@/lib/prisma';
+import { verifyPassword } from "@/lib/auth/password";
+import { createSession } from "@/lib/auth/session";
+import { prisma } from "@/lib/prisma";
 
 import {
   ACCOUNT_LOCKED_MESSAGE,
@@ -13,11 +13,12 @@ import {
   INVALID_CREDENTIAL_MESSAGE,
   LOGIN_LOCK_DURATION_MS,
   MAX_FAILED_LOGIN_ATTEMPTS,
-} from './config';
-import { loginSchema } from './schemas';
-import type { AuthActionState } from './types';
+} from "./config";
+import { loginSchema } from "./schemas";
+import type { AuthActionState } from "./types";
 
-type LoginDestination = '/admin/dashboard' | '/admin/ubah-password';
+type LoginDestination =
+  "/konsol-8m4q7x2k9v6d/dashboard" | "/konsol-8m4q7x2k9v6d/ubah-password";
 
 async function recordFailedLogin(
   userId: string,
@@ -44,16 +45,16 @@ export async function loginAction(
   formData: FormData,
 ): Promise<AuthActionState> {
   const parsed = loginSchema.safeParse({
-    identifier: formData.get('identifier'),
-    password: formData.get('password'),
+    identifier: formData.get("identifier"),
+    password: formData.get("password"),
   });
 
   if (!parsed.success) {
     const errors = z.flattenError(parsed.error).fieldErrors;
 
     return {
-      status: 'error',
-      message: 'Periksa kembali data login.',
+      status: "error",
+      message: "Periksa kembali data login.",
       fieldErrors: {
         identifier: errors.identifier,
         password: errors.password,
@@ -98,7 +99,7 @@ export async function loginAction(
 
     if (accountIsLocked) {
       return {
-        status: 'error',
+        status: "error",
         message: ACCOUNT_LOCKED_MESSAGE,
       };
     }
@@ -109,7 +110,7 @@ export async function loginAction(
       }
 
       return {
-        status: 'error',
+        status: "error",
         message: INVALID_CREDENTIAL_MESSAGE,
       };
     }
@@ -128,14 +129,14 @@ export async function loginAction(
     await createSession(user.id);
 
     destination = user.mustChangePassword
-      ? '/admin/ubah-password'
-      : '/admin/dashboard';
+      ? "/konsol-8m4q7x2k9v6d/ubah-password"
+      : "/konsol-8m4q7x2k9v6d/dashboard";
   } catch (error: unknown) {
-    console.error('Proses login gagal.', error);
+    console.error("Proses login gagal.", error);
 
     return {
-      status: 'error',
-      message: 'Terjadi gangguan pada server. Silakan coba kembali.',
+      status: "error",
+      message: "Terjadi gangguan pada server. Silakan coba kembali.",
     };
   }
 
