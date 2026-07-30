@@ -1,32 +1,37 @@
-"use client";
+'use client';
 
-import { useActionToast } from "@/hooks/use-action-toast";
-import { useActionState } from "react";
-import type { ReactNode } from "react";
+import { useActionToast } from '@/hooks/use-action-toast';
+import { useActionState } from 'react';
+import type { ReactNode } from 'react';
 
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Button } from "@/components/ui/button";
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { Button } from '@/components/ui/button';
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Spinner } from "@/components/ui/spinner";
-import { Textarea } from "@/components/ui/textarea";
-import { updateSchoolProfileAction } from "@/features/school-profile/actions";
+} from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Spinner } from '@/components/ui/spinner';
+import { Textarea } from '@/components/ui/textarea';
+import { updateSchoolProfileAction } from '@/features/school-profile/actions';
+import { SchoolProfileMediaFields } from './school-profile-media-fields';
 import {
   initialSchoolProfileActionState,
   type SchoolProfileFieldName,
-} from "@/features/school-profile/types";
+} from '@/features/school-profile/types';
 
 type SchoolProfileFormData = {
   schoolName: string;
   shortName: string | null;
   npsn: string | null;
+  logoUrl: string | null;
+  faviconUrl: string | null;
+  heroImageUrl: string | null;
+  principalPhotoUrl: string | null;
   tagline: string | null;
   shortDescription: string | null;
   history: string | null;
@@ -138,11 +143,11 @@ export function SchoolProfileForm({
 
       {state.message ? (
         <Alert
-          variant={state.status === "error" ? "destructive" : "default"}
+          variant={state.status === 'error' ? 'destructive' : 'default'}
           role="status"
         >
           <AlertTitle>
-            {state.status === "success" ? "Berhasil" : "Data belum tersimpan"}
+            {state.status === 'success' ? 'Berhasil' : 'Data belum tersimpan'}
           </AlertTitle>
 
           <AlertDescription>{state.message}</AlertDescription>
@@ -164,10 +169,10 @@ export function SchoolProfileForm({
               placeholder="Contoh: SD Negeri 01"
               maxLength={180}
               disabled={disabled}
-              aria-invalid={hasError("schoolName")}
+              aria-invalid={hasError('schoolName')}
               aria-describedby={getErrorDescription(
-                "schoolName",
-                hasError("schoolName"),
+                'schoolName',
+                hasError('schoolName'),
               )}
               required
             />
@@ -181,14 +186,14 @@ export function SchoolProfileForm({
             <Input
               id="shortName"
               name="shortName"
-              defaultValue={profile.shortName ?? ""}
+              defaultValue={profile.shortName ?? ''}
               placeholder="Contoh: SDN 01"
               maxLength={80}
               disabled={disabled}
-              aria-invalid={hasError("shortName")}
+              aria-invalid={hasError('shortName')}
               aria-describedby={getErrorDescription(
-                "shortName",
-                hasError("shortName"),
+                'shortName',
+                hasError('shortName'),
               )}
             />
 
@@ -201,13 +206,13 @@ export function SchoolProfileForm({
             <Input
               id="npsn"
               name="npsn"
-              defaultValue={profile.npsn ?? ""}
+              defaultValue={profile.npsn ?? ''}
               placeholder="Masukkan NPSN"
               inputMode="numeric"
               maxLength={20}
               disabled={disabled}
-              aria-invalid={hasError("npsn")}
-              aria-describedby={getErrorDescription("npsn", hasError("npsn"))}
+              aria-invalid={hasError('npsn')}
+              aria-describedby={getErrorDescription('npsn', hasError('npsn'))}
             />
 
             <FieldError field="npsn" errors={state.fieldErrors} />
@@ -219,14 +224,14 @@ export function SchoolProfileForm({
             <Input
               id="accreditation"
               name="accreditation"
-              defaultValue={profile.accreditation ?? ""}
+              defaultValue={profile.accreditation ?? ''}
               placeholder="Contoh: A"
               maxLength={50}
               disabled={disabled}
-              aria-invalid={hasError("accreditation")}
+              aria-invalid={hasError('accreditation')}
               aria-describedby={getErrorDescription(
-                "accreditation",
-                hasError("accreditation"),
+                'accreditation',
+                hasError('accreditation'),
               )}
             />
 
@@ -240,15 +245,15 @@ export function SchoolProfileForm({
               id="foundedYear"
               name="foundedYear"
               type="number"
-              defaultValue={profile.foundedYear ?? ""}
+              defaultValue={profile.foundedYear ?? ''}
               min={1800}
               max={new Date().getFullYear()}
               placeholder="Contoh: 1985"
               disabled={disabled}
-              aria-invalid={hasError("foundedYear")}
+              aria-invalid={hasError('foundedYear')}
               aria-describedby={getErrorDescription(
-                "foundedYear",
-                hasError("foundedYear"),
+                'foundedYear',
+                hasError('foundedYear'),
               )}
             />
 
@@ -262,14 +267,14 @@ export function SchoolProfileForm({
           <Input
             id="tagline"
             name="tagline"
-            defaultValue={profile.tagline ?? ""}
+            defaultValue={profile.tagline ?? ''}
             placeholder="Slogan singkat sekolah"
             maxLength={220}
             disabled={disabled}
-            aria-invalid={hasError("tagline")}
+            aria-invalid={hasError('tagline')}
             aria-describedby={getErrorDescription(
-              "tagline",
-              hasError("tagline"),
+              'tagline',
+              hasError('tagline'),
             )}
           />
 
@@ -282,15 +287,15 @@ export function SchoolProfileForm({
           <Textarea
             id="shortDescription"
             name="shortDescription"
-            defaultValue={profile.shortDescription ?? ""}
+            defaultValue={profile.shortDescription ?? ''}
             placeholder="Ringkasan sekolah untuk beranda dan hasil pencarian."
             rows={4}
             maxLength={2000}
             disabled={disabled}
-            aria-invalid={hasError("shortDescription")}
+            aria-invalid={hasError('shortDescription')}
             aria-describedby={getErrorDescription(
-              "shortDescription",
-              hasError("shortDescription"),
+              'shortDescription',
+              hasError('shortDescription'),
             )}
           />
 
@@ -308,15 +313,15 @@ export function SchoolProfileForm({
           <Textarea
             id="history"
             name="history"
-            defaultValue={profile.history ?? ""}
+            defaultValue={profile.history ?? ''}
             placeholder="Tuliskan sejarah singkat sekolah."
             rows={7}
             maxLength={20000}
             disabled={disabled}
-            aria-invalid={hasError("history")}
+            aria-invalid={hasError('history')}
             aria-describedby={getErrorDescription(
-              "history",
-              hasError("history"),
+              'history',
+              hasError('history'),
             )}
           />
 
@@ -329,13 +334,13 @@ export function SchoolProfileForm({
           <Textarea
             id="vision"
             name="vision"
-            defaultValue={profile.vision ?? ""}
+            defaultValue={profile.vision ?? ''}
             placeholder="Tuliskan visi sekolah."
             rows={4}
             maxLength={5000}
             disabled={disabled}
-            aria-invalid={hasError("vision")}
-            aria-describedby={getErrorDescription("vision", hasError("vision"))}
+            aria-invalid={hasError('vision')}
+            aria-describedby={getErrorDescription('vision', hasError('vision'))}
           />
 
           <FieldError field="vision" errors={state.fieldErrors} />
@@ -348,16 +353,16 @@ export function SchoolProfileForm({
             <Textarea
               id="mission"
               name="mission"
-              defaultValue={profile.mission.join("\n")}
+              defaultValue={profile.mission.join('\n')}
               placeholder={
-                "Satu misi per baris\nContoh:\nMeningkatkan kualitas pembelajaran\nMembangun karakter siswa"
+                'Satu misi per baris\nContoh:\nMeningkatkan kualitas pembelajaran\nMembangun karakter siswa'
               }
               rows={9}
               maxLength={10000}
               disabled={disabled}
-              aria-invalid={hasError("mission")}
+              aria-invalid={hasError('mission')}
               aria-describedby={
-                hasError("mission") ? "mission-error" : "mission-help"
+                hasError('mission') ? 'mission-error' : 'mission-help'
               }
             />
 
@@ -374,14 +379,14 @@ export function SchoolProfileForm({
             <Textarea
               id="goals"
               name="goals"
-              defaultValue={profile.goals.join("\n")}
+              defaultValue={profile.goals.join('\n')}
               placeholder="Satu tujuan per baris"
               rows={9}
               maxLength={10000}
               disabled={disabled}
-              aria-invalid={hasError("goals")}
+              aria-invalid={hasError('goals')}
               aria-describedby={
-                hasError("goals") ? "goals-error" : "goals-help"
+                hasError('goals') ? 'goals-error' : 'goals-help'
               }
             />
 
@@ -398,16 +403,16 @@ export function SchoolProfileForm({
             <Textarea
               id="schoolValues"
               name="schoolValues"
-              defaultValue={profile.schoolValues.join("\n")}
+              defaultValue={profile.schoolValues.join('\n')}
               placeholder="Satu nilai pada setiap baris"
               rows={9}
               maxLength={10000}
               disabled={disabled}
-              aria-invalid={hasError("schoolValues")}
+              aria-invalid={hasError('schoolValues')}
               aria-describedby={
-                hasError("schoolValues")
-                  ? "schoolValues-error"
-                  : "schoolValues-help"
+                hasError('schoolValues')
+                  ? 'schoolValues-error'
+                  : 'schoolValues-help'
               }
             />
 
@@ -431,14 +436,14 @@ export function SchoolProfileForm({
             <Input
               id="principalName"
               name="principalName"
-              defaultValue={profile.principalName ?? ""}
+              defaultValue={profile.principalName ?? ''}
               placeholder="Nama lengkap"
               maxLength={120}
               disabled={disabled}
-              aria-invalid={hasError("principalName")}
+              aria-invalid={hasError('principalName')}
               aria-describedby={getErrorDescription(
-                "principalName",
-                hasError("principalName"),
+                'principalName',
+                hasError('principalName'),
               )}
             />
 
@@ -451,14 +456,14 @@ export function SchoolProfileForm({
             <Input
               id="principalTitle"
               name="principalTitle"
-              defaultValue={profile.principalTitle ?? ""}
+              defaultValue={profile.principalTitle ?? ''}
               placeholder="Contoh: Kepala Sekolah"
               maxLength={120}
               disabled={disabled}
-              aria-invalid={hasError("principalTitle")}
+              aria-invalid={hasError('principalTitle')}
               aria-describedby={getErrorDescription(
-                "principalTitle",
-                hasError("principalTitle"),
+                'principalTitle',
+                hasError('principalTitle'),
               )}
             />
 
@@ -472,15 +477,15 @@ export function SchoolProfileForm({
           <Textarea
             id="principalGreeting"
             name="principalGreeting"
-            defaultValue={profile.principalGreeting ?? ""}
+            defaultValue={profile.principalGreeting ?? ''}
             placeholder="Tuliskan sambutan kepala sekolah."
             rows={8}
             maxLength={10000}
             disabled={disabled}
-            aria-invalid={hasError("principalGreeting")}
+            aria-invalid={hasError('principalGreeting')}
             aria-describedby={getErrorDescription(
-              "principalGreeting",
-              hasError("principalGreeting"),
+              'principalGreeting',
+              hasError('principalGreeting'),
             )}
           />
 
@@ -498,15 +503,15 @@ export function SchoolProfileForm({
           <Textarea
             id="address"
             name="address"
-            defaultValue={profile.address ?? ""}
+            defaultValue={profile.address ?? ''}
             placeholder="Nama jalan, nomor, dan keterangan alamat."
             rows={4}
             maxLength={2000}
             disabled={disabled}
-            aria-invalid={hasError("address")}
+            aria-invalid={hasError('address')}
             aria-describedby={getErrorDescription(
-              "address",
-              hasError("address"),
+              'address',
+              hasError('address'),
             )}
           />
 
@@ -520,13 +525,13 @@ export function SchoolProfileForm({
             <Input
               id="village"
               name="village"
-              defaultValue={profile.village ?? ""}
+              defaultValue={profile.village ?? ''}
               maxLength={120}
               disabled={disabled}
-              aria-invalid={hasError("village")}
+              aria-invalid={hasError('village')}
               aria-describedby={getErrorDescription(
-                "village",
-                hasError("village"),
+                'village',
+                hasError('village'),
               )}
             />
 
@@ -539,13 +544,13 @@ export function SchoolProfileForm({
             <Input
               id="district"
               name="district"
-              defaultValue={profile.district ?? ""}
+              defaultValue={profile.district ?? ''}
               maxLength={120}
               disabled={disabled}
-              aria-invalid={hasError("district")}
+              aria-invalid={hasError('district')}
               aria-describedby={getErrorDescription(
-                "district",
-                hasError("district"),
+                'district',
+                hasError('district'),
               )}
             />
 
@@ -558,11 +563,11 @@ export function SchoolProfileForm({
             <Input
               id="city"
               name="city"
-              defaultValue={profile.city ?? ""}
+              defaultValue={profile.city ?? ''}
               maxLength={120}
               disabled={disabled}
-              aria-invalid={hasError("city")}
-              aria-describedby={getErrorDescription("city", hasError("city"))}
+              aria-invalid={hasError('city')}
+              aria-describedby={getErrorDescription('city', hasError('city'))}
             />
 
             <FieldError field="city" errors={state.fieldErrors} />
@@ -574,13 +579,13 @@ export function SchoolProfileForm({
             <Input
               id="province"
               name="province"
-              defaultValue={profile.province ?? ""}
+              defaultValue={profile.province ?? ''}
               maxLength={120}
               disabled={disabled}
-              aria-invalid={hasError("province")}
+              aria-invalid={hasError('province')}
               aria-describedby={getErrorDescription(
-                "province",
-                hasError("province"),
+                'province',
+                hasError('province'),
               )}
             />
 
@@ -593,14 +598,14 @@ export function SchoolProfileForm({
             <Input
               id="postalCode"
               name="postalCode"
-              defaultValue={profile.postalCode ?? ""}
+              defaultValue={profile.postalCode ?? ''}
               inputMode="numeric"
               maxLength={10}
               disabled={disabled}
-              aria-invalid={hasError("postalCode")}
+              aria-invalid={hasError('postalCode')}
               aria-describedby={getErrorDescription(
-                "postalCode",
-                hasError("postalCode"),
+                'postalCode',
+                hasError('postalCode'),
               )}
             />
 
@@ -621,12 +626,12 @@ export function SchoolProfileForm({
               id="phone"
               name="phone"
               type="tel"
-              defaultValue={profile.phone ?? ""}
+              defaultValue={profile.phone ?? ''}
               placeholder="Contoh: 0752 123456"
               maxLength={30}
               disabled={disabled}
-              aria-invalid={hasError("phone")}
-              aria-describedby={getErrorDescription("phone", hasError("phone"))}
+              aria-invalid={hasError('phone')}
+              aria-describedby={getErrorDescription('phone', hasError('phone'))}
             />
 
             <FieldError field="phone" errors={state.fieldErrors} />
@@ -639,14 +644,14 @@ export function SchoolProfileForm({
               id="whatsapp"
               name="whatsapp"
               type="tel"
-              defaultValue={profile.whatsapp ?? ""}
+              defaultValue={profile.whatsapp ?? ''}
               placeholder="Contoh: 081234567890"
               maxLength={30}
               disabled={disabled}
-              aria-invalid={hasError("whatsapp")}
+              aria-invalid={hasError('whatsapp')}
               aria-describedby={getErrorDescription(
-                "whatsapp",
-                hasError("whatsapp"),
+                'whatsapp',
+                hasError('whatsapp'),
               )}
             />
 
@@ -660,12 +665,12 @@ export function SchoolProfileForm({
               id="email"
               name="email"
               type="email"
-              defaultValue={profile.email ?? ""}
+              defaultValue={profile.email ?? ''}
               placeholder="sekolah@example.com"
               maxLength={180}
               disabled={disabled}
-              aria-invalid={hasError("email")}
-              aria-describedby={getErrorDescription("email", hasError("email"))}
+              aria-invalid={hasError('email')}
+              aria-describedby={getErrorDescription('email', hasError('email'))}
             />
 
             <FieldError field="email" errors={state.fieldErrors} />
@@ -677,20 +682,36 @@ export function SchoolProfileForm({
             <Input
               id="operationalHours"
               name="operationalHours"
-              defaultValue={profile.operationalHours ?? ""}
+              defaultValue={profile.operationalHours ?? ''}
               placeholder="Senin–Jumat, 08.00–15.00"
               maxLength={180}
               disabled={disabled}
-              aria-invalid={hasError("operationalHours")}
+              aria-invalid={hasError('operationalHours')}
               aria-describedby={getErrorDescription(
-                "operationalHours",
-                hasError("operationalHours"),
+                'operationalHours',
+                hasError('operationalHours'),
               )}
             />
 
             <FieldError field="operationalHours" errors={state.fieldErrors} />
           </div>
         </div>
+      </FormSection>
+
+      <FormSection
+        title="Media dan identitas visual"
+        description="Kelola logo, favicon, gambar utama, dan foto kepala sekolah yang digunakan pada website publik."
+      >
+        <SchoolProfileMediaFields
+          values={{
+            logoUrl: profile.logoUrl,
+            faviconUrl: profile.faviconUrl,
+            heroImageUrl: profile.heroImageUrl,
+            principalPhotoUrl: profile.principalPhotoUrl,
+          }}
+          errors={state.fieldErrors}
+          disabled={disabled}
+        />
       </FormSection>
 
       {canEdit ? (
@@ -702,7 +723,7 @@ export function SchoolProfileForm({
                 Menyimpan...
               </>
             ) : (
-              "Simpan perubahan"
+              'Simpan perubahan'
             )}
           </Button>
         </div>

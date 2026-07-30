@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
-import { SchoolProfileForm } from "@/features/school-profile/components/school-profile-form";
 import { UserRole } from "@/generated/prisma/client";
+import { SchoolProfileForm } from "@/features/school-profile/components/school-profile-form";
 import { requireAdminSession } from "@/lib/auth/require-session";
 import { prisma } from "@/lib/prisma";
 
@@ -21,9 +21,6 @@ export default async function SchoolProfilePage() {
       schoolName: true,
       shortName: true,
       npsn: true,
-      logoUrl: true,
-      faviconUrl: true,
-      heroImageUrl: true,
       tagline: true,
       shortDescription: true,
       history: true,
@@ -35,7 +32,6 @@ export default async function SchoolProfilePage() {
       foundedYear: true,
       principalName: true,
       principalTitle: true,
-      principalPhotoUrl: true,
       principalGreeting: true,
       address: true,
       village: true,
@@ -62,8 +58,7 @@ export default async function SchoolProfilePage() {
         </h1>
 
         <p className="mt-1 text-sm text-muted-foreground">
-          Kelola identitas, media, sejarah, visi, kontak, dan informasi kepala
-          sekolah.
+          Kelola identitas, sejarah, visi, kontak, dan informasi kepala sekolah.
         </p>
       </div>
 
@@ -74,9 +69,6 @@ export default async function SchoolProfilePage() {
             schoolName: "Nama Sekolah",
             shortName: null,
             npsn: null,
-            logoUrl: null,
-            faviconUrl: null,
-            heroImageUrl: null,
             tagline: null,
             shortDescription: null,
             history: null,
@@ -88,7 +80,6 @@ export default async function SchoolProfilePage() {
             foundedYear: null,
             principalName: null,
             principalTitle: null,
-            principalPhotoUrl: null,
             principalGreeting: null,
             address: null,
             village: null,

@@ -10,6 +10,31 @@ function optionalText(maximumLength: number, message: string) {
     .transform((value) => value || null);
 }
 
+function isValidMediaUrl(value: string): boolean {
+  if (!value) {
+    return true;
+  }
+
+  if (value.startsWith("/")) {
+    return true;
+  }
+
+  try {
+    const url = new URL(value);
+
+    return url.protocol === "http:" || url.protocol === "https:";
+  } catch {
+    return false;
+  }
+}
+
+const optionalMediaUrl = z
+  .string()
+  .trim()
+  .max(4_000, "URL media maksimal 4.000 karakter.")
+  .refine(isValidMediaUrl, "URL media tidak valid.")
+  .transform((value) => value || null);
+
 const optionalEmail = z
   .string()
   .trim()
@@ -72,6 +97,14 @@ export const schoolProfileSchema = z.object({
     )
     .transform((value) => value || null),
 
+  logoUrl: optionalMediaUrl,
+
+  faviconUrl: optionalMediaUrl,
+
+  heroImageUrl: optionalMediaUrl,
+
+  principalPhotoUrl: optionalMediaUrl,
+
   tagline: optionalText(220, "Tagline maksimal 220 karakter."),
 
   shortDescription: optionalText(
@@ -84,7 +117,9 @@ export const schoolProfileSchema = z.object({
   vision: optionalText(5_000, "Visi sekolah maksimal 5.000 karakter."),
 
   mission: multilineList,
+
   goals: multilineList,
+
   schoolValues: multilineList,
 
   accreditation: optionalText(50, "Akreditasi maksimal 50 karakter."),
@@ -127,7 +162,9 @@ export const schoolProfileSchema = z.object({
     .transform((value) => value || null),
 
   phone: optionalPhone,
+
   whatsapp: optionalPhone,
+
   email: optionalEmail,
 
   operationalHours: optionalText(180, "Jam operasional maksimal 180 karakter."),
