@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
-import { deleteGalleryAlbumAction } from "@/features/gallery/actions";
+import { deleteGalleryAlbumAction } from "@/features/gallery/album-actions";
 import {
   initialGalleryAlbumActionState,
   type GalleryAlbumActionState,

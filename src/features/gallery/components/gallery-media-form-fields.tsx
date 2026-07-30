@@ -18,6 +18,7 @@ import {
   type GalleryMediaTypeValue,
 } from "@/features/gallery/constants";
 import type { GalleryMediaFieldName } from "@/features/gallery/types";
+import { ImageUploadField } from "@/features/media-upload/components/image-upload-field";
 
 export type GalleryAlbumOption = {
   id: string;
@@ -34,7 +35,9 @@ export type GalleryMediaFormValues = {
   sortOrder: number;
 };
 
-type GalleryMediaFieldErrors = Partial<Record<GalleryMediaFieldName, string[]>>;
+type GalleryMediaFieldErrors = Partial<
+  Record<GalleryMediaFieldName, string[]>
+>;
 
 type GalleryMediaFormFieldsProps = {
   formId: string;
@@ -60,7 +63,10 @@ function FieldError({
   }
 
   return (
-    <p id={`${formId}-${field}-error`} className="text-sm text-destructive">
+    <p
+      id={`${formId}-${field}-error`}
+      className="text-sm text-destructive"
+    >
       {message}
     </p>
   );
@@ -71,7 +77,9 @@ function getErrorId(
   field: GalleryMediaFieldName,
   errors?: GalleryMediaFieldErrors,
 ): string | undefined {
-  return errors?.[field]?.length ? `${formId}-${field}-error` : undefined;
+  return errors?.[field]?.length
+    ? `${formId}-${field}-error`
+    : undefined;
 }
 
 export function GalleryMediaFormFields({
@@ -83,9 +91,14 @@ export function GalleryMediaFormFields({
 }: GalleryMediaFormFieldsProps) {
   const [albumId, setAlbumId] = useState(values.albumId);
 
-  const [mediaType, setMediaType] = useState<GalleryMediaTypeValue>(
-    values.mediaType,
-  );
+  const [mediaType, setMediaType] =
+    useState<GalleryMediaTypeValue>(values.mediaType);
+
+  const initialImageUrl =
+    values.mediaType === "IMAGE" ? values.fileUrl : "";
+
+  const initialExternalMediaUrl =
+    values.mediaType === "IMAGE" ? "" : values.fileUrl;
 
   return (
     <div className="grid gap-5">
@@ -122,7 +135,9 @@ export function GalleryMediaFormFields({
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor={`${formId}-mediaType`}>Jenis media</Label>
+          <Label htmlFor={`${formId}-mediaType`}>
+            Jenis media
+          </Label>
 
           <input type="hidden" name="mediaType" value={mediaType} />
 
@@ -137,7 +152,11 @@ export function GalleryMediaFormFields({
               id={`${formId}-mediaType`}
               className="w-full"
               aria-invalid={Boolean(errors?.mediaType?.length)}
-              aria-describedby={getErrorId(formId, "mediaType", errors)}
+              aria-describedby={getErrorId(
+                formId,
+                "mediaType",
+                errors,
+              )}
             >
               <SelectValue placeholder="Pilih jenis media" />
             </SelectTrigger>
@@ -151,48 +170,93 @@ export function GalleryMediaFormFields({
             </SelectContent>
           </Select>
 
-          <FieldError formId={formId} field="mediaType" errors={errors} />
+          <FieldError
+            formId={formId}
+            field="mediaType"
+            errors={errors}
+          />
         </div>
       </div>
 
-      <div className="space-y-2">
-        <Label htmlFor={`${formId}-fileUrl`}>URL media</Label>
+      {mediaType === "IMAGE" ? (
+        <>
+          <ImageUploadField
+            key={`${formId}-image`}
+            formId={formId}
+            name="fileUrl"
+            directory="galleries"
+            initialValue={initialImageUrl}
+            label="Gambar galeri"
+            description="JPEG, PNG, WebP, atau AVIF. Ukuran maksimal 5 MB."
+            previewAlt="Pratinjau gambar galeri"
+            error={errors?.fileUrl?.[0]}
+            disabled={disabled}
+            uploadButtonLabel="Upload gambar"
+            removeButtonLabel="Hapus gambar"
+          />
 
-        <Input
-          id={`${formId}-fileUrl`}
-          name="fileUrl"
-          defaultValue={values.fileUrl}
-          placeholder={
-            mediaType === "YOUTUBE"
-              ? "https://www.youtube.com/watch?v=..."
-              : "https://... atau /media/..."
-          }
-          maxLength={4000}
-          disabled={disabled}
-          aria-invalid={Boolean(errors?.fileUrl?.length)}
-          aria-describedby={getErrorId(formId, "fileUrl", errors)}
-          required
-        />
+          <input type="hidden" name="thumbnailUrl" value="" />
+        </>
+      ) : (
+        <>
+          <div className="space-y-2">
+            <Label htmlFor={`${formId}-fileUrl`}>
+              {mediaType === "YOUTUBE"
+                ? "URL YouTube"
+                : "URL video"}
+            </Label>
 
-        <FieldError formId={formId} field="fileUrl" errors={errors} />
-      </div>
+            <Input
+              key={`${formId}-external-${mediaType}`}
+              id={`${formId}-fileUrl`}
+              name="fileUrl"
+              type="url"
+              defaultValue={initialExternalMediaUrl}
+              placeholder={
+                mediaType === "YOUTUBE"
+                  ? "https://www.youtube.com/watch?v=..."
+                  : "https://domain.com/video.mp4"
+              }
+              maxLength={4000}
+              disabled={disabled}
+              aria-invalid={Boolean(errors?.fileUrl?.length)}
+              aria-describedby={getErrorId(
+                formId,
+                "fileUrl",
+                errors,
+              )}
+              required
+            />
 
-      <div className="space-y-2">
-        <Label htmlFor={`${formId}-thumbnailUrl`}>URL thumbnail</Label>
+            <p className="text-xs leading-5 text-muted-foreground">
+              {mediaType === "YOUTUBE"
+                ? "Masukkan URL video YouTube yang valid."
+                : "Masukkan URL video publik yang dapat diakses browser."}
+            </p>
 
-        <Input
-          id={`${formId}-thumbnailUrl`}
-          name="thumbnailUrl"
-          defaultValue={values.thumbnailUrl}
-          placeholder="Opsional untuk video atau YouTube"
-          maxLength={4000}
-          disabled={disabled}
-          aria-invalid={Boolean(errors?.thumbnailUrl?.length)}
-          aria-describedby={getErrorId(formId, "thumbnailUrl", errors)}
-        />
+            <FieldError
+              formId={formId}
+              field="fileUrl"
+              errors={errors}
+            />
+          </div>
 
-        <FieldError formId={formId} field="thumbnailUrl" errors={errors} />
-      </div>
+          <ImageUploadField
+            key={`${formId}-thumbnail-${mediaType}`}
+            formId={formId}
+            name="thumbnailUrl"
+            directory="galleries"
+            initialValue={values.thumbnailUrl}
+            label="Thumbnail media"
+            description="Opsional. JPEG, PNG, WebP, atau AVIF maksimal 5 MB."
+            previewAlt="Pratinjau thumbnail media galeri"
+            error={errors?.thumbnailUrl?.[0]}
+            disabled={disabled}
+            uploadButtonLabel="Upload thumbnail"
+            removeButtonLabel="Hapus thumbnail"
+          />
+        </>
+      )}
 
       <div className="space-y-2">
         <Label htmlFor={`${formId}-caption`}>Keterangan</Label>
@@ -214,24 +278,32 @@ export function GalleryMediaFormFields({
 
       <div className="grid gap-5 md:grid-cols-2">
         <div className="space-y-2">
-          <Label htmlFor={`${formId}-altText`}>Teks alternatif</Label>
+          <Label htmlFor={`${formId}-altText`}>
+            Teks alternatif
+          </Label>
 
           <Input
             id={`${formId}-altText`}
             name="altText"
             defaultValue={values.altText}
-            placeholder="Deskripsi gambar untuk aksesibilitas"
+            placeholder="Deskripsi media untuk aksesibilitas"
             maxLength={220}
             disabled={disabled}
             aria-invalid={Boolean(errors?.altText?.length)}
             aria-describedby={getErrorId(formId, "altText", errors)}
           />
 
-          <FieldError formId={formId} field="altText" errors={errors} />
+          <FieldError
+            formId={formId}
+            field="altText"
+            errors={errors}
+          />
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor={`${formId}-sortOrder`}>Urutan tampil</Label>
+          <Label htmlFor={`${formId}-sortOrder`}>
+            Urutan tampil
+          </Label>
 
           <Input
             id={`${formId}-sortOrder`}
@@ -242,10 +314,18 @@ export function GalleryMediaFormFields({
             max={9999}
             disabled={disabled}
             aria-invalid={Boolean(errors?.sortOrder?.length)}
-            aria-describedby={getErrorId(formId, "sortOrder", errors)}
+            aria-describedby={getErrorId(
+              formId,
+              "sortOrder",
+              errors,
+            )}
           />
 
-          <FieldError formId={formId} field="sortOrder" errors={errors} />
+          <FieldError
+            formId={formId}
+            field="sortOrder"
+            errors={errors}
+          />
         </div>
       </div>
     </div>

@@ -6,24 +6,11 @@ import { z } from "zod";
 import { type Prisma, UserRole } from "@/generated/prisma/client";
 import { requireAdminRole } from "@/lib/auth/authorization";
 import { prisma } from "@/lib/prisma";
-import {
-  deleteR2ObjectByKey,
-  getR2ObjectKeyFromPublicUrl,
-} from "@/lib/storage/r2-object";
-import {
-  completePreparedMediaCommit,
-  PendingMediaCommitError,
-  preparePendingMediaCommit,
-  rollbackPreparedMediaCommit,
-  type PreparedMediaCommit,
-} from "@/lib/storage/r2-pending";
 
 import { testimonialFormSchema, testimonialIdSchema } from "./schemas";
 import type { TestimonialActionState, TestimonialFieldName } from "./types";
 
 const editableRoles = [UserRole.SUPER_ADMIN, UserRole.CONTENT_ADMIN] as const;
-
-const TESTIMONIAL_MEDIA_PREFIX = "testimonials/";
 
 const testimonialSelect = {
   id: true,
@@ -62,16 +49,6 @@ function validationErrorState(error: z.ZodError): TestimonialActionState {
   };
 }
 
-function invalidPendingPhotoState(message: string): TestimonialActionState {
-  return {
-    status: "error",
-    message: "Foto testimoni belum dapat diterapkan.",
-    fieldErrors: {
-      photoUrl: [message],
-    },
-  };
-}
-
 function toAuditValue(testimonial: TestimonialRecord) {
   return {
     ...testimonial,
@@ -87,52 +64,6 @@ function revalidateTestimonialPaths(): void {
   revalidatePath("/konsol-8m4q7x2k9v6d/dashboard");
 }
 
-async function completePendingPhoto(
-  preparedPhoto: PreparedMediaCommit | null,
-): Promise<void> {
-  if (!preparedPhoto) {
-    return;
-  }
-
-  try {
-    await completePreparedMediaCommit(preparedPhoto);
-  } catch (error) {
-    console.error(
-      "Database testimoni tersimpan, tetapi object pending belum dapat dibersihkan.",
-      error,
-    );
-  }
-}
-
-async function cleanupTestimonialPhoto({
-  previousUrl,
-  nextUrl = null,
-}: {
-  previousUrl: string | null | undefined;
-  nextUrl?: string | null | undefined;
-}): Promise<void> {
-  const previousKey = getR2ObjectKeyFromPublicUrl(previousUrl);
-
-  if (!previousKey || !previousKey.startsWith(TESTIMONIAL_MEDIA_PREFIX)) {
-    return;
-  }
-
-  const nextKey = getR2ObjectKeyFromPublicUrl(nextUrl);
-
-  if (nextKey === previousKey) {
-    return;
-  }
-
-  try {
-    await deleteR2ObjectByKey(previousKey);
-  } catch (error) {
-    console.error("Gagal menghapus foto testimoni lama dari R2.", {
-      objectKey: previousKey,
-      error,
-    });
-  }
-}
-
 export async function createTestimonialAction(
   _previousState: TestimonialActionState,
   formData: FormData,
@@ -145,17 +76,7 @@ export async function createTestimonialAction(
     return validationErrorState(parsed.error);
   }
 
-  let preparedPhoto: PreparedMediaCommit | null = null;
-  let databaseCommitted = false;
-
   try {
-    preparedPhoto = await preparePendingMediaCommit(
-      parsed.data.photoUrl,
-      "testimonials",
-    );
-
-    const photoUrl = preparedPhoto?.finalUrl ?? parsed.data.photoUrl;
-
     const createdTestimonial = await prisma.$transaction(
       async (transaction) => {
         const testimonial = await transaction.testimonial.create({
@@ -163,7 +84,7 @@ export async function createTestimonialAction(
             name: parsed.data.name,
             role: parsed.data.role,
             content: parsed.data.content,
-            photoUrl,
+            photoUrl: parsed.data.photoUrl,
             isPublished: parsed.data.isPublished,
             sortOrder: parsed.data.sortOrder,
           },
@@ -184,10 +105,6 @@ export async function createTestimonialAction(
       },
     );
 
-    databaseCommitted = true;
-
-    await completePendingPhoto(preparedPhoto);
-
     revalidateTestimonialPaths();
 
     return {
@@ -198,15 +115,7 @@ export async function createTestimonialAction(
       testimonialId: createdTestimonial.id,
     };
   } catch (error: unknown) {
-    if (!databaseCommitted) {
-      await rollbackPreparedMediaCommit(preparedPhoto);
-    }
-
     console.error("Gagal menambahkan testimoni.", error);
-
-    if (error instanceof PendingMediaCommitError) {
-      return invalidPendingPhotoState(error.message);
-    }
 
     return {
       status: "error",
@@ -238,9 +147,6 @@ export async function updateTestimonialAction(
     return validationErrorState(parsed.error);
   }
 
-  let preparedPhoto: PreparedMediaCommit | null = null;
-  let databaseCommitted = false;
-
   try {
     const currentTestimonial = await prisma.testimonial.findUnique({
       where: {
@@ -256,13 +162,6 @@ export async function updateTestimonialAction(
       };
     }
 
-    preparedPhoto = await preparePendingMediaCommit(
-      parsed.data.photoUrl,
-      "testimonials",
-    );
-
-    const photoUrl = preparedPhoto?.finalUrl ?? parsed.data.photoUrl;
-
     const updatedTestimonial = await prisma.$transaction(
       async (transaction) => {
         const testimonial = await transaction.testimonial.update({
@@ -273,7 +172,7 @@ export async function updateTestimonialAction(
             name: parsed.data.name,
             role: parsed.data.role,
             content: parsed.data.content,
-            photoUrl,
+            photoUrl: parsed.data.photoUrl,
             isPublished: parsed.data.isPublished,
             sortOrder: parsed.data.sortOrder,
           },
@@ -295,15 +194,6 @@ export async function updateTestimonialAction(
       },
     );
 
-    databaseCommitted = true;
-
-    await completePendingPhoto(preparedPhoto);
-
-    await cleanupTestimonialPhoto({
-      previousUrl: currentTestimonial.photoUrl,
-      nextUrl: updatedTestimonial.photoUrl,
-    });
-
     revalidateTestimonialPaths();
 
     return {
@@ -314,15 +204,7 @@ export async function updateTestimonialAction(
       testimonialId: updatedTestimonial.id,
     };
   } catch (error: unknown) {
-    if (!databaseCommitted) {
-      await rollbackPreparedMediaCommit(preparedPhoto);
-    }
-
     console.error("Gagal memperbarui testimoni.", error);
-
-    if (error instanceof PendingMediaCommitError) {
-      return invalidPendingPhotoState(error.message);
-    }
 
     return {
       status: "error",
@@ -379,10 +261,6 @@ export async function deleteTestimonialAction(
           oldValue: toAuditValue(currentTestimonial),
         },
       });
-    });
-
-    await cleanupTestimonialPhoto({
-      previousUrl: currentTestimonial.photoUrl,
     });
 
     revalidateTestimonialPaths();

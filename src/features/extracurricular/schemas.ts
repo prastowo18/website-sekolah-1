@@ -1,5 +1,19 @@
 import { z } from "zod";
 
+function isValidMediaUrl(value: string): boolean {
+  if (value.startsWith("/")) {
+    return true;
+  }
+
+  try {
+    const url = new URL(value);
+
+    return url.protocol === "http:" || url.protocol === "https:";
+  } catch {
+    return false;
+  }
+}
+
 function optionalText(maximumLength: number, message: string) {
   return z
     .string()
@@ -7,6 +21,16 @@ function optionalText(maximumLength: number, message: string) {
     .max(maximumLength, message)
     .transform((value) => value || null);
 }
+
+const optionalImageUrl = z
+  .string()
+  .trim()
+  .max(4_000, "URL gambar maksimal 4.000 karakter.")
+  .refine(
+    (value) => value === "" || isValidMediaUrl(value),
+    "URL gambar tidak valid.",
+  )
+  .transform((value) => value || null);
 
 const multilineList = z
   .string()
@@ -49,6 +73,8 @@ export const extracurricularFormSchema = z.object({
   coach: optionalText(160, "Nama pembina maksimal 160 karakter."),
 
   targetClasses: multilineList,
+
+  imageUrl: optionalImageUrl,
 
   sortOrder: z.coerce
     .number()

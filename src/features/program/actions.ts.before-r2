@@ -19,10 +19,19 @@ import {
   type PreparedMediaCommit,
 } from "@/lib/storage/r2-pending";
 
-import { programFormSchema, programIdSchema } from "./schemas";
-import type { ProgramActionState, ProgramFieldName } from "./types";
+import {
+  programFormSchema,
+  programIdSchema,
+} from "./schemas";
+import type {
+  ProgramActionState,
+  ProgramFieldName,
+} from "./types";
 
-const editableRoles = [UserRole.SUPER_ADMIN, UserRole.CONTENT_ADMIN] as const;
+const editableRoles = [
+  UserRole.SUPER_ADMIN,
+  UserRole.CONTENT_ADMIN,
+] as const;
 
 const PROGRAM_MEDIA_PREFIX = "programs/";
 
@@ -96,13 +105,17 @@ function getFormValues(formData: FormData) {
   };
 }
 
-function validationErrorState(error: z.ZodError): ProgramActionState {
+function validationErrorState(
+  error: z.ZodError,
+): ProgramActionState {
   const errors = z.flattenError(error).fieldErrors;
 
   return {
     status: "error",
     message: "Periksa kembali data program.",
-    fieldErrors: errors as Partial<Record<ProgramFieldName, string[]>>,
+    fieldErrors: errors as Partial<
+      Record<ProgramFieldName, string[]>
+    >,
   };
 }
 
@@ -111,7 +124,9 @@ function invalidSlugState(): ProgramActionState {
     status: "error",
     message: "Slug program tidak valid.",
     fieldErrors: {
-      slug: ["Gunakan nama atau slug yang mengandung huruf atau angka."],
+      slug: [
+        "Gunakan nama atau slug yang mengandung huruf atau angka.",
+      ],
     },
   };
 }
@@ -126,7 +141,9 @@ function uniqueSlugState(): ProgramActionState {
   };
 }
 
-function invalidPendingImageState(message: string): ProgramActionState {
+function invalidPendingImageState(
+  message: string,
+): ProgramActionState {
   return {
     status: "error",
     message: "Gambar program belum dapat diterapkan.",
@@ -171,9 +188,13 @@ async function cleanupProgramImage({
   previousUrl: string | null | undefined;
   nextUrl?: string | null | undefined;
 }): Promise<void> {
-  const previousKey = getR2ObjectKeyFromPublicUrl(previousUrl);
+  const previousKey =
+    getR2ObjectKeyFromPublicUrl(previousUrl);
 
-  if (!previousKey || !previousKey.startsWith(PROGRAM_MEDIA_PREFIX)) {
+  if (
+    !previousKey ||
+    !previousKey.startsWith(PROGRAM_MEDIA_PREFIX)
+  ) {
     return;
   }
 
@@ -186,10 +207,13 @@ async function cleanupProgramImage({
   try {
     await deleteR2ObjectByKey(previousKey);
   } catch (error) {
-    console.error("Gagal menghapus gambar program lama dari R2.", {
-      objectKey: previousKey,
-      error,
-    });
+    console.error(
+      "Gagal menghapus gambar program lama dari R2.",
+      {
+        objectKey: previousKey,
+        error,
+      },
+    );
   }
 }
 
@@ -199,13 +223,17 @@ export async function createProgramAction(
 ): Promise<ProgramActionState> {
   const session = await requireAdminRole(editableRoles);
 
-  const parsed = programFormSchema.safeParse(getFormValues(formData));
+  const parsed = programFormSchema.safeParse(
+    getFormValues(formData),
+  );
 
   if (!parsed.success) {
     return validationErrorState(parsed.error);
   }
 
-  const slug = createSlug(parsed.data.slug || parsed.data.name);
+  const slug = createSlug(
+    parsed.data.slug || parsed.data.name,
+  );
 
   if (!slug) {
     return invalidSlugState();
@@ -220,37 +248,42 @@ export async function createProgramAction(
       "programs",
     );
 
-    const imageUrl = preparedImage?.finalUrl ?? parsed.data.imageUrl;
+    const imageUrl =
+      preparedImage?.finalUrl ?? parsed.data.imageUrl;
 
-    const createdProgram = await prisma.$transaction(async (transaction) => {
-      const program = await transaction.program.create({
-        data: {
-          name: parsed.data.name,
-          slug,
-          shortDescription: parsed.data.shortDescription,
-          description: parsed.data.description,
-          benefits: parsed.data.benefits,
-          imageUrl,
-          sortOrder: parsed.data.sortOrder,
-          isFeatured: parsed.data.isFeatured,
-          isActive: parsed.data.isActive,
-          publishedAt: parsed.data.isActive ? new Date() : null,
-        },
-        select: programSelect,
-      });
+    const createdProgram = await prisma.$transaction(
+      async (transaction) => {
+        const program = await transaction.program.create({
+          data: {
+            name: parsed.data.name,
+            slug,
+            shortDescription: parsed.data.shortDescription,
+            description: parsed.data.description,
+            benefits: parsed.data.benefits,
+            imageUrl,
+            sortOrder: parsed.data.sortOrder,
+            isFeatured: parsed.data.isFeatured,
+            isActive: parsed.data.isActive,
+            publishedAt: parsed.data.isActive
+              ? new Date()
+              : null,
+          },
+          select: programSelect,
+        });
 
-      await transaction.auditLog.create({
-        data: {
-          actorId: session.user.id,
-          action: "PROGRAM_CREATED",
-          entity: "Program",
-          entityId: program.id,
-          newValue: toAuditValue(program),
-        },
-      });
+        await transaction.auditLog.create({
+          data: {
+            actorId: session.user.id,
+            action: "PROGRAM_CREATED",
+            entity: "Program",
+            entityId: program.id,
+            newValue: toAuditValue(program),
+          },
+        });
 
-      return program;
-    });
+        return program;
+      },
+    );
 
     databaseCommitted = true;
 
@@ -302,13 +335,17 @@ export async function updateProgramAction(
     };
   }
 
-  const parsed = programFormSchema.safeParse(getFormValues(formData));
+  const parsed = programFormSchema.safeParse(
+    getFormValues(formData),
+  );
 
   if (!parsed.success) {
     return validationErrorState(parsed.error);
   }
 
-  const slug = createSlug(parsed.data.slug || parsed.data.name);
+  const slug = createSlug(
+    parsed.data.slug || parsed.data.name,
+  );
 
   if (!slug) {
     return invalidSlugState();
@@ -337,44 +374,48 @@ export async function updateProgramAction(
       "programs",
     );
 
-    const imageUrl = preparedImage?.finalUrl ?? parsed.data.imageUrl;
+    const imageUrl =
+      preparedImage?.finalUrl ?? parsed.data.imageUrl;
 
-    const updatedProgram = await prisma.$transaction(async (transaction) => {
-      const program = await transaction.program.update({
-        where: {
-          id: currentProgram.id,
-        },
-        data: {
-          name: parsed.data.name,
-          slug,
-          shortDescription: parsed.data.shortDescription,
-          description: parsed.data.description,
-          benefits: parsed.data.benefits,
-          imageUrl,
-          sortOrder: parsed.data.sortOrder,
-          isFeatured: parsed.data.isFeatured,
-          isActive: parsed.data.isActive,
-          publishedAt:
-            parsed.data.isActive && !currentProgram.publishedAt
-              ? new Date()
-              : currentProgram.publishedAt,
-        },
-        select: programSelect,
-      });
+    const updatedProgram = await prisma.$transaction(
+      async (transaction) => {
+        const program = await transaction.program.update({
+          where: {
+            id: currentProgram.id,
+          },
+          data: {
+            name: parsed.data.name,
+            slug,
+            shortDescription: parsed.data.shortDescription,
+            description: parsed.data.description,
+            benefits: parsed.data.benefits,
+            imageUrl,
+            sortOrder: parsed.data.sortOrder,
+            isFeatured: parsed.data.isFeatured,
+            isActive: parsed.data.isActive,
+            publishedAt:
+              parsed.data.isActive &&
+              !currentProgram.publishedAt
+                ? new Date()
+                : currentProgram.publishedAt,
+          },
+          select: programSelect,
+        });
 
-      await transaction.auditLog.create({
-        data: {
-          actorId: session.user.id,
-          action: "PROGRAM_UPDATED",
-          entity: "Program",
-          entityId: currentProgram.id,
-          oldValue: toAuditValue(currentProgram),
-          newValue: toAuditValue(program),
-        },
-      });
+        await transaction.auditLog.create({
+          data: {
+            actorId: session.user.id,
+            action: "PROGRAM_UPDATED",
+            entity: "Program",
+            entityId: currentProgram.id,
+            oldValue: toAuditValue(currentProgram),
+            newValue: toAuditValue(program),
+          },
+        });
 
-      return program;
-    });
+        return program;
+      },
+    );
 
     databaseCommitted = true;
 
@@ -385,7 +426,10 @@ export async function updateProgramAction(
       nextUrl: updatedProgram.imageUrl,
     });
 
-    revalidateProgramPaths([currentProgram.slug, updatedProgram.slug]);
+    revalidateProgramPaths([
+      currentProgram.slug,
+      updatedProgram.slug,
+    ]);
 
     return {
       status: "success",

@@ -11,6 +11,20 @@ const competitionLevelSchema = z.enum([
   "INTERNATIONAL",
 ]);
 
+function isValidMediaUrl(value: string): boolean {
+  if (value.startsWith("/")) {
+    return true;
+  }
+
+  try {
+    const url = new URL(value);
+
+    return url.protocol === "http:" || url.protocol === "https:";
+  } catch {
+    return false;
+  }
+}
+
 function optionalText(maximumLength: number, message: string) {
   return z
     .string()
@@ -18,6 +32,16 @@ function optionalText(maximumLength: number, message: string) {
     .max(maximumLength, message)
     .transform((value) => value || null);
 }
+
+const optionalImageUrl = z
+  .string()
+  .trim()
+  .max(4_000, "URL gambar maksimal 4.000 karakter.")
+  .refine(
+    (value) => value === "" || isValidMediaUrl(value),
+    "URL gambar tidak valid.",
+  )
+  .transform((value) => value || null);
 
 const optionalCompetitionLevel = z
   .string()
@@ -85,6 +109,8 @@ export const achievementFormSchema = z.object({
   achievementDate: optionalDate,
 
   description: optionalText(20_000, "Deskripsi maksimal 20.000 karakter."),
+
+  imageUrl: optionalImageUrl,
 
   isPublished: booleanFromForm,
 });

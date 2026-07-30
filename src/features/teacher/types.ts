@@ -6,6 +6,7 @@ export type TeacherFieldName =
   | "subject"
   | "education"
   | "shortBiography"
+  | "photoUrl"
   | "sortOrder"
   | "isPrincipal"
   | "isActive";

@@ -1,5 +1,19 @@
 import { z } from "zod";
 
+function isValidMediaUrl(value: string): boolean {
+  if (value.startsWith("/")) {
+    return true;
+  }
+
+  try {
+    const url = new URL(value);
+
+    return url.protocol === "http:" || url.protocol === "https:";
+  } catch {
+    return false;
+  }
+}
+
 function optionalText(maximumLength: number, message: string) {
   return z
     .string()
@@ -7,6 +21,16 @@ function optionalText(maximumLength: number, message: string) {
     .max(maximumLength, message)
     .transform((value) => value || null);
 }
+
+const optionalPhotoUrl = z
+  .string()
+  .trim()
+  .max(4_000, "URL foto maksimal 4.000 karakter.")
+  .refine(
+    (value) => value === "" || isValidMediaUrl(value),
+    "URL foto tidak valid.",
+  )
+  .transform((value) => value || null);
 
 const booleanFromForm = z
   .union([
@@ -44,6 +68,8 @@ export const teacherFormSchema = z.object({
     20_000,
     "Biografi singkat maksimal 20.000 karakter.",
   ),
+
+  photoUrl: optionalPhotoUrl,
 
   sortOrder: z.coerce
     .number()

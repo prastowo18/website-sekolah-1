@@ -52,6 +52,7 @@ const emptyValues: FacilityFormValues = {
   name: "",
   slug: "",
   description: "",
+  imageUrl: "",
   capacity: "",
   condition: "",
   sortOrder: 0,
@@ -89,6 +90,7 @@ export function FacilityFormDialog({ facility }: FacilityFormDialogProps) {
         name: facility.name,
         slug: facility.slug,
         description: facility.description ?? "",
+        imageUrl: facility.imageUrl ?? "",
         capacity: facility.capacity ?? "",
         condition: facility.condition ?? "",
         sortOrder: facility.sortOrder,
@@ -115,7 +117,7 @@ export function FacilityFormDialog({ facility }: FacilityFormDialogProps) {
         </Button>
       </DialogTrigger>
 
-      <DialogContent className="max-h-[90svh] overflow-y-auto sm:max-w-2xl">
+      <DialogContent className="max-h-[92svh] overflow-y-auto sm:max-w-5xl">
         <DialogHeader>
           <DialogTitle>
             {isEdit ? "Edit fasilitas" : "Tambah fasilitas"}
@@ -123,7 +125,7 @@ export function FacilityFormDialog({ facility }: FacilityFormDialogProps) {
 
           <DialogDescription>
             {isEdit
-              ? "Perbarui informasi fasilitas sekolah."
+              ? "Perbarui informasi, foto, dan status fasilitas sekolah."
               : "Tambahkan fasilitas yang tersedia di sekolah."}
           </DialogDescription>
         </DialogHeader>

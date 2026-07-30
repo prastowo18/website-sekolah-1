@@ -8,6 +8,8 @@ import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import type { ExtracurricularFieldName } from "@/features/extracurricular/types";
 
+import { ExtracurricularImageField } from "./extracurricular-image-field";
+
 export type ExtracurricularFormValues = {
   name: string;
   slug: string;
@@ -15,6 +17,7 @@ export type ExtracurricularFormValues = {
   schedule: string;
   coach: string;
   targetClasses: string;
+  imageUrl: string;
   sortOrder: number;
   isActive: boolean;
 };
@@ -135,6 +138,13 @@ export function ExtracurricularFormFields({
 
         <FieldError formId={formId} field="description" errors={errors} />
       </div>
+
+      <ExtracurricularImageField
+        formId={formId}
+        initialValue={values.imageUrl}
+        error={errors?.imageUrl?.[0]}
+        disabled={disabled}
+      />
 
       <div className="grid gap-5 md:grid-cols-2">
         <div className="space-y-2">

@@ -7,11 +7,24 @@ import { UserRole } from "@/generated/prisma/client";
 import { requireAdminRole } from "@/lib/auth/authorization";
 import { prisma } from "@/lib/prisma";
 import { createSlug } from "@/lib/slug";
+import {
+  deleteR2ObjectByKey,
+  getR2ObjectKeyFromPublicUrl,
+} from "@/lib/storage/r2-object";
+import {
+  completePreparedMediaCommit,
+  PendingMediaCommitError,
+  preparePendingMediaCommit,
+  rollbackPreparedMediaCommit,
+  type PreparedMediaCommit,
+} from "@/lib/storage/r2-pending";
 
 import { facilityFormSchema, facilityIdSchema } from "./schemas";
 import type { FacilityActionState, FacilityFieldName } from "./types";
 
 const editableRoles = [UserRole.SUPER_ADMIN, UserRole.CONTENT_ADMIN] as const;
+
+const FACILITY_MEDIA_PREFIX = "facilities/";
 
 const facilitySelect = {
   id: true,
@@ -39,6 +52,7 @@ function getFormValues(formData: FormData) {
     name: formData.get("name"),
     slug: formData.get("slug") ?? "",
     description: formData.get("description") ?? "",
+    imageUrl: formData.get("imageUrl") ?? "",
     capacity: formData.get("capacity") ?? "",
     condition: formData.get("condition") ?? "",
     sortOrder: formData.get("sortOrder") ?? "0",
@@ -82,11 +96,58 @@ function uniqueSlugState(): FacilityActionState {
   };
 }
 
-function revalidateFacilityPaths(): void {
+function invalidPendingImageState(message: string): FacilityActionState {
+  return {
+    status: "error",
+    message: "Foto fasilitas belum dapat diterapkan.",
+    fieldErrors: {
+      imageUrl: [message],
+    },
+  };
+}
+
+function revalidateFacilityPaths(
+  slugs: Array<string | null | undefined> = [],
+): void {
   revalidatePath("/");
   revalidatePath("/fasilitas");
   revalidatePath("/konsol-8m4q7x2k9v6d/dashboard");
   revalidatePath("/konsol-8m4q7x2k9v6d/fasilitas");
+
+  for (const slug of new Set(slugs)) {
+    if (slug) {
+      revalidatePath(`/fasilitas/${slug}`);
+    }
+  }
+}
+
+async function cleanupFacilityImage({
+  previousUrl,
+  nextUrl = null,
+}: {
+  previousUrl: string | null | undefined;
+  nextUrl?: string | null | undefined;
+}): Promise<void> {
+  const previousKey = getR2ObjectKeyFromPublicUrl(previousUrl);
+
+  if (!previousKey || !previousKey.startsWith(FACILITY_MEDIA_PREFIX)) {
+    return;
+  }
+
+  const nextKey = getR2ObjectKeyFromPublicUrl(nextUrl);
+
+  if (nextKey === previousKey) {
+    return;
+  }
+
+  try {
+    await deleteR2ObjectByKey(previousKey);
+  } catch (error) {
+    console.error("Gagal menghapus foto fasilitas lama dari R2.", {
+      objectKey: previousKey,
+      error,
+    });
+  }
 }
 
 export async function createFacilityAction(
@@ -107,13 +168,24 @@ export async function createFacilityAction(
     return invalidSlugState();
   }
 
+  let preparedImage: PreparedMediaCommit | null = null;
+  let databaseCommitted = false;
+
   try {
+    preparedImage = await preparePendingMediaCommit(
+      parsed.data.imageUrl,
+      "facilities",
+    );
+
+    const imageUrl = preparedImage?.finalUrl ?? parsed.data.imageUrl;
+
     const createdFacility = await prisma.$transaction(async (transaction) => {
       const facility = await transaction.facility.create({
         data: {
           name: parsed.data.name,
           slug,
           description: parsed.data.description,
+          imageUrl,
           capacity: parsed.data.capacity,
           condition: parsed.data.condition,
           sortOrder: parsed.data.sortOrder,
@@ -135,7 +207,11 @@ export async function createFacilityAction(
       return facility;
     });
 
-    revalidateFacilityPaths();
+    databaseCommitted = true;
+
+    await completePreparedMediaCommit(preparedImage);
+
+    revalidateFacilityPaths([createdFacility.slug]);
 
     return {
       status: "success",
@@ -143,7 +219,15 @@ export async function createFacilityAction(
       facilityId: createdFacility.id,
     };
   } catch (error: unknown) {
+    if (!databaseCommitted) {
+      await rollbackPreparedMediaCommit(preparedImage);
+    }
+
     console.error("Gagal menambahkan fasilitas.", error);
+
+    if (error instanceof PendingMediaCommitError) {
+      return invalidPendingImageState(error.message);
+    }
 
     if (isUniqueConstraintError(error)) {
       return uniqueSlugState();
@@ -185,6 +269,9 @@ export async function updateFacilityAction(
     return invalidSlugState();
   }
 
+  let preparedImage: PreparedMediaCommit | null = null;
+  let databaseCommitted = false;
+
   try {
     const currentFacility = await prisma.facility.findUnique({
       where: {
@@ -200,8 +287,15 @@ export async function updateFacilityAction(
       };
     }
 
-    await prisma.$transaction(async (transaction) => {
-      const updatedFacility = await transaction.facility.update({
+    preparedImage = await preparePendingMediaCommit(
+      parsed.data.imageUrl,
+      "facilities",
+    );
+
+    const imageUrl = preparedImage?.finalUrl ?? parsed.data.imageUrl;
+
+    const updatedFacility = await prisma.$transaction(async (transaction) => {
+      const facility = await transaction.facility.update({
         where: {
           id: currentFacility.id,
         },
@@ -209,6 +303,7 @@ export async function updateFacilityAction(
           name: parsed.data.name,
           slug,
           description: parsed.data.description,
+          imageUrl,
           capacity: parsed.data.capacity,
           condition: parsed.data.condition,
           sortOrder: parsed.data.sortOrder,
@@ -224,20 +319,39 @@ export async function updateFacilityAction(
           entity: "Facility",
           entityId: currentFacility.id,
           oldValue: currentFacility,
-          newValue: updatedFacility,
+          newValue: facility,
         },
       });
+
+      return facility;
     });
 
-    revalidateFacilityPaths();
+    databaseCommitted = true;
+
+    await completePreparedMediaCommit(preparedImage);
+
+    await cleanupFacilityImage({
+      previousUrl: currentFacility.imageUrl,
+      nextUrl: updatedFacility.imageUrl,
+    });
+
+    revalidateFacilityPaths([currentFacility.slug, updatedFacility.slug]);
 
     return {
       status: "success",
       message: "Fasilitas berhasil diperbarui.",
-      facilityId: currentFacility.id,
+      facilityId: updatedFacility.id,
     };
   } catch (error: unknown) {
+    if (!databaseCommitted) {
+      await rollbackPreparedMediaCommit(preparedImage);
+    }
+
     console.error("Gagal memperbarui fasilitas.", error);
+
+    if (error instanceof PendingMediaCommitError) {
+      return invalidPendingImageState(error.message);
+    }
 
     if (isUniqueConstraintError(error)) {
       return uniqueSlugState();
@@ -300,7 +414,11 @@ export async function deleteFacilityAction(
       });
     });
 
-    revalidateFacilityPaths();
+    await cleanupFacilityImage({
+      previousUrl: currentFacility.imageUrl,
+    });
+
+    revalidateFacilityPaths([currentFacility.slug]);
 
     return {
       status: "success",

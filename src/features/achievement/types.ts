@@ -8,6 +8,7 @@ export type AchievementFieldName =
   | "rank"
   | "achievementDate"
   | "description"
+  | "imageUrl"
   | "isPublished";
 
 export type AchievementActionState = {

@@ -1,7 +1,8 @@
 "use client";
 
+import { useActionToast } from "@/hooks/use-action-toast";
 import { Pencil, Plus } from "lucide-react";
-import { startTransition, useActionState, useState } from "react";
+import { useActionState } from "react";
 
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
@@ -20,11 +21,7 @@ import {
   createProgramAction,
   updateProgramAction,
 } from "@/features/program/actions";
-import {
-  initialProgramActionState,
-  type ProgramActionState,
-} from "@/features/program/types";
-import { useActionToast } from "@/hooks/use-action-toast";
+import { initialProgramActionState } from "@/features/program/types";
 
 import {
   ProgramFormFields,
@@ -38,7 +35,6 @@ export type EditableProgram = {
   shortDescription: string | null;
   description: string | null;
   benefits: string[];
-  imageUrl: string | null;
   sortOrder: number;
   isFeatured: boolean;
   isActive: boolean;
@@ -55,34 +51,18 @@ const emptyValues: ProgramFormValues = {
   shortDescription: "",
   description: "",
   benefits: "",
-  imageUrl: "",
   sortOrder: 0,
   isFeatured: false,
   isActive: true,
 };
 
 export function ProgramFormDialog({ program }: ProgramFormDialogProps) {
-  const [open, setOpen] = useState(false);
-
-  const isEdit = program !== undefined;
+  const isEdit = Boolean(program);
 
   const action = isEdit ? updateProgramAction : createProgramAction;
 
   const [state, formAction, isPending] = useActionState(
-    async (
-      previousState: ProgramActionState,
-      formData: FormData,
-    ): Promise<ProgramActionState> => {
-      const nextState = await action(previousState, formData);
-
-      if (nextState.status === "success") {
-        startTransition(() => {
-          setOpen(false);
-        });
-      }
-
-      return nextState;
-    },
+    action,
     initialProgramActionState,
   );
 
@@ -95,7 +75,6 @@ export function ProgramFormDialog({ program }: ProgramFormDialogProps) {
         shortDescription: program.shortDescription ?? "",
         description: program.description ?? "",
         benefits: program.benefits.join("\n"),
-        imageUrl: program.imageUrl ?? "",
         sortOrder: program.sortOrder,
         isFeatured: program.isFeatured,
         isActive: program.isActive,
@@ -109,7 +88,7 @@ export function ProgramFormDialog({ program }: ProgramFormDialogProps) {
     : `create-${state.programId ?? "new"}`;
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog>
       <DialogTrigger asChild>
         <Button
           variant={isEdit ? "outline" : "default"}
@@ -121,7 +100,7 @@ export function ProgramFormDialog({ program }: ProgramFormDialogProps) {
         </Button>
       </DialogTrigger>
 
-      <DialogContent className="max-h-[92svh] overflow-y-auto sm:max-w-5xl">
+      <DialogContent className="max-h-[90svh] overflow-y-auto sm:max-w-2xl">
         <DialogHeader>
           <DialogTitle>
             {isEdit ? "Edit program" : "Tambah program"}
@@ -129,7 +108,7 @@ export function ProgramFormDialog({ program }: ProgramFormDialogProps) {
 
           <DialogDescription>
             {isEdit
-              ? "Perbarui informasi, gambar, dan status program sekolah."
+              ? "Perbarui informasi program sekolah."
               : "Tambahkan program pendidikan atau program unggulan sekolah."}
           </DialogDescription>
         </DialogHeader>
@@ -165,7 +144,7 @@ export function ProgramFormDialog({ program }: ProgramFormDialogProps) {
           <DialogFooter>
             <DialogClose asChild>
               <Button type="button" variant="outline" disabled={isPending}>
-                Batal
+                Tutup
               </Button>
             </DialogClose>
 

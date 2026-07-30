@@ -19,7 +19,7 @@ import { Spinner } from "@/components/ui/spinner";
 import {
   createGalleryMediaAction,
   updateGalleryMediaAction,
-} from "@/features/gallery/actions";
+} from "@/features/gallery/media-actions";
 import type { GalleryMediaTypeValue } from "@/features/gallery/constants";
 import {
   initialGalleryMediaActionState,
@@ -123,7 +123,7 @@ export function GalleryMediaFormDialog({
         </Button>
       </DialogTrigger>
 
-      <DialogContent className="max-h-[92svh] overflow-y-auto sm:max-w-2xl">
+      <DialogContent className="max-h-[92svh] overflow-y-auto sm:max-w-5xl">
         <DialogHeader>
           <DialogTitle>
             {isEdit ? "Edit media galeri" : "Tambah media galeri"}

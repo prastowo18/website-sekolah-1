@@ -3,19 +3,28 @@
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
-import {
-  AchievementType,
-  CompetitionLevel,
-  UserRole,
-} from "@/generated/prisma/client";
+import { type Prisma, UserRole } from "@/generated/prisma/client";
 import { requireAdminRole } from "@/lib/auth/authorization";
 import { prisma } from "@/lib/prisma";
 import { createSlug } from "@/lib/slug";
+import {
+  deleteR2ObjectByKey,
+  getR2ObjectKeyFromPublicUrl,
+} from "@/lib/storage/r2-object";
+import {
+  completePreparedMediaCommit,
+  PendingMediaCommitError,
+  preparePendingMediaCommit,
+  rollbackPreparedMediaCommit,
+  type PreparedMediaCommit,
+} from "@/lib/storage/r2-pending";
 
 import { achievementFormSchema, achievementIdSchema } from "./schemas";
 import type { AchievementActionState, AchievementFieldName } from "./types";
 
 const editableRoles = [UserRole.SUPER_ADMIN, UserRole.CONTENT_ADMIN] as const;
+
+const ACHIEVEMENT_MEDIA_PREFIX = "achievements/";
 
 const achievementSelect = {
   id: true,
@@ -31,23 +40,11 @@ const achievementSelect = {
   imageUrl: true,
   isPublished: true,
   publishedAt: true,
-} as const;
+} satisfies Prisma.AchievementSelect;
 
-type AchievementRecord = {
-  id: string;
-  title: string;
-  slug: string;
-  achievementType: AchievementType;
-  category: string | null;
-  winnerName: string | null;
-  competitionLevel: CompetitionLevel | null;
-  rank: string | null;
-  achievementDate: Date | null;
-  description: string | null;
-  imageUrl: string | null;
-  isPublished: boolean;
-  publishedAt: Date | null;
-};
+type AchievementRecord = Prisma.AchievementGetPayload<{
+  select: typeof achievementSelect;
+}>;
 
 function toAuditValue(achievement: AchievementRecord) {
   return {
@@ -69,6 +66,7 @@ function getFormValues(formData: FormData) {
     rank: formData.get("rank") ?? "",
     achievementDate: formData.get("achievementDate") ?? "",
     description: formData.get("description") ?? "",
+    imageUrl: formData.get("imageUrl") ?? "",
     isPublished: formData.get("isPublished") ?? "",
   };
 }
@@ -103,6 +101,16 @@ function uniqueSlugState(): AchievementActionState {
   };
 }
 
+function invalidPendingImageState(message: string): AchievementActionState {
+  return {
+    status: "error",
+    message: "Gambar prestasi belum dapat diterapkan.",
+    fieldErrors: {
+      imageUrl: [message],
+    },
+  };
+}
+
 function isUniqueConstraintError(error: unknown): boolean {
   return (
     typeof error === "object" &&
@@ -112,11 +120,48 @@ function isUniqueConstraintError(error: unknown): boolean {
   );
 }
 
-function revalidateAchievementPaths(): void {
+function revalidateAchievementPaths(
+  slugs: Array<string | null | undefined> = [],
+): void {
   revalidatePath("/");
   revalidatePath("/prestasi");
   revalidatePath("/konsol-8m4q7x2k9v6d/dashboard");
   revalidatePath("/konsol-8m4q7x2k9v6d/prestasi");
+
+  for (const slug of new Set(slugs)) {
+    if (slug) {
+      revalidatePath(`/prestasi/${slug}`);
+    }
+  }
+}
+
+async function cleanupAchievementImage({
+  previousUrl,
+  nextUrl = null,
+}: {
+  previousUrl: string | null | undefined;
+  nextUrl?: string | null | undefined;
+}): Promise<void> {
+  const previousKey = getR2ObjectKeyFromPublicUrl(previousUrl);
+
+  if (!previousKey || !previousKey.startsWith(ACHIEVEMENT_MEDIA_PREFIX)) {
+    return;
+  }
+
+  const nextKey = getR2ObjectKeyFromPublicUrl(nextUrl);
+
+  if (nextKey === previousKey) {
+    return;
+  }
+
+  try {
+    await deleteR2ObjectByKey(previousKey);
+  } catch (error) {
+    console.error("Gagal menghapus gambar prestasi lama dari R2.", {
+      objectKey: previousKey,
+      error,
+    });
+  }
 }
 
 export async function createAchievementAction(
@@ -137,7 +182,18 @@ export async function createAchievementAction(
     return invalidSlugState();
   }
 
+  let preparedImage: PreparedMediaCommit | null = null;
+
+  let databaseCommitted = false;
+
   try {
+    preparedImage = await preparePendingMediaCommit(
+      parsed.data.imageUrl,
+      "achievements",
+    );
+
+    const imageUrl = preparedImage?.finalUrl ?? parsed.data.imageUrl;
+
     const createdAchievement = await prisma.$transaction(
       async (transaction) => {
         const achievement = await transaction.achievement.create({
@@ -151,6 +207,7 @@ export async function createAchievementAction(
             rank: parsed.data.rank,
             achievementDate: parsed.data.achievementDate,
             description: parsed.data.description,
+            imageUrl,
             isPublished: parsed.data.isPublished,
             publishedAt: parsed.data.isPublished ? new Date() : null,
           },
@@ -171,7 +228,11 @@ export async function createAchievementAction(
       },
     );
 
-    revalidateAchievementPaths();
+    databaseCommitted = true;
+
+    await completePreparedMediaCommit(preparedImage);
+
+    revalidateAchievementPaths([createdAchievement.slug]);
 
     return {
       status: "success",
@@ -179,7 +240,15 @@ export async function createAchievementAction(
       achievementId: createdAchievement.id,
     };
   } catch (error: unknown) {
+    if (!databaseCommitted) {
+      await rollbackPreparedMediaCommit(preparedImage);
+    }
+
     console.error("Gagal menambahkan prestasi.", error);
+
+    if (error instanceof PendingMediaCommitError) {
+      return invalidPendingImageState(error.message);
+    }
 
     if (isUniqueConstraintError(error)) {
       return uniqueSlugState();
@@ -221,6 +290,10 @@ export async function updateAchievementAction(
     return invalidSlugState();
   }
 
+  let preparedImage: PreparedMediaCommit | null = null;
+
+  let databaseCommitted = false;
+
   try {
     const currentAchievement = await prisma.achievement.findUnique({
       where: {
@@ -236,50 +309,82 @@ export async function updateAchievementAction(
       };
     }
 
-    await prisma.$transaction(async (transaction) => {
-      const updatedAchievement = await transaction.achievement.update({
-        where: {
-          id: currentAchievement.id,
-        },
-        data: {
-          title: parsed.data.title,
-          slug,
-          achievementType: parsed.data.achievementType,
-          category: parsed.data.category,
-          winnerName: parsed.data.winnerName,
-          competitionLevel: parsed.data.competitionLevel,
-          rank: parsed.data.rank,
-          achievementDate: parsed.data.achievementDate,
-          description: parsed.data.description,
-          isPublished: parsed.data.isPublished,
-          publishedAt: parsed.data.isPublished
-            ? (currentAchievement.publishedAt ?? new Date())
-            : null,
-        },
-        select: achievementSelect,
-      });
+    preparedImage = await preparePendingMediaCommit(
+      parsed.data.imageUrl,
+      "achievements",
+    );
 
-      await transaction.auditLog.create({
-        data: {
-          actorId: session.user.id,
-          action: "ACHIEVEMENT_UPDATED",
-          entity: "Achievement",
-          entityId: currentAchievement.id,
-          oldValue: toAuditValue(currentAchievement),
-          newValue: toAuditValue(updatedAchievement),
-        },
-      });
+    const imageUrl = preparedImage?.finalUrl ?? parsed.data.imageUrl;
+
+    const updatedAchievement = await prisma.$transaction(
+      async (transaction) => {
+        const achievement = await transaction.achievement.update({
+          where: {
+            id: currentAchievement.id,
+          },
+          data: {
+            title: parsed.data.title,
+            slug,
+            achievementType: parsed.data.achievementType,
+            category: parsed.data.category,
+            winnerName: parsed.data.winnerName,
+            competitionLevel: parsed.data.competitionLevel,
+            rank: parsed.data.rank,
+            achievementDate: parsed.data.achievementDate,
+            description: parsed.data.description,
+            imageUrl,
+            isPublished: parsed.data.isPublished,
+            publishedAt: parsed.data.isPublished
+              ? (currentAchievement.publishedAt ?? new Date())
+              : null,
+          },
+          select: achievementSelect,
+        });
+
+        await transaction.auditLog.create({
+          data: {
+            actorId: session.user.id,
+            action: "ACHIEVEMENT_UPDATED",
+            entity: "Achievement",
+            entityId: currentAchievement.id,
+            oldValue: toAuditValue(currentAchievement),
+            newValue: toAuditValue(achievement),
+          },
+        });
+
+        return achievement;
+      },
+    );
+
+    databaseCommitted = true;
+
+    await completePreparedMediaCommit(preparedImage);
+
+    await cleanupAchievementImage({
+      previousUrl: currentAchievement.imageUrl,
+      nextUrl: updatedAchievement.imageUrl,
     });
 
-    revalidateAchievementPaths();
+    revalidateAchievementPaths([
+      currentAchievement.slug,
+      updatedAchievement.slug,
+    ]);
 
     return {
       status: "success",
       message: "Prestasi berhasil diperbarui.",
-      achievementId: currentAchievement.id,
+      achievementId: updatedAchievement.id,
     };
   } catch (error: unknown) {
+    if (!databaseCommitted) {
+      await rollbackPreparedMediaCommit(preparedImage);
+    }
+
     console.error("Gagal memperbarui prestasi.", error);
+
+    if (error instanceof PendingMediaCommitError) {
+      return invalidPendingImageState(error.message);
+    }
 
     if (isUniqueConstraintError(error)) {
       return uniqueSlugState();
@@ -342,7 +447,11 @@ export async function deleteAchievementAction(
       });
     });
 
-    revalidateAchievementPaths();
+    await cleanupAchievementImage({
+      previousUrl: currentAchievement.imageUrl,
+    });
+
+    revalidateAchievementPaths([currentAchievement.slug]);
 
     return {
       status: "success",

@@ -19,7 +19,7 @@ import { Spinner } from "@/components/ui/spinner";
 import {
   createGalleryAlbumAction,
   updateGalleryAlbumAction,
-} from "@/features/gallery/actions";
+} from "@/features/gallery/album-actions";
 import {
   initialGalleryAlbumActionState,
   type GalleryAlbumActionState,
@@ -59,6 +59,7 @@ const emptyValues: GalleryAlbumFormValues = {
 
 export function GalleryAlbumFormDialog({ album }: GalleryAlbumFormDialogProps) {
   const [open, setOpen] = useState(false);
+
   const isEdit = album !== undefined;
 
   const action = isEdit ? updateGalleryAlbumAction : createGalleryAlbumAction;
@@ -115,7 +116,7 @@ export function GalleryAlbumFormDialog({ album }: GalleryAlbumFormDialogProps) {
         </Button>
       </DialogTrigger>
 
-      <DialogContent className="max-h-[92svh] overflow-y-auto sm:max-w-2xl">
+      <DialogContent className="max-h-[92svh] overflow-y-auto sm:max-w-5xl">
         <DialogHeader>
           <DialogTitle>
             {isEdit ? "Edit album galeri" : "Tambah album galeri"}
@@ -123,7 +124,7 @@ export function GalleryAlbumFormDialog({ album }: GalleryAlbumFormDialogProps) {
 
           <DialogDescription>
             {isEdit
-              ? "Perbarui informasi dan status publikasi album."
+              ? "Perbarui informasi, sampul, dan status publikasi album."
               : "Tambahkan album baru untuk dokumentasi kegiatan sekolah."}
           </DialogDescription>
         </DialogHeader>

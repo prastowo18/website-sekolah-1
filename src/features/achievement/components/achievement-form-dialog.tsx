@@ -20,20 +20,20 @@ import {
   createAchievementAction,
   updateAchievementAction,
 } from "@/features/achievement/actions";
+import type { AchievementTypeValue } from "@/features/achievement/constants";
 import {
   initialAchievementActionState,
   type AchievementActionState,
 } from "@/features/achievement/types";
-import {
-  type AchievementTypeValue,
-  type CompetitionLevelValue,
-} from "@/features/achievement/constants";
 import { useActionToast } from "@/hooks/use-action-toast";
 
 import {
   AchievementFormFields,
   type AchievementFormValues,
 } from "./achievement-form-fields";
+
+type CompetitionLevelValue =
+  "SCHOOL" | "DISTRICT" | "CITY" | "PROVINCE" | "NATIONAL" | "INTERNATIONAL";
 
 export type EditableAchievement = {
   id: string;
@@ -66,6 +66,7 @@ const emptyValues: AchievementFormValues = {
   rank: "",
   achievementDate: "",
   description: "",
+  imageUrl: "",
   isPublished: true,
 };
 
@@ -73,6 +74,7 @@ export function AchievementFormDialog({
   achievement,
 }: AchievementFormDialogProps) {
   const [open, setOpen] = useState(false);
+
   const isEdit = achievement !== undefined;
 
   const action = isEdit ? updateAchievementAction : createAchievementAction;
@@ -108,6 +110,7 @@ export function AchievementFormDialog({
         rank: achievement.rank ?? "",
         achievementDate: achievement.achievementDate ?? "",
         description: achievement.description ?? "",
+        imageUrl: achievement.imageUrl ?? "",
         isPublished: achievement.isPublished,
       }
     : emptyValues;
@@ -133,7 +136,7 @@ export function AchievementFormDialog({
         </Button>
       </DialogTrigger>
 
-      <DialogContent className="max-h-[90svh] overflow-y-auto sm:max-w-3xl">
+      <DialogContent className="max-h-[92svh] overflow-y-auto sm:max-w-5xl">
         <DialogHeader>
           <DialogTitle>
             {isEdit ? "Edit prestasi" : "Tambah prestasi"}
@@ -141,7 +144,7 @@ export function AchievementFormDialog({
 
           <DialogDescription>
             {isEdit
-              ? "Perbarui informasi prestasi sekolah."
+              ? "Perbarui informasi, gambar, dan status publikasi prestasi."
               : "Tambahkan prestasi siswa, guru, atau sekolah."}
           </DialogDescription>
         </DialogHeader>

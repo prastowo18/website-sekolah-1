@@ -59,6 +59,7 @@ const emptyValues: TeacherFormValues = {
   subject: "",
   education: "",
   shortBiography: "",
+  photoUrl: "",
   sortOrder: 0,
   isPrincipal: false,
   isActive: true,
@@ -99,6 +100,7 @@ export function TeacherFormDialog({ teacher }: TeacherFormDialogProps) {
         subject: teacher.subject ?? "",
         education: teacher.education ?? "",
         shortBiography: teacher.shortBiography ?? "",
+        photoUrl: teacher.photoUrl ?? "",
         sortOrder: teacher.sortOrder,
         isPrincipal: teacher.isPrincipal,
         isActive: teacher.isActive,
@@ -124,13 +126,13 @@ export function TeacherFormDialog({ teacher }: TeacherFormDialogProps) {
         </Button>
       </DialogTrigger>
 
-      <DialogContent className="max-h-[90svh] overflow-y-auto sm:max-w-2xl">
+      <DialogContent className="max-h-[92svh] overflow-y-auto sm:max-w-5xl">
         <DialogHeader>
           <DialogTitle>{isEdit ? "Edit data guru" : "Tambah guru"}</DialogTitle>
 
           <DialogDescription>
             {isEdit
-              ? "Perbarui data guru atau tenaga kependidikan."
+              ? "Perbarui data, foto, dan status guru atau tenaga kependidikan."
               : "Tambahkan guru atau tenaga kependidikan sekolah."}
           </DialogDescription>
         </DialogHeader>

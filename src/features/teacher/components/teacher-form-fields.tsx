@@ -8,6 +8,8 @@ import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import type { TeacherFieldName } from "@/features/teacher/types";
 
+import { TeacherPhotoField } from "./teacher-photo-field";
+
 export type TeacherFormValues = {
   name: string;
   slug: string;
@@ -16,6 +18,7 @@ export type TeacherFormValues = {
   subject: string;
   education: string;
   shortBiography: string;
+  photoUrl: string;
   sortOrder: number;
   isPrincipal: boolean;
   isActive: boolean;
@@ -67,57 +70,51 @@ export function TeacherFormFields({
   disabled = false,
 }: TeacherFormFieldsProps) {
   const [isPrincipal, setIsPrincipal] = useState(values.isPrincipal);
-
   const [isActive, setIsActive] = useState(values.isActive);
 
   return (
     <div className="grid gap-5">
-      <div className="grid gap-5 md:grid-cols-2">
-        <div className="space-y-2">
-          <Label htmlFor={`${formId}-name`}>Nama lengkap</Label>
+      <div className="space-y-2">
+        <Label htmlFor={`${formId}-name`}>Nama guru</Label>
 
-          <Input
-            id={`${formId}-name`}
-            name="name"
-            defaultValue={values.name}
-            placeholder="Masukkan nama lengkap"
-            maxLength={160}
-            disabled={disabled}
-            aria-invalid={Boolean(errors?.name?.length)}
-            aria-describedby={getErrorId(formId, "name", errors)}
-            required
-          />
+        <Input
+          id={`${formId}-name`}
+          name="name"
+          defaultValue={values.name}
+          placeholder="Masukkan nama lengkap guru"
+          maxLength={160}
+          disabled={disabled}
+          aria-invalid={Boolean(errors?.name?.length)}
+          aria-describedby={getErrorId(formId, "name", errors)}
+          required
+        />
 
-          <FieldError formId={formId} field="name" errors={errors} />
-        </div>
+        <FieldError formId={formId} field="name" errors={errors} />
+      </div>
 
-        <div className="space-y-2">
-          <Label htmlFor={`${formId}-slug`}>Slug</Label>
+      <div className="space-y-2">
+        <Label htmlFor={`${formId}-slug`}>Slug</Label>
 
-          <Input
-            id={`${formId}-slug`}
-            name="slug"
-            defaultValue={values.slug}
-            placeholder="Otomatis dari nama guru"
-            maxLength={180}
-            disabled={disabled}
-            aria-invalid={Boolean(errors?.slug?.length)}
-            aria-describedby={
-              errors?.slug?.length
-                ? `${formId}-slug-error`
-                : `${formId}-slug-help`
-            }
-          />
+        <Input
+          id={`${formId}-slug`}
+          name="slug"
+          defaultValue={values.slug}
+          placeholder="Otomatis dari nama guru"
+          maxLength={180}
+          disabled={disabled}
+          aria-invalid={Boolean(errors?.slug?.length)}
+          aria-describedby={
+            errors?.slug?.length
+              ? `${formId}-slug-error`
+              : `${formId}-slug-help`
+          }
+        />
 
-          <p
-            id={`${formId}-slug-help`}
-            className="text-xs text-muted-foreground"
-          >
-            Kosongkan agar slug dibuat otomatis dari nama guru.
-          </p>
+        <p id={`${formId}-slug-help`} className="text-xs text-muted-foreground">
+          Kosongkan agar slug dibuat otomatis dari nama guru.
+        </p>
 
-          <FieldError formId={formId} field="slug" errors={errors} />
-        </div>
+        <FieldError formId={formId} field="slug" errors={errors} />
       </div>
 
       <div className="grid gap-5 md:grid-cols-2">
@@ -128,7 +125,7 @@ export function TeacherFormFields({
             id={`${formId}-employeeNumber`}
             name="employeeNumber"
             defaultValue={values.employeeNumber}
-            placeholder="NIP, NUPTK, atau nomor pegawai"
+            placeholder="NIP, NUPTK, atau nomor internal"
             maxLength={50}
             disabled={disabled}
             aria-invalid={Boolean(errors?.employeeNumber?.length)}
@@ -145,7 +142,7 @@ export function TeacherFormFields({
             id={`${formId}-position`}
             name="position"
             defaultValue={values.position}
-            placeholder="Contoh: Guru Kelas"
+            placeholder="Contoh: Wali Kelas VI"
             maxLength={120}
             disabled={disabled}
             aria-invalid={Boolean(errors?.position?.length)}
@@ -211,6 +208,13 @@ export function TeacherFormFields({
 
         <FieldError formId={formId} field="shortBiography" errors={errors} />
       </div>
+
+      <TeacherPhotoField
+        formId={formId}
+        initialValue={values.photoUrl}
+        error={errors?.photoUrl?.[0]}
+        disabled={disabled}
+      />
 
       <div className="space-y-2">
         <Label htmlFor={`${formId}-sortOrder`}>Urutan tampil</Label>

@@ -56,6 +56,7 @@ const emptyValues: ExtracurricularFormValues = {
   schedule: "",
   coach: "",
   targetClasses: "",
+  imageUrl: "",
   sortOrder: 0,
   isActive: true,
 };
@@ -64,6 +65,7 @@ export function ExtracurricularFormDialog({
   extracurricular,
 }: ExtracurricularFormDialogProps) {
   const [open, setOpen] = useState(false);
+
   const isEdit = extracurricular !== undefined;
 
   const action = isEdit
@@ -98,6 +100,7 @@ export function ExtracurricularFormDialog({
         schedule: extracurricular.schedule ?? "",
         coach: extracurricular.coach ?? "",
         targetClasses: extracurricular.targetClasses.join("\n"),
+        imageUrl: extracurricular.imageUrl ?? "",
         sortOrder: extracurricular.sortOrder,
         isActive: extracurricular.isActive,
       }
@@ -124,7 +127,7 @@ export function ExtracurricularFormDialog({
         </Button>
       </DialogTrigger>
 
-      <DialogContent className="max-h-[90svh] overflow-y-auto sm:max-w-2xl">
+      <DialogContent className="max-h-[92svh] overflow-y-auto sm:max-w-5xl">
         <DialogHeader>
           <DialogTitle>
             {isEdit ? "Edit ekstrakurikuler" : "Tambah ekstrakurikuler"}
@@ -132,7 +135,7 @@ export function ExtracurricularFormDialog({
 
           <DialogDescription>
             {isEdit
-              ? "Perbarui informasi kegiatan ekstrakurikuler."
+              ? "Perbarui informasi, gambar, dan status kegiatan ekstrakurikuler."
               : "Tambahkan kegiatan ekstrakurikuler sekolah."}
           </DialogDescription>
         </DialogHeader>

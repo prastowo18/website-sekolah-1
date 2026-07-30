@@ -7,11 +7,24 @@ import { UserRole } from "@/generated/prisma/client";
 import { requireAdminRole } from "@/lib/auth/authorization";
 import { prisma } from "@/lib/prisma";
 import { createSlug } from "@/lib/slug";
+import {
+  deleteR2ObjectByKey,
+  getR2ObjectKeyFromPublicUrl,
+} from "@/lib/storage/r2-object";
+import {
+  completePreparedMediaCommit,
+  PendingMediaCommitError,
+  preparePendingMediaCommit,
+  rollbackPreparedMediaCommit,
+  type PreparedMediaCommit,
+} from "@/lib/storage/r2-pending";
 
 import { teacherFormSchema, teacherIdSchema } from "./schemas";
 import type { TeacherActionState, TeacherFieldName } from "./types";
 
 const editableRoles = [UserRole.SUPER_ADMIN, UserRole.CONTENT_ADMIN] as const;
+
+const TEACHER_MEDIA_PREFIX = "teachers/";
 
 const teacherSelect = {
   id: true,
@@ -37,6 +50,7 @@ function getFormValues(formData: FormData) {
     subject: formData.get("subject") ?? "",
     education: formData.get("education") ?? "",
     shortBiography: formData.get("shortBiography") ?? "",
+    photoUrl: formData.get("photoUrl") ?? "",
     sortOrder: formData.get("sortOrder") ?? "0",
     isPrincipal: formData.get("isPrincipal") ?? "",
     isActive: formData.get("isActive") ?? "",
@@ -59,6 +73,16 @@ function invalidSlugState(): TeacherActionState {
     message: "Slug guru tidak valid.",
     fieldErrors: {
       slug: ["Gunakan nama atau slug yang mengandung huruf atau angka."],
+    },
+  };
+}
+
+function invalidPendingPhotoState(message: string): TeacherActionState {
+  return {
+    status: "error",
+    message: "Foto guru belum dapat diterapkan.",
+    fieldErrors: {
+      photoUrl: [message],
     },
   };
 }
@@ -148,6 +172,35 @@ function revalidateTeacherPaths(): void {
   revalidatePath("/konsol-8m4q7x2k9v6d/profil-sekolah");
 }
 
+async function cleanupTeacherPhoto({
+  previousUrl,
+  nextUrl = null,
+}: {
+  previousUrl: string | null | undefined;
+  nextUrl?: string | null | undefined;
+}): Promise<void> {
+  const previousKey = getR2ObjectKeyFromPublicUrl(previousUrl);
+
+  if (!previousKey || !previousKey.startsWith(TEACHER_MEDIA_PREFIX)) {
+    return;
+  }
+
+  const nextKey = getR2ObjectKeyFromPublicUrl(nextUrl);
+
+  if (nextKey === previousKey) {
+    return;
+  }
+
+  try {
+    await deleteR2ObjectByKey(previousKey);
+  } catch (error) {
+    console.error("Gagal menghapus foto guru lama dari R2.", {
+      objectKey: previousKey,
+      error,
+    });
+  }
+}
+
 export async function createTeacherAction(
   _previousState: TeacherActionState,
   formData: FormData,
@@ -166,12 +219,18 @@ export async function createTeacherAction(
     return invalidSlugState();
   }
 
+  let preparedPhoto: PreparedMediaCommit | null = null;
+  let databaseCommitted = false;
+
   try {
+    preparedPhoto = await preparePendingMediaCommit(
+      parsed.data.photoUrl,
+      "teachers",
+    );
+
+    const photoUrl = preparedPhoto?.finalUrl ?? parsed.data.photoUrl;
+
     const createdTeacher = await prisma.$transaction(async (transaction) => {
-      /*
-       * Saat guru baru dijadikan kepala sekolah,
-       * lepaskan kepala sekolah sebelumnya.
-       */
       if (parsed.data.isPrincipal) {
         await transaction.teacher.updateMany({
           where: {
@@ -192,6 +251,7 @@ export async function createTeacherAction(
           subject: parsed.data.subject,
           education: parsed.data.education,
           shortBiography: parsed.data.shortBiography,
+          photoUrl,
           sortOrder: parsed.data.sortOrder,
           isPrincipal: parsed.data.isPrincipal,
           isActive: parsed.data.isActive,
@@ -212,6 +272,10 @@ export async function createTeacherAction(
       return teacher;
     });
 
+    databaseCommitted = true;
+
+    await completePreparedMediaCommit(preparedPhoto);
+
     revalidateTeacherPaths();
 
     return {
@@ -222,7 +286,15 @@ export async function createTeacherAction(
       teacherId: createdTeacher.id,
     };
   } catch (error: unknown) {
+    if (!databaseCommitted) {
+      await rollbackPreparedMediaCommit(preparedPhoto);
+    }
+
     console.error("Gagal menambahkan guru.", error);
+
+    if (error instanceof PendingMediaCommitError) {
+      return invalidPendingPhotoState(error.message);
+    }
 
     if (isUniqueConstraintError(error)) {
       return uniqueConstraintState(error);
@@ -264,6 +336,9 @@ export async function updateTeacherAction(
     return invalidSlugState();
   }
 
+  let preparedPhoto: PreparedMediaCommit | null = null;
+  let databaseCommitted = false;
+
   try {
     const currentTeacher = await prisma.teacher.findUnique({
       where: {
@@ -279,11 +354,14 @@ export async function updateTeacherAction(
       };
     }
 
-    await prisma.$transaction(async (transaction) => {
-      /*
-       * Jika guru ini ditetapkan sebagai kepala sekolah,
-       * lepaskan status dari guru lain terlebih dahulu.
-       */
+    preparedPhoto = await preparePendingMediaCommit(
+      parsed.data.photoUrl,
+      "teachers",
+    );
+
+    const photoUrl = preparedPhoto?.finalUrl ?? parsed.data.photoUrl;
+
+    const updatedTeacher = await prisma.$transaction(async (transaction) => {
       if (parsed.data.isPrincipal) {
         await transaction.teacher.updateMany({
           where: {
@@ -298,7 +376,7 @@ export async function updateTeacherAction(
         });
       }
 
-      const updatedTeacher = await transaction.teacher.update({
+      const teacher = await transaction.teacher.update({
         where: {
           id: currentTeacher.id,
         },
@@ -310,6 +388,7 @@ export async function updateTeacherAction(
           subject: parsed.data.subject,
           education: parsed.data.education,
           shortBiography: parsed.data.shortBiography,
+          photoUrl,
           sortOrder: parsed.data.sortOrder,
           isPrincipal: parsed.data.isPrincipal,
           isActive: parsed.data.isActive,
@@ -326,9 +405,20 @@ export async function updateTeacherAction(
           entity: "Teacher",
           entityId: currentTeacher.id,
           oldValue: currentTeacher,
-          newValue: updatedTeacher,
+          newValue: teacher,
         },
       });
+
+      return teacher;
+    });
+
+    databaseCommitted = true;
+
+    await completePreparedMediaCommit(preparedPhoto);
+
+    await cleanupTeacherPhoto({
+      previousUrl: currentTeacher.photoUrl,
+      nextUrl: updatedTeacher.photoUrl,
     });
 
     revalidateTeacherPaths();
@@ -338,10 +428,18 @@ export async function updateTeacherAction(
       message: parsed.data.isPrincipal
         ? "Data berhasil diperbarui dan guru ditetapkan sebagai satu-satunya kepala sekolah."
         : "Data guru berhasil diperbarui.",
-      teacherId: currentTeacher.id,
+      teacherId: updatedTeacher.id,
     };
   } catch (error: unknown) {
+    if (!databaseCommitted) {
+      await rollbackPreparedMediaCommit(preparedPhoto);
+    }
+
     console.error("Gagal memperbarui guru.", error);
+
+    if (error instanceof PendingMediaCommitError) {
+      return invalidPendingPhotoState(error.message);
+    }
 
     if (isUniqueConstraintError(error)) {
       return uniqueConstraintState(error);
@@ -402,6 +500,10 @@ export async function deleteTeacherAction(
           oldValue: currentTeacher,
         },
       });
+    });
+
+    await cleanupTeacherPhoto({
+      previousUrl: currentTeacher.photoUrl,
     });
 
     revalidateTeacherPaths();

@@ -163,7 +163,6 @@ export default async function ProgramPage({
       shortDescription: true,
       description: true,
       benefits: true,
-      imageUrl: true,
       sortOrder: true,
       isFeatured: true,
       isActive: true,

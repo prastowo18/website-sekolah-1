@@ -1,5 +1,6 @@
 "use client";
 
+import { ImageOff } from "lucide-react";
 import { useState } from "react";
 
 import { Input } from "@/components/ui/input";
@@ -7,8 +8,6 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import type { TestimonialFieldName } from "@/features/testimonial/types";
-
-import { TestimonialPhotoField } from "./testimonial-photo-field";
 
 export type TestimonialFormValues = {
   name: string;
@@ -59,6 +58,30 @@ function getErrorId(
   return errors?.[field]?.length ? `${formId}-${field}-error` : undefined;
 }
 
+function getSafePreviewUrl(value: string): string | null {
+  const trimmed = value.trim();
+
+  if (!trimmed) {
+    return null;
+  }
+
+  if (trimmed.startsWith("/")) {
+    return trimmed;
+  }
+
+  try {
+    const url = new URL(trimmed);
+
+    if (url.protocol === "http:" || url.protocol === "https:") {
+      return url.toString();
+    }
+  } catch {
+    return null;
+  }
+
+  return null;
+}
+
 export function TestimonialFormFields({
   formId,
   values,
@@ -66,9 +89,12 @@ export function TestimonialFormFields({
   errors,
   disabled = false,
 }: TestimonialFormFieldsProps) {
+  const [photoUrl, setPhotoUrl] = useState(values.photoUrl);
+
   const [isPublished, setIsPublished] = useState(values.isPublished);
 
   const roleListId = `${formId}-role-options`;
+  const previewUrl = getSafePreviewUrl(photoUrl);
 
   return (
     <div className="grid gap-6">
@@ -152,12 +178,57 @@ export function TestimonialFormFields({
         <FieldError formId={formId} field="content" errors={errors} />
       </div>
 
-      <TestimonialPhotoField
-        formId={formId}
-        initialValue={values.photoUrl}
-        error={errors?.photoUrl?.[0]}
-        disabled={disabled}
-      />
+      <div className="rounded-lg border p-4">
+        <p className="font-medium">Foto pemberi testimoni</p>
+
+        <p className="mt-1 text-xs text-muted-foreground">
+          Unggah foto langsung akan ditambahkan pada tahap integrasi object
+          storage.
+        </p>
+
+        <div className="mt-4 grid gap-5 md:grid-cols-[1fr_160px]">
+          <div className="space-y-2">
+            <Label htmlFor={`${formId}-photoUrl`}>URL foto</Label>
+
+            <Input
+              id={`${formId}-photoUrl`}
+              name="photoUrl"
+              value={photoUrl}
+              onChange={(event) => {
+                setPhotoUrl(event.target.value);
+              }}
+              placeholder="https://... atau /media/..."
+              maxLength={4000}
+              disabled={disabled}
+              aria-invalid={Boolean(errors?.photoUrl?.length)}
+              aria-describedby={getErrorId(formId, "photoUrl", errors)}
+            />
+
+            <FieldError formId={formId} field="photoUrl" errors={errors} />
+          </div>
+
+          <div className="space-y-2">
+            <Label>Preview foto</Label>
+
+            {previewUrl ? (
+              <div
+                role="img"
+                aria-label="Preview foto testimoni"
+                className="aspect-square w-full rounded-lg border bg-muted bg-cover bg-center"
+                style={{
+                  backgroundImage: `url(${JSON.stringify(previewUrl)})`,
+                }}
+              />
+            ) : (
+              <div className="flex aspect-square w-full flex-col items-center justify-center rounded-lg border border-dashed bg-muted/30 text-muted-foreground">
+                <ImageOff className="size-7" />
+
+                <span className="mt-2 text-xs">Belum ada foto</span>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
 
       <div className="grid gap-4 md:grid-cols-2">
         <div className="space-y-2 rounded-lg border p-4">

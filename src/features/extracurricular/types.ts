@@ -5,6 +5,7 @@ export type ExtracurricularFieldName =
   | "schedule"
   | "coach"
   | "targetClasses"
+  | "imageUrl"
   | "sortOrder"
   | "isActive";
 

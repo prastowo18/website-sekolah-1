@@ -1,5 +1,7 @@
 "use client";
 
+import { useState } from "react";
+
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -15,22 +17,34 @@ import {
   achievementTypeLabels,
   achievementTypes,
   competitionLevelLabels,
-  competitionLevels,
   type AchievementTypeValue,
-  type CompetitionLevelValue,
 } from "@/features/achievement/constants";
 import type { AchievementFieldName } from "@/features/achievement/types";
-import { useState } from "react";
+
+import { AchievementImageField } from "./achievement-image-field";
+
+const competitionLevels = [
+  "SCHOOL",
+  "DISTRICT",
+  "CITY",
+  "PROVINCE",
+  "NATIONAL",
+  "INTERNATIONAL",
+] as const;
+
+type CompetitionLevelValue = (typeof competitionLevels)[number];
+
 export type AchievementFormValues = {
   title: string;
   slug: string;
   achievementType: AchievementTypeValue;
   category: string;
   winnerName: string;
-  competitionLevel: CompetitionLevelValue | "";
+  competitionLevel: string;
   rank: string;
   achievementDate: string;
   description: string;
+  imageUrl: string;
   isPublished: boolean;
 };
 
@@ -73,6 +87,14 @@ function getErrorId(
   return errors?.[field]?.length ? `${formId}-${field}-error` : undefined;
 }
 
+function normalizeCompetitionLevel(
+  value: string,
+): CompetitionLevelValue | "none" {
+  return competitionLevels.includes(value as CompetitionLevelValue)
+    ? (value as CompetitionLevelValue)
+    : "none";
+}
+
 export function AchievementFormFields({
   formId,
   values,
@@ -85,7 +107,7 @@ export function AchievementFormFields({
 
   const [competitionLevel, setCompetitionLevel] = useState<
     CompetitionLevelValue | "none"
-  >(values.competitionLevel || "none");
+  >(normalizeCompetitionLevel(values.competitionLevel));
 
   const [isPublished, setIsPublished] = useState(values.isPublished);
 
@@ -109,35 +131,32 @@ export function AchievementFormFields({
         <FieldError formId={formId} field="title" errors={errors} />
       </div>
 
+      <div className="space-y-2">
+        <Label htmlFor={`${formId}-slug`}>Slug</Label>
+
+        <Input
+          id={`${formId}-slug`}
+          name="slug"
+          defaultValue={values.slug}
+          placeholder="Otomatis dari judul prestasi"
+          maxLength={240}
+          disabled={disabled}
+          aria-invalid={Boolean(errors?.slug?.length)}
+          aria-describedby={
+            errors?.slug?.length
+              ? `${formId}-slug-error`
+              : `${formId}-slug-help`
+          }
+        />
+
+        <p id={`${formId}-slug-help`} className="text-xs text-muted-foreground">
+          Kosongkan agar slug dibuat otomatis dari judul prestasi.
+        </p>
+
+        <FieldError formId={formId} field="slug" errors={errors} />
+      </div>
+
       <div className="grid gap-5 md:grid-cols-2">
-        <div className="space-y-2">
-          <Label htmlFor={`${formId}-slug`}>Slug</Label>
-
-          <Input
-            id={`${formId}-slug`}
-            name="slug"
-            defaultValue={values.slug}
-            placeholder="Otomatis dari judul"
-            maxLength={180}
-            disabled={disabled}
-            aria-invalid={Boolean(errors?.slug?.length)}
-            aria-describedby={
-              errors?.slug?.length
-                ? `${formId}-slug-error`
-                : `${formId}-slug-help`
-            }
-          />
-
-          <p
-            id={`${formId}-slug-help`}
-            className="text-xs text-muted-foreground"
-          >
-            Kosongkan agar slug dibuat otomatis dari judul prestasi.
-          </p>
-
-          <FieldError formId={formId} field="slug" errors={errors} />
-        </div>
-
         <div className="space-y-2">
           <Label htmlFor={`${formId}-achievementType`}>Jenis prestasi</Label>
 
@@ -170,9 +189,7 @@ export function AchievementFormFields({
 
           <FieldError formId={formId} field="achievementType" errors={errors} />
         </div>
-      </div>
 
-      <div className="grid gap-5 md:grid-cols-2">
         <div className="space-y-2">
           <Label htmlFor={`${formId}-category`}>Kategori</Label>
 
@@ -180,7 +197,7 @@ export function AchievementFormFields({
             id={`${formId}-category`}
             name="category"
             defaultValue={values.category}
-            placeholder="Contoh: Akademik"
+            placeholder="Contoh: Akademik, Olahraga, Seni"
             maxLength={120}
             disabled={disabled}
             aria-invalid={Boolean(errors?.category?.length)}
@@ -189,7 +206,9 @@ export function AchievementFormFields({
 
           <FieldError formId={formId} field="category" errors={errors} />
         </div>
+      </div>
 
+      <div className="grid gap-5 md:grid-cols-2">
         <div className="space-y-2">
           <Label htmlFor={`${formId}-winnerName`}>Nama penerima</Label>
 
@@ -197,7 +216,7 @@ export function AchievementFormFields({
             id={`${formId}-winnerName`}
             name="winnerName"
             defaultValue={values.winnerName}
-            placeholder="Nama siswa, guru, atau tim"
+            placeholder="Nama siswa, guru, atau sekolah"
             maxLength={180}
             disabled={disabled}
             aria-invalid={Boolean(errors?.winnerName?.length)}
@@ -206,9 +225,7 @@ export function AchievementFormFields({
 
           <FieldError formId={formId} field="winnerName" errors={errors} />
         </div>
-      </div>
 
-      <div className="grid gap-5 md:grid-cols-3">
         <div className="space-y-2">
           <Label htmlFor={`${formId}-competitionLevel`}>
             Tingkat kompetisi
@@ -233,7 +250,7 @@ export function AchievementFormFields({
               aria-invalid={Boolean(errors?.competitionLevel?.length)}
               aria-describedby={getErrorId(formId, "competitionLevel", errors)}
             >
-              <SelectValue placeholder="Pilih tingkat" />
+              <SelectValue placeholder="Pilih tingkat kompetisi" />
             </SelectTrigger>
 
             <SelectContent>
@@ -253,7 +270,9 @@ export function AchievementFormFields({
             errors={errors}
           />
         </div>
+      </div>
 
+      <div className="grid gap-5 md:grid-cols-2">
         <div className="space-y-2">
           <Label htmlFor={`${formId}-rank`}>Peringkat</Label>
 
@@ -295,8 +314,8 @@ export function AchievementFormFields({
           id={`${formId}-description`}
           name="description"
           defaultValue={values.description}
-          placeholder="Jelaskan kegiatan, penyelenggara, hasil, dan informasi prestasi."
-          rows={7}
+          placeholder="Jelaskan kegiatan, pencapaian, dan informasi prestasi."
+          rows={6}
           maxLength={20000}
           disabled={disabled}
           aria-invalid={Boolean(errors?.description?.length)}
@@ -306,12 +325,19 @@ export function AchievementFormFields({
         <FieldError formId={formId} field="description" errors={errors} />
       </div>
 
+      <AchievementImageField
+        formId={formId}
+        initialValue={values.imageUrl}
+        error={errors?.imageUrl?.[0]}
+        disabled={disabled}
+      />
+
       <div className="flex items-center justify-between gap-4 rounded-lg border p-4">
         <div className="space-y-1">
           <Label htmlFor={`${formId}-isPublished`}>Publikasikan prestasi</Label>
 
           <p className="text-xs text-muted-foreground">
-            Prestasi yang diterbitkan dapat ditampilkan pada website publik.
+            Prestasi terbit dapat ditampilkan pada website publik.
           </p>
         </div>
 

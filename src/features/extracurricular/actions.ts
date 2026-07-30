@@ -7,6 +7,17 @@ import { UserRole } from "@/generated/prisma/client";
 import { requireAdminRole } from "@/lib/auth/authorization";
 import { prisma } from "@/lib/prisma";
 import { createSlug } from "@/lib/slug";
+import {
+  deleteR2ObjectByKey,
+  getR2ObjectKeyFromPublicUrl,
+} from "@/lib/storage/r2-object";
+import {
+  completePreparedMediaCommit,
+  PendingMediaCommitError,
+  preparePendingMediaCommit,
+  rollbackPreparedMediaCommit,
+  type PreparedMediaCommit,
+} from "@/lib/storage/r2-pending";
 
 import { extracurricularFormSchema, extracurricularIdSchema } from "./schemas";
 import type {
@@ -15,6 +26,8 @@ import type {
 } from "./types";
 
 const editableRoles = [UserRole.SUPER_ADMIN, UserRole.CONTENT_ADMIN] as const;
+
+const EXTRACURRICULAR_MEDIA_PREFIX = "extracurriculars/";
 
 const extracurricularSelect = {
   id: true,
@@ -37,6 +50,7 @@ function getFormValues(formData: FormData) {
     schedule: formData.get("schedule") ?? "",
     coach: formData.get("coach") ?? "",
     targetClasses: formData.get("targetClasses") ?? "",
+    imageUrl: formData.get("imageUrl") ?? "",
     sortOrder: formData.get("sortOrder") ?? "0",
     isActive: formData.get("isActive") ?? "",
   };
@@ -72,6 +86,16 @@ function uniqueSlugState(): ExtracurricularActionState {
   };
 }
 
+function invalidPendingImageState(message: string): ExtracurricularActionState {
+  return {
+    status: "error",
+    message: "Gambar ekstrakurikuler belum dapat diterapkan.",
+    fieldErrors: {
+      imageUrl: [message],
+    },
+  };
+}
+
 function isUniqueConstraintError(error: unknown): boolean {
   return (
     typeof error === "object" &&
@@ -81,11 +105,61 @@ function isUniqueConstraintError(error: unknown): boolean {
   );
 }
 
-function revalidateExtracurricularPaths(): void {
+function revalidateExtracurricularPaths(
+  slugs: Array<string | null | undefined> = [],
+): void {
   revalidatePath("/");
   revalidatePath("/ekstrakurikuler");
   revalidatePath("/konsol-8m4q7x2k9v6d/dashboard");
   revalidatePath("/konsol-8m4q7x2k9v6d/ekstrakurikuler");
+
+  for (const slug of new Set(slugs)) {
+    if (slug) {
+      revalidatePath(`/ekstrakurikuler/${slug}`);
+    }
+  }
+}
+
+async function completePendingImage(
+  preparedImage: PreparedMediaCommit | null,
+): Promise<void> {
+  try {
+    await completePreparedMediaCommit(preparedImage);
+  } catch (error) {
+    console.error(
+      "Database tersimpan, tetapi object pending ekstrakurikuler belum dapat dibersihkan.",
+      error,
+    );
+  }
+}
+
+async function cleanupExtracurricularImage({
+  previousUrl,
+  nextUrl = null,
+}: {
+  previousUrl: string | null | undefined;
+  nextUrl?: string | null | undefined;
+}): Promise<void> {
+  const previousKey = getR2ObjectKeyFromPublicUrl(previousUrl);
+
+  if (!previousKey || !previousKey.startsWith(EXTRACURRICULAR_MEDIA_PREFIX)) {
+    return;
+  }
+
+  const nextKey = getR2ObjectKeyFromPublicUrl(nextUrl);
+
+  if (nextKey === previousKey) {
+    return;
+  }
+
+  try {
+    await deleteR2ObjectByKey(previousKey);
+  } catch (error) {
+    console.error("Gagal menghapus gambar ekstrakurikuler lama dari R2.", {
+      objectKey: previousKey,
+      error,
+    });
+  }
 }
 
 export async function createExtracurricularAction(
@@ -106,7 +180,17 @@ export async function createExtracurricularAction(
     return invalidSlugState();
   }
 
+  let preparedImage: PreparedMediaCommit | null = null;
+  let databaseCommitted = false;
+
   try {
+    preparedImage = await preparePendingMediaCommit(
+      parsed.data.imageUrl,
+      "extracurriculars",
+    );
+
+    const imageUrl = preparedImage?.finalUrl ?? parsed.data.imageUrl;
+
     const createdExtracurricular = await prisma.$transaction(
       async (transaction) => {
         const extracurricular = await transaction.extracurricular.create({
@@ -117,6 +201,7 @@ export async function createExtracurricularAction(
             schedule: parsed.data.schedule,
             coach: parsed.data.coach,
             targetClasses: parsed.data.targetClasses,
+            imageUrl,
             sortOrder: parsed.data.sortOrder,
             isActive: parsed.data.isActive,
           },
@@ -137,7 +222,11 @@ export async function createExtracurricularAction(
       },
     );
 
-    revalidateExtracurricularPaths();
+    databaseCommitted = true;
+
+    await completePendingImage(preparedImage);
+
+    revalidateExtracurricularPaths([createdExtracurricular.slug]);
 
     return {
       status: "success",
@@ -145,7 +234,15 @@ export async function createExtracurricularAction(
       extracurricularId: createdExtracurricular.id,
     };
   } catch (error: unknown) {
+    if (!databaseCommitted) {
+      await rollbackPreparedMediaCommit(preparedImage);
+    }
+
     console.error("Gagal menambahkan ekstrakurikuler.", error);
+
+    if (error instanceof PendingMediaCommitError) {
+      return invalidPendingImageState(error.message);
+    }
 
     if (isUniqueConstraintError(error)) {
       return uniqueSlugState();
@@ -187,6 +284,9 @@ export async function updateExtracurricularAction(
     return invalidSlugState();
   }
 
+  let preparedImage: PreparedMediaCommit | null = null;
+  let databaseCommitted = false;
+
   try {
     const currentExtracurricular = await prisma.extracurricular.findUnique({
       where: {
@@ -202,45 +302,77 @@ export async function updateExtracurricularAction(
       };
     }
 
-    await prisma.$transaction(async (transaction) => {
-      const updatedExtracurricular = await transaction.extracurricular.update({
-        where: {
-          id: currentExtracurricular.id,
-        },
-        data: {
-          name: parsed.data.name,
-          slug,
-          description: parsed.data.description,
-          schedule: parsed.data.schedule,
-          coach: parsed.data.coach,
-          targetClasses: parsed.data.targetClasses,
-          sortOrder: parsed.data.sortOrder,
-          isActive: parsed.data.isActive,
-        },
-        select: extracurricularSelect,
-      });
+    preparedImage = await preparePendingMediaCommit(
+      parsed.data.imageUrl,
+      "extracurriculars",
+    );
 
-      await transaction.auditLog.create({
-        data: {
-          actorId: session.user.id,
-          action: "EXTRACURRICULAR_UPDATED",
-          entity: "Extracurricular",
-          entityId: currentExtracurricular.id,
-          oldValue: currentExtracurricular,
-          newValue: updatedExtracurricular,
-        },
-      });
+    const imageUrl = preparedImage?.finalUrl ?? parsed.data.imageUrl;
+
+    const updatedExtracurricular = await prisma.$transaction(
+      async (transaction) => {
+        const extracurricular = await transaction.extracurricular.update({
+          where: {
+            id: currentExtracurricular.id,
+          },
+          data: {
+            name: parsed.data.name,
+            slug,
+            description: parsed.data.description,
+            schedule: parsed.data.schedule,
+            coach: parsed.data.coach,
+            targetClasses: parsed.data.targetClasses,
+            imageUrl,
+            sortOrder: parsed.data.sortOrder,
+            isActive: parsed.data.isActive,
+          },
+          select: extracurricularSelect,
+        });
+
+        await transaction.auditLog.create({
+          data: {
+            actorId: session.user.id,
+            action: "EXTRACURRICULAR_UPDATED",
+            entity: "Extracurricular",
+            entityId: currentExtracurricular.id,
+            oldValue: currentExtracurricular,
+            newValue: extracurricular,
+          },
+        });
+
+        return extracurricular;
+      },
+    );
+
+    databaseCommitted = true;
+
+    await completePendingImage(preparedImage);
+
+    await cleanupExtracurricularImage({
+      previousUrl: currentExtracurricular.imageUrl,
+      nextUrl: updatedExtracurricular.imageUrl,
     });
 
-    revalidateExtracurricularPaths();
+    revalidateExtracurricularPaths([
+      currentExtracurricular.slug,
+      updatedExtracurricular.slug,
+    ]);
 
     return {
       status: "success",
       message: "Ekstrakurikuler berhasil diperbarui.",
-      extracurricularId: currentExtracurricular.id,
+      extracurricularId: updatedExtracurricular.id,
     };
   } catch (error: unknown) {
+    if (!databaseCommitted) {
+      await rollbackPreparedMediaCommit(preparedImage);
+    }
+
     console.error("Gagal memperbarui ekstrakurikuler.", error);
+
+    if (error instanceof PendingMediaCommitError) {
+      return invalidPendingImageState(error.message);
+    }
 
     if (isUniqueConstraintError(error)) {
       return uniqueSlugState();
@@ -303,7 +435,11 @@ export async function deleteExtracurricularAction(
       });
     });
 
-    revalidateExtracurricularPaths();
+    await cleanupExtracurricularImage({
+      previousUrl: currentExtracurricular.imageUrl,
+    });
+
+    revalidateExtracurricularPaths([currentExtracurricular.slug]);
 
     return {
       status: "success",

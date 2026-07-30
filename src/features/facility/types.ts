@@ -2,6 +2,7 @@ export type FacilityFieldName =
   | "name"
   | "slug"
   | "description"
+  | "imageUrl"
   | "capacity"
   | "condition"
   | "sortOrder"

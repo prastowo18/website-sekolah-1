@@ -8,6 +8,8 @@ import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import type { GalleryAlbumFieldName } from "@/features/gallery/types";
 
+import { GalleryAlbumCoverField } from "./gallery-album-cover-field";
+
 export type GalleryAlbumFormValues = {
   title: string;
   slug: string;
@@ -148,33 +150,12 @@ export function GalleryAlbumFormFields({
         <FieldError formId={formId} field="description" errors={errors} />
       </div>
 
-      <div className="space-y-2">
-        <Label htmlFor={`${formId}-coverImageUrl`}>URL gambar sampul</Label>
-
-        <Input
-          id={`${formId}-coverImageUrl`}
-          name="coverImageUrl"
-          defaultValue={values.coverImageUrl}
-          placeholder="https://... atau /media/..."
-          maxLength={4000}
-          disabled={disabled}
-          aria-invalid={Boolean(errors?.coverImageUrl?.length)}
-          aria-describedby={
-            errors?.coverImageUrl?.length
-              ? `${formId}-coverImageUrl-error`
-              : `${formId}-coverImageUrl-help`
-          }
-        />
-
-        <p
-          id={`${formId}-coverImageUrl-help`}
-          className="text-xs text-muted-foreground"
-        >
-          Unggah media akan ditambahkan pada tahap integrasi object storage.
-        </p>
-
-        <FieldError formId={formId} field="coverImageUrl" errors={errors} />
-      </div>
+      <GalleryAlbumCoverField
+        formId={formId}
+        initialValue={values.coverImageUrl}
+        error={errors?.coverImageUrl?.[0]}
+        disabled={disabled}
+      />
 
       <div className="flex items-center justify-between gap-4 rounded-lg border p-4">
         <div className="space-y-1">

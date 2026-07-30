@@ -1,4 +1,5 @@
-import { CalendarDays, Images, Settings2 } from "lucide-react";
+import { CalendarDays, ImageOff, Images, Settings2 } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 
 import { Badge } from "@/components/ui/badge";
@@ -70,24 +71,43 @@ export function GalleryAlbumTable({ albums, canEdit }: GalleryAlbumTableProps) {
           {albums.map((album) => (
             <TableRow key={album.id}>
               <TableCell>
-                <div className="min-w-72">
-                  <p className="font-medium">{album.title}</p>
+                <div className="flex min-w-80 items-start gap-3">
+                  <div className="relative size-16 shrink-0 overflow-hidden rounded-lg border bg-muted">
+                    {album.coverImageUrl ? (
+                      <Image
+                        src={album.coverImageUrl}
+                        alt={`Sampul album ${album.title}`}
+                        fill
+                        sizes="64px"
+                        className="object-cover"
+                      />
+                    ) : (
+                      <div className="flex size-full items-center justify-center">
+                        <ImageOff className="size-5 text-muted-foreground" />
+                      </div>
+                    )}
+                  </div>
 
-                  {album.description ? (
-                    <p className="mt-1 line-clamp-2 max-w-xl text-sm text-muted-foreground">
-                      {album.description}
+                  <div className="min-w-0">
+                    <p className="font-medium">{album.title}</p>
+
+                    {album.description ? (
+                      <p className="mt-1 line-clamp-2 max-w-xl text-sm text-muted-foreground">
+                        {album.description}
+                      </p>
+                    ) : null}
+
+                    <p className="mt-2 text-xs text-muted-foreground">
+                      /galeri/{album.slug}
                     </p>
-                  ) : null}
-
-                  <p className="mt-2 text-xs text-muted-foreground">
-                    /galeri/{album.slug}
-                  </p>
+                  </div>
                 </div>
               </TableCell>
 
               <TableCell>
                 <div className="flex min-w-36 items-center gap-2">
                   <CalendarDays className="size-4 text-muted-foreground" />
+
                   {formatDate(album.eventDate)}
                 </div>
               </TableCell>

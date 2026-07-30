@@ -1,4 +1,5 @@
 import { CalendarClock, ImageOff } from "lucide-react";
+import Image from "next/image";
 
 import { Badge } from "@/components/ui/badge";
 import {
@@ -61,17 +62,28 @@ export function ExtracurricularTable({
           {extracurriculars.map((extracurricular) => (
             <TableRow key={extracurricular.id}>
               <TableCell>
-                <div className="flex min-w-64 items-start gap-3">
-                  <div className="flex size-12 shrink-0 items-center justify-center rounded-md border bg-muted">
-                    <ImageOff className="size-5 text-muted-foreground" />
+                <div className="flex min-w-80 items-start gap-3">
+                  <div className="relative size-16 shrink-0 overflow-hidden rounded-lg border bg-muted">
+                    {extracurricular.imageUrl ? (
+                      <Image
+                        src={extracurricular.imageUrl}
+                        alt={`Kegiatan ${extracurricular.name}`}
+                        fill
+                        sizes="64px"
+                        className="object-cover"
+                      />
+                    ) : (
+                      <div className="flex size-full items-center justify-center">
+                        <ImageOff className="size-5 text-muted-foreground" />
+                      </div>
+                    )}
                   </div>
 
                   <div className="min-w-0">
                     <p className="font-medium">{extracurricular.name}</p>
 
                     <p className="mt-1 text-xs text-muted-foreground">
-                      /ekstrakurikuler/
-                      {extracurricular.slug}
+                      /ekstrakurikuler/{extracurricular.slug}
                     </p>
 
                     {extracurricular.description ? (

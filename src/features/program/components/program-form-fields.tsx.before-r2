@@ -8,15 +8,12 @@ import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import type { ProgramFieldName } from "@/features/program/types";
 
-import { ProgramImageField } from "./program-image-field";
-
 export type ProgramFormValues = {
   name: string;
   slug: string;
   shortDescription: string;
   description: string;
   benefits: string;
-  imageUrl: string;
   sortOrder: number;
   isFeatured: boolean;
   isActive: boolean;
@@ -68,6 +65,7 @@ export function ProgramFormFields({
   disabled = false,
 }: ProgramFormFieldsProps) {
   const [isFeatured, setIsFeatured] = useState(values.isFeatured);
+
   const [isActive, setIsActive] = useState(values.isActive);
 
   return (
@@ -159,13 +157,6 @@ export function ProgramFormFields({
 
         <FieldError formId={formId} field="description" errors={errors} />
       </div>
-
-      <ProgramImageField
-        formId={formId}
-        initialValue={values.imageUrl}
-        error={errors?.imageUrl?.[0]}
-        disabled={disabled}
-      />
 
       <div className="space-y-2">
         <Label htmlFor={`${formId}-benefits`}>Manfaat program</Label>

@@ -1,4 +1,5 @@
 import { Crown, UserRound } from "lucide-react";
+import Image from "next/image";
 
 import { Badge } from "@/components/ui/badge";
 import {
@@ -54,9 +55,21 @@ export function TeacherTable({ teachers, canEdit }: TeacherTableProps) {
           {teachers.map((teacher) => (
             <TableRow key={teacher.id}>
               <TableCell>
-                <div className="flex min-w-64 items-start gap-3">
-                  <div className="flex size-11 shrink-0 items-center justify-center rounded-full border bg-muted">
-                    <UserRound className="size-5 text-muted-foreground" />
+                <div className="flex min-w-72 items-start gap-3">
+                  <div className="relative size-12 shrink-0 overflow-hidden rounded-full border bg-muted">
+                    {teacher.photoUrl ? (
+                      <Image
+                        src={teacher.photoUrl}
+                        alt={`Foto ${teacher.name}`}
+                        fill
+                        sizes="48px"
+                        className="object-cover"
+                      />
+                    ) : (
+                      <div className="flex size-full items-center justify-center">
+                        <UserRound className="size-5 text-muted-foreground" />
+                      </div>
+                    )}
                   </div>
 
                   <div className="min-w-0">

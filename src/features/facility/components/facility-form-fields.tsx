@@ -8,10 +8,13 @@ import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import type { FacilityFieldName } from "@/features/facility/types";
 
+import { FacilityImageField } from "./facility-image-field";
+
 export type FacilityFormValues = {
   name: string;
   slug: string;
   description: string;
+  imageUrl: string;
   capacity: string;
   condition: string;
   sortOrder: number;
@@ -67,52 +70,47 @@ export function FacilityFormFields({
 
   return (
     <div className="grid gap-5">
-      <div className="grid gap-5 md:grid-cols-2">
-        <div className="space-y-2">
-          <Label htmlFor={`${formId}-name`}>Nama fasilitas</Label>
+      <div className="space-y-2">
+        <Label htmlFor={`${formId}-name`}>Nama fasilitas</Label>
 
-          <Input
-            id={`${formId}-name`}
-            name="name"
-            defaultValue={values.name}
-            placeholder="Contoh: Perpustakaan"
-            maxLength={160}
-            disabled={disabled}
-            aria-invalid={Boolean(errors?.name?.length)}
-            aria-describedby={getErrorId(formId, "name", errors)}
-            required
-          />
+        <Input
+          id={`${formId}-name`}
+          name="name"
+          defaultValue={values.name}
+          placeholder="Contoh: Laboratorium Komputer"
+          maxLength={160}
+          disabled={disabled}
+          aria-invalid={Boolean(errors?.name?.length)}
+          aria-describedby={getErrorId(formId, "name", errors)}
+          required
+        />
 
-          <FieldError formId={formId} field="name" errors={errors} />
-        </div>
+        <FieldError formId={formId} field="name" errors={errors} />
+      </div>
 
-        <div className="space-y-2">
-          <Label htmlFor={`${formId}-slug`}>Slug</Label>
+      <div className="space-y-2">
+        <Label htmlFor={`${formId}-slug`}>Slug</Label>
 
-          <Input
-            id={`${formId}-slug`}
-            name="slug"
-            defaultValue={values.slug}
-            placeholder="Otomatis dari nama fasilitas"
-            maxLength={180}
-            disabled={disabled}
-            aria-invalid={Boolean(errors?.slug?.length)}
-            aria-describedby={
-              errors?.slug?.length
-                ? `${formId}-slug-error`
-                : `${formId}-slug-help`
-            }
-          />
+        <Input
+          id={`${formId}-slug`}
+          name="slug"
+          defaultValue={values.slug}
+          placeholder="Otomatis dari nama fasilitas"
+          maxLength={180}
+          disabled={disabled}
+          aria-invalid={Boolean(errors?.slug?.length)}
+          aria-describedby={
+            errors?.slug?.length
+              ? `${formId}-slug-error`
+              : `${formId}-slug-help`
+          }
+        />
 
-          <p
-            id={`${formId}-slug-help`}
-            className="text-xs text-muted-foreground"
-          >
-            Kosongkan untuk membuat slug otomatis dari nama fasilitas.
-          </p>
+        <p id={`${formId}-slug-help`} className="text-xs text-muted-foreground">
+          Kosongkan agar slug dibuat otomatis dari nama fasilitas.
+        </p>
 
-          <FieldError formId={formId} field="slug" errors={errors} />
-        </div>
+        <FieldError formId={formId} field="slug" errors={errors} />
       </div>
 
       <div className="space-y-2">
@@ -122,8 +120,8 @@ export function FacilityFormFields({
           id={`${formId}-description`}
           name="description"
           defaultValue={values.description}
-          placeholder="Jelaskan fungsi, kondisi, dan keunggulan fasilitas."
-          rows={7}
+          placeholder="Jelaskan fungsi dan kondisi fasilitas sekolah."
+          rows={6}
           maxLength={20000}
           disabled={disabled}
           aria-invalid={Boolean(errors?.description?.length)}
@@ -132,6 +130,13 @@ export function FacilityFormFields({
 
         <FieldError formId={formId} field="description" errors={errors} />
       </div>
+
+      <FacilityImageField
+        formId={formId}
+        initialValue={values.imageUrl}
+        error={errors?.imageUrl?.[0]}
+        disabled={disabled}
+      />
 
       <div className="grid gap-5 md:grid-cols-2">
         <div className="space-y-2">
@@ -158,7 +163,7 @@ export function FacilityFormFields({
             id={`${formId}-condition`}
             name="condition"
             defaultValue={values.condition}
-            placeholder="Contoh: Sangat baik"
+            placeholder="Contoh: Baik"
             maxLength={120}
             disabled={disabled}
             aria-invalid={Boolean(errors?.condition?.length)}

@@ -4,7 +4,6 @@ export type ProgramFieldName =
   | "shortDescription"
   | "description"
   | "benefits"
-  | "imageUrl"
   | "sortOrder"
   | "isFeatured"
   | "isActive";
