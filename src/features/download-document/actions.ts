@@ -47,7 +47,6 @@ function getFormValues(formData: FormData) {
     category: formData.get("category") ?? "",
     fileUrl: formData.get("fileUrl"),
     fileName: formData.get("fileName"),
-    fileSizeBytes: formData.get("fileSizeBytes") ?? "",
     fileType: formData.get("fileType") ?? "",
     isActive: formData.get("isActive") ?? "",
   };
@@ -143,7 +142,7 @@ export async function createDownloadDocumentAction(
           category: parsed.data.category,
           fileUrl: parsed.data.fileUrl,
           fileName: parsed.data.fileName,
-          fileSizeBytes: parsed.data.fileSizeBytes,
+          fileSizeBytes: null,
           fileType: parsed.data.fileType,
           isActive: parsed.data.isActive,
         },
@@ -167,7 +166,7 @@ export async function createDownloadDocumentAction(
 
     return {
       status: "success",
-      message: "Dokumen berhasil ditambahkan.",
+      message: "Dokumen Google Drive berhasil ditambahkan.",
       documentId: createdDocument.id,
     };
   } catch (error: unknown) {
@@ -240,7 +239,7 @@ export async function updateDownloadDocumentAction(
           category: parsed.data.category,
           fileUrl: parsed.data.fileUrl,
           fileName: parsed.data.fileName,
-          fileSizeBytes: parsed.data.fileSizeBytes,
+          fileSizeBytes: null,
           fileType: parsed.data.fileType,
           isActive: parsed.data.isActive,
         },
@@ -265,7 +264,7 @@ export async function updateDownloadDocumentAction(
 
     return {
       status: "success",
-      message: "Dokumen berhasil diperbarui.",
+      message: "Dokumen Google Drive berhasil diperbarui.",
       documentId: updatedDocument.id,
     };
   } catch (error: unknown) {
@@ -336,7 +335,8 @@ export async function deleteDownloadDocumentAction(
 
     return {
       status: "success",
-      message: "Dokumen berhasil dihapus.",
+      message:
+        "Data dokumen berhasil dihapus. File Google Drive tidak berubah.",
     };
   } catch (error: unknown) {
     console.error("Gagal menghapus dokumen.", error);

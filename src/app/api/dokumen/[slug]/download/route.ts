@@ -1,39 +1,17 @@
-import { revalidatePath } from "next/cache";
-import { type NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 
+import { normalizeGoogleDriveUrl } from "@/features/download-document/google-drive-url";
 import { prisma } from "@/lib/prisma";
 
-function resolveFileUrl(request: NextRequest, fileUrl: string): URL | null {
-  try {
-    const target = fileUrl.startsWith("/")
-      ? new URL(fileUrl, request.nextUrl.origin)
-      : new URL(fileUrl);
+export const dynamic = "force-dynamic";
 
-    if (target.protocol !== "http:" && target.protocol !== "https:") {
-      return null;
-    }
+type RouteContext = {
+  params: Promise<{
+    slug: string;
+  }>;
+};
 
-    if (
-      target.origin === request.nextUrl.origin &&
-      target.pathname === request.nextUrl.pathname
-    ) {
-      return null;
-    }
-
-    return target;
-  } catch {
-    return null;
-  }
-}
-
-export async function GET(
-  request: NextRequest,
-  context: {
-    params: Promise<{
-      slug: string;
-    }>;
-  },
-) {
+export async function GET(_request: Request, context: RouteContext) {
   const { slug } = await context.params;
 
   const document = await prisma.downloadDocument.findFirst({
@@ -43,7 +21,6 @@ export async function GET(
     },
     select: {
       id: true,
-      slug: true,
       fileUrl: true,
     },
   });
@@ -59,12 +36,12 @@ export async function GET(
     );
   }
 
-  const targetUrl = resolveFileUrl(request, document.fileUrl);
+  const googleDriveUrl = normalizeGoogleDriveUrl(document.fileUrl);
 
-  if (!targetUrl) {
+  if (!googleDriveUrl) {
     return NextResponse.json(
       {
-        message: "URL file dokumen tidak valid.",
+        message: "URL Google Drive dokumen tidak valid.",
       },
       {
         status: 422,
@@ -83,9 +60,5 @@ export async function GET(
     },
   });
 
-  revalidatePath("/dokumen");
-  revalidatePath("/konsol-8m4q7x2k9v6d/dokumen");
-  revalidatePath(`/dokumen/${document.slug}`);
-
-  return NextResponse.redirect(targetUrl, 302);
+  return NextResponse.redirect(new URL(googleDriveUrl), 307);
 }

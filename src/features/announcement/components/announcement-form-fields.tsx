@@ -14,11 +14,12 @@ import {
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import {
-  announcementPriorities,
   announcementPriorityLabels,
   type AnnouncementPriorityValue,
 } from "@/features/announcement/constants";
 import type { AnnouncementFieldName } from "@/features/announcement/types";
+
+import { AnnouncementAttachmentField } from "./announcement-attachment-field";
 
 export type AnnouncementFormValues = {
   title: string;
@@ -40,32 +41,6 @@ type AnnouncementFormFieldsProps = {
   errors?: AnnouncementFieldErrors;
   disabled?: boolean;
 };
-
-function isoToWibLocal(value: string): string {
-  if (!value) {
-    return "";
-  }
-
-  const date = new Date(value);
-
-  if (Number.isNaN(date.getTime())) {
-    return "";
-  }
-
-  const wibDate = new Date(date.getTime() + 7 * 60 * 60 * 1000);
-
-  return wibDate.toISOString().slice(0, 16);
-}
-
-function wibLocalToIso(value: string): string {
-  if (!value) {
-    return "";
-  }
-
-  const date = new Date(`${value}:00+07:00`);
-
-  return Number.isNaN(date.getTime()) ? "" : date.toISOString();
-}
 
 function FieldError({
   formId,
@@ -97,6 +72,51 @@ function getErrorId(
   return errors?.[field]?.length ? `${formId}-${field}-error` : undefined;
 }
 
+function isoToWibLocal(value: string): string {
+  if (!value) {
+    return "";
+  }
+
+  const date = new Date(value);
+
+  if (Number.isNaN(date.getTime())) {
+    return "";
+  }
+
+  const formatter = new Intl.DateTimeFormat("sv-SE", {
+    timeZone: "Asia/Jakarta",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    hourCycle: "h23",
+  });
+
+  const parts = Object.fromEntries(
+    formatter
+      .formatToParts(date)
+      .filter((part) => part.type !== "literal")
+      .map((part) => [part.type, part.value]),
+  );
+
+  return `${parts.year}-${parts.month}-${parts.day}T${parts.hour}:${parts.minute}`;
+}
+
+function wibLocalToIso(value: string): string {
+  if (!value) {
+    return "";
+  }
+
+  const date = new Date(`${value}:00+07:00`);
+
+  if (Number.isNaN(date.getTime())) {
+    return "";
+  }
+
+  return date.toISOString();
+}
+
 export function AnnouncementFormFields({
   formId,
   values,
@@ -107,11 +127,9 @@ export function AnnouncementFormFields({
     values.priority,
   );
 
-  const [startDate, setStartDate] = useState(() =>
-    isoToWibLocal(values.startDate),
-  );
+  const [startDate, setStartDate] = useState(isoToWibLocal(values.startDate));
 
-  const [endDate, setEndDate] = useState(() => isoToWibLocal(values.endDate));
+  const [endDate, setEndDate] = useState(isoToWibLocal(values.endDate));
 
   const [isPinned, setIsPinned] = useState(values.isPinned);
 
@@ -126,7 +144,7 @@ export function AnnouncementFormFields({
           id={`${formId}-title`}
           name="title"
           defaultValue={values.title}
-          placeholder="Masukkan judul pengumuman"
+          placeholder="Contoh: Libur Semester Ganjil"
           maxLength={220}
           disabled={disabled}
           aria-invalid={Boolean(errors?.title?.length)}
@@ -188,11 +206,17 @@ export function AnnouncementFormFields({
             </SelectTrigger>
 
             <SelectContent>
-              {announcementPriorities.map((item) => (
-                <SelectItem key={item} value={item}>
-                  {announcementPriorityLabels[item]}
-                </SelectItem>
-              ))}
+              <SelectItem value="NORMAL">
+                {announcementPriorityLabels.NORMAL}
+              </SelectItem>
+
+              <SelectItem value="IMPORTANT">
+                {announcementPriorityLabels.IMPORTANT}
+              </SelectItem>
+
+              <SelectItem value="URGENT">
+                {announcementPriorityLabels.URGENT}
+              </SelectItem>
             </SelectContent>
           </Select>
 
@@ -207,7 +231,7 @@ export function AnnouncementFormFields({
           id={`${formId}-content`}
           name="content"
           defaultValue={values.content}
-          placeholder="Tuliskan isi pengumuman secara lengkap."
+          placeholder="Tuliskan informasi pengumuman secara lengkap."
           rows={10}
           maxLength={100000}
           disabled={disabled}
@@ -219,33 +243,12 @@ export function AnnouncementFormFields({
         <FieldError formId={formId} field="content" errors={errors} />
       </div>
 
-      <div className="space-y-2">
-        <Label htmlFor={`${formId}-attachmentUrl`}>URL lampiran</Label>
-
-        <Input
-          id={`${formId}-attachmentUrl`}
-          name="attachmentUrl"
-          defaultValue={values.attachmentUrl}
-          placeholder="https://... atau /dokumen/..."
-          maxLength={4000}
-          disabled={disabled}
-          aria-invalid={Boolean(errors?.attachmentUrl?.length)}
-          aria-describedby={
-            errors?.attachmentUrl?.length
-              ? `${formId}-attachmentUrl-error`
-              : `${formId}-attachmentUrl-help`
-          }
-        />
-
-        <p
-          id={`${formId}-attachmentUrl-help`}
-          className="text-xs text-muted-foreground"
-        >
-          Dapat berupa dokumen, formulir, atau tautan informasi tambahan.
-        </p>
-
-        <FieldError formId={formId} field="attachmentUrl" errors={errors} />
-      </div>
+      <AnnouncementAttachmentField
+        formId={formId}
+        initialValue={values.attachmentUrl}
+        error={errors?.attachmentUrl?.[0]}
+        disabled={disabled}
+      />
 
       <div className="rounded-lg border p-4">
         <p className="font-medium">Periode tayang</p>

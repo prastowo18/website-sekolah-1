@@ -1,5 +1,10 @@
 import { z } from "zod";
 
+import {
+  isAnnouncementGoogleDriveUrl,
+  normalizeAnnouncementGoogleDriveUrl,
+} from "./google-drive-url";
+
 export const announcementPriorities = [
   "NORMAL",
   "IMPORTANT",
@@ -10,30 +15,21 @@ export type AnnouncementPriorityValue = (typeof announcementPriorities)[number];
 
 const announcementPrioritySchema = z.enum(announcementPriorities);
 
-function isValidMediaUrl(value: string): boolean {
-  if (!value) {
-    return true;
-  }
-
-  if (value.startsWith("/")) {
-    return true;
-  }
-
-  try {
-    const url = new URL(value);
-
-    return url.protocol === "http:" || url.protocol === "https:";
-  } catch {
-    return false;
-  }
-}
-
-const optionalMediaUrl = z
+const optionalGoogleDriveUrl = z
   .string()
   .trim()
   .max(4_000, "URL lampiran maksimal 4.000 karakter.")
-  .refine(isValidMediaUrl, "URL lampiran tidak valid.")
-  .transform((value) => value || null);
+  .refine(
+    (value) => value === "" || isAnnouncementGoogleDriveUrl(value),
+    "Gunakan URL HTTPS dari drive.google.com atau docs.google.com.",
+  )
+  .transform((value) => {
+    if (!value) {
+      return null;
+    }
+
+    return normalizeAnnouncementGoogleDriveUrl(value);
+  });
 
 const optionalIsoDateTime = z
   .string()
@@ -82,7 +78,7 @@ export const announcementFormSchema = z
 
     priority: announcementPrioritySchema,
 
-    attachmentUrl: optionalMediaUrl,
+    attachmentUrl: optionalGoogleDriveUrl,
 
     startDate: optionalIsoDateTime,
 

@@ -60,7 +60,6 @@ const emptyValues: DownloadDocumentFormValues = {
   category: "",
   fileUrl: "",
   fileName: "",
-  fileSizeBytes: null,
   fileType: "",
   isActive: true,
 };
@@ -71,6 +70,7 @@ export function DownloadDocumentFormDialog({
   document,
 }: DownloadDocumentFormDialogProps) {
   const [open, setOpen] = useState(false);
+
   const isEdit = document !== undefined;
 
   const action = isEdit
@@ -105,7 +105,6 @@ export function DownloadDocumentFormDialog({
         category: document.category ?? "",
         fileUrl: document.fileUrl,
         fileName: document.fileName,
-        fileSizeBytes: document.fileSizeBytes,
         fileType: document.fileType ?? "",
         isActive: document.isActive,
       }
@@ -132,7 +131,7 @@ export function DownloadDocumentFormDialog({
         </Button>
       </DialogTrigger>
 
-      <DialogContent className="max-h-[92svh] overflow-y-auto sm:max-w-3xl">
+      <DialogContent className="max-h-[92svh] overflow-y-auto sm:max-w-4xl">
         <DialogHeader>
           <DialogTitle>
             {isEdit ? "Edit dokumen" : "Tambah dokumen"}
@@ -140,8 +139,8 @@ export function DownloadDocumentFormDialog({
 
           <DialogDescription>
             {isEdit
-              ? "Perbarui informasi, file, kategori, dan status dokumen."
-              : "Tambahkan dokumen yang dapat diunduh dari website sekolah."}
+              ? "Perbarui informasi dan URL Google Drive dokumen."
+              : "Tambahkan dokumen melalui URL Google Drive."}
           </DialogDescription>
         </DialogHeader>
 

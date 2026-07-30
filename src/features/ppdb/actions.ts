@@ -132,7 +132,7 @@ function getInformationValues(formData: FormData) {
     description: formData.get("description") ?? "",
     quota: formData.get("quota") ?? "",
     brochureUrl: formData.get("brochureUrl") ?? "",
-    externalRegistrationUrl: formData.get("externalRegistrationUrl") ?? "",
+    externalRegistrationUrl: "",
     registrationLocation: formData.get("registrationLocation") ?? "",
     contactPerson: formData.get("contactPerson") ?? "",
     contactPhone: formData.get("contactPhone") ?? "",
@@ -140,8 +140,7 @@ function getInformationValues(formData: FormData) {
     serviceHours: formData.get("serviceHours") ?? "",
     scholarshipInformation: formData.get("scholarshipInformation") ?? "",
     showFee: formData.get("showFee") ?? "",
-    showExternalRegistrationButton:
-      formData.get("showExternalRegistrationButton") ?? "",
+    showExternalRegistrationButton: "false",
     isActive: formData.get("isActive") ?? "",
   };
 }

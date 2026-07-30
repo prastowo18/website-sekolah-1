@@ -73,9 +73,9 @@ export function DownloadDocumentDeleteDialog({
           <AlertDialogTitle>Hapus dokumen?</AlertDialogTitle>
 
           <AlertDialogDescription>
-            Dokumen <strong>{documentName}</strong> dengan file{" "}
-            <strong>{fileName}</strong> akan dihapus dari database. File fisik
-            pada storage tidak ikut dihapus.
+            Data dokumen <strong>{documentName}</strong> dengan label file{" "}
+            <strong>{fileName}</strong> akan dihapus dari website. File asli di
+            Google Drive tidak akan dihapus atau diubah.
           </AlertDialogDescription>
         </AlertDialogHeader>
 
@@ -100,7 +100,7 @@ export function DownloadDocumentDeleteDialog({
                   Menghapus...
                 </>
               ) : (
-                "Hapus dokumen"
+                "Hapus data dokumen"
               )}
             </Button>
           </AlertDialogFooter>

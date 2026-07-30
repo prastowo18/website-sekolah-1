@@ -1,20 +1,6 @@
 import { z } from "zod";
 
-const MAX_INT_VALUE = 2_147_483_647;
-
-function isValidFileUrl(value: string): boolean {
-  if (value.startsWith("/")) {
-    return true;
-  }
-
-  try {
-    const url = new URL(value);
-
-    return url.protocol === "http:" || url.protocol === "https:";
-  } catch {
-    return false;
-  }
-}
+import { isGoogleDriveUrl, normalizeGoogleDriveUrl } from "./google-drive-url";
 
 const optionalText = (maximumLength: number, message: string) =>
   z
@@ -23,17 +9,16 @@ const optionalText = (maximumLength: number, message: string) =>
     .max(maximumLength, message)
     .transform((value) => value || null);
 
-const optionalFileSize = z.preprocess((value) => {
-  if (
-    value === null ||
-    value === undefined ||
-    (typeof value === "string" && value.trim() === "")
-  ) {
-    return null;
-  }
-
-  return value;
-}, z.coerce.number().int("Ukuran file harus berupa bilangan bulat.").min(0, "Ukuran file tidak boleh bernilai negatif.").max(MAX_INT_VALUE, "Ukuran file melebihi batas yang didukung.").nullable());
+const googleDriveUrl = z
+  .string()
+  .trim()
+  .min(1, "URL Google Drive wajib diisi.")
+  .max(4_000, "URL Google Drive maksimal 4.000 karakter.")
+  .refine(
+    isGoogleDriveUrl,
+    "Gunakan URL HTTPS dari drive.google.com atau docs.google.com.",
+  )
+  .transform((value) => normalizeGoogleDriveUrl(value) ?? value);
 
 const booleanFromForm = z
   .union([
@@ -63,12 +48,7 @@ export const downloadDocumentFormSchema = z.object({
 
   category: optionalText(100, "Kategori maksimal 100 karakter."),
 
-  fileUrl: z
-    .string()
-    .trim()
-    .min(1, "URL file wajib diisi.")
-    .max(4_000, "URL file maksimal 4.000 karakter.")
-    .refine(isValidFileUrl, "URL file tidak valid."),
+  fileUrl: googleDriveUrl,
 
   fileName: z
     .string()
@@ -83,8 +63,6 @@ export const downloadDocumentFormSchema = z.object({
       (value) => !/[\u0000-\u001f]/.test(value),
       "Nama file mengandung karakter yang tidak valid.",
     ),
-
-  fileSizeBytes: optionalFileSize,
 
   fileType: optionalText(80, "Tipe file maksimal 80 karakter."),
 

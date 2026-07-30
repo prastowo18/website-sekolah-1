@@ -67,6 +67,7 @@ export function AnnouncementFormDialog({
   announcement,
 }: AnnouncementFormDialogProps) {
   const [open, setOpen] = useState(false);
+
   const isEdit = announcement !== undefined;
 
   const action = isEdit ? updateAnnouncementAction : createAnnouncementAction;
@@ -126,7 +127,7 @@ export function AnnouncementFormDialog({
         </Button>
       </DialogTrigger>
 
-      <DialogContent className="max-h-[92svh] overflow-y-auto sm:max-w-3xl">
+      <DialogContent className="max-h-[92svh] overflow-y-auto sm:max-w-5xl">
         <DialogHeader>
           <DialogTitle>
             {isEdit ? "Edit pengumuman" : "Tambah pengumuman"}
@@ -134,8 +135,8 @@ export function AnnouncementFormDialog({
 
           <DialogDescription>
             {isEdit
-              ? "Perbarui isi, prioritas, periode tayang, dan status pengumuman."
-              : "Tambahkan pengumuman baru untuk website sekolah."}
+              ? "Perbarui isi, lampiran Google Drive, periode tayang, dan status pengumuman."
+              : "Tambahkan pengumuman baru dengan lampiran Google Drive opsional."}
           </DialogDescription>
         </DialogHeader>
 

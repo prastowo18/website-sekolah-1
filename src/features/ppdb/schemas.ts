@@ -1,5 +1,7 @@
 import { z } from "zod";
 
+import { normalizePpdbGoogleDriveUrl } from "./google-drive-url";
+
 import { ppdbFeeTypes, ppdbStatuses } from "./constants";
 
 function isValidUrl(value: string, allowRelative = true): boolean {
@@ -150,7 +152,18 @@ export const ppdbInformationFormSchema = z
 
     quota: optionalInteger(100_000, "Kuota"),
 
-    brochureUrl: optionalUrl,
+    brochureUrl: optionalUrl
+
+      .refine(
+        (value) =>
+          value === null || normalizePpdbGoogleDriveUrl(value) !== null,
+
+        "Gunakan URL HTTPS dari drive.google.com atau docs.google.com.",
+      )
+
+      .transform((value) =>
+        value ? normalizePpdbGoogleDriveUrl(value) : null,
+      ),
 
     externalRegistrationUrl: optionalExternalUrl,
 

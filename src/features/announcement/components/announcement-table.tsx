@@ -1,6 +1,7 @@
 import { CalendarClock, ExternalLink, Megaphone, Pin } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   Table,
   TableBody,
@@ -13,6 +14,7 @@ import {
   announcementPriorityLabels,
   type AnnouncementPriorityValue,
 } from "@/features/announcement/constants";
+import { normalizeAnnouncementGoogleDriveUrl } from "@/features/announcement/google-drive-url";
 
 import { AnnouncementDeleteDialog } from "./announcement-delete-dialog";
 import {
@@ -126,6 +128,10 @@ export function AnnouncementTable({
           {announcements.map((announcement) => {
             const displayStatus = getDisplayStatus(announcement);
 
+            const attachmentUrl = announcement.attachmentUrl
+              ? normalizeAnnouncementGoogleDriveUrl(announcement.attachmentUrl)
+              : null;
+
             return (
               <TableRow key={announcement.id}>
                 <TableCell>
@@ -146,8 +152,7 @@ export function AnnouncementTable({
                     </p>
 
                     <p className="mt-2 text-xs text-muted-foreground">
-                      /pengumuman/
-                      {announcement.slug}
+                      /pengumuman/{announcement.slug}
                     </p>
                   </div>
                 </TableCell>
@@ -181,16 +186,19 @@ export function AnnouncementTable({
                 </TableCell>
 
                 <TableCell>
-                  {announcement.attachmentUrl ? (
-                    <a
-                      href={announcement.attachmentUrl}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="inline-flex items-center gap-1 text-sm font-medium underline-offset-4 hover:underline"
-                    >
-                      Buka
-                      <ExternalLink className="size-3" />
-                    </a>
+                  {attachmentUrl ? (
+                    <Button variant="outline" size="sm" asChild>
+                      <a
+                        href={attachmentUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        <ExternalLink className="size-4" />
+                        Buka Drive
+                      </a>
+                    </Button>
+                  ) : announcement.attachmentUrl ? (
+                    <Badge variant="destructive">Link tidak valid</Badge>
                   ) : (
                     <span className="text-muted-foreground">—</span>
                   )}

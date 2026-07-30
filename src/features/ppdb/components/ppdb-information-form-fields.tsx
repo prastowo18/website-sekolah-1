@@ -236,13 +236,16 @@ export function PpdbInformationFormFields({
 
         <div className="mt-4 grid gap-5">
           <div className="space-y-2">
-            <Label htmlFor={`${formId}-brochureUrl`}>URL brosur</Label>
+            <Label htmlFor={`${formId}-brochureUrl`}>
+              URL brosur Google Drive
+            </Label>
 
             <Input
               id={`${formId}-brochureUrl`}
               name="brochureUrl"
+              type="url"
               defaultValue={values.brochureUrl}
-              placeholder="https://... atau /dokumen/..."
+              placeholder="https://drive.google.com/file/d/.../view"
               maxLength={4000}
               disabled={disabled}
               aria-invalid={Boolean(errors?.brochureUrl?.length)}
@@ -252,7 +255,7 @@ export function PpdbInformationFormFields({
             <FieldError formId={formId} field="brochureUrl" errors={errors} />
           </div>
 
-          <div className="space-y-2">
+          <div className="hidden">
             <Label htmlFor={`${formId}-externalRegistrationUrl`}>
               URL pendaftaran eksternal
             </Label>

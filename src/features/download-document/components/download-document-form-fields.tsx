@@ -1,11 +1,14 @@
 "use client";
 
+import { ExternalLink } from "lucide-react";
 import { useState } from "react";
 
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
+import { normalizeGoogleDriveUrl } from "@/features/download-document/google-drive-url";
 import type { DownloadDocumentFieldName } from "@/features/download-document/types";
 
 export type DownloadDocumentFormValues = {
@@ -15,7 +18,6 @@ export type DownloadDocumentFormValues = {
   category: string;
   fileUrl: string;
   fileName: string;
-  fileSizeBytes: number | null;
   fileType: string;
   isActive: boolean;
 };
@@ -71,10 +73,13 @@ export function DownloadDocumentFormFields({
   errors,
   disabled = false,
 }: DownloadDocumentFormFieldsProps) {
+  const [fileUrl, setFileUrl] = useState(values.fileUrl);
   const [isActive, setIsActive] = useState(values.isActive);
 
   const categoryListId = `${formId}-category-options`;
   const fileTypeListId = `${formId}-file-type-options`;
+
+  const validGoogleDriveUrl = normalizeGoogleDriveUrl(fileUrl);
 
   return (
     <div className="grid gap-6">
@@ -180,30 +185,59 @@ export function DownloadDocumentFormFields({
       </div>
 
       <div className="rounded-lg border p-4">
-        <p className="font-medium">Informasi file</p>
+        <p className="font-medium">Dokumen Google Drive</p>
 
         <p className="mt-1 text-xs text-muted-foreground">
-          File masih menggunakan URL. Unggah file langsung akan ditambahkan saat
-          object storage diintegrasikan.
+          File tidak diunggah ke server website. Pastikan akses Google Drive
+          diatur menjadi siapa saja yang memiliki link dapat melihat.
         </p>
 
         <div className="mt-4 grid gap-5">
           <div className="space-y-2">
-            <Label htmlFor={`${formId}-fileUrl`}>URL file</Label>
+            <Label htmlFor={`${formId}-fileUrl`}>URL Google Drive</Label>
 
             <Input
               id={`${formId}-fileUrl`}
               name="fileUrl"
-              defaultValue={values.fileUrl}
-              placeholder="https://... atau /dokumen/..."
+              type="url"
+              value={fileUrl}
+              onChange={(event) => {
+                setFileUrl(event.target.value);
+              }}
+              placeholder="https://drive.google.com/file/d/.../view"
               maxLength={4000}
               disabled={disabled}
               aria-invalid={Boolean(errors?.fileUrl?.length)}
-              aria-describedby={getErrorId(formId, "fileUrl", errors)}
+              aria-describedby={
+                errors?.fileUrl?.length
+                  ? `${formId}-fileUrl-error`
+                  : `${formId}-fileUrl-help`
+              }
               required
             />
 
+            <p
+              id={`${formId}-fileUrl-help`}
+              className="text-xs text-muted-foreground"
+            >
+              Hanya URL HTTPS dari drive.google.com atau docs.google.com yang
+              diterima.
+            </p>
+
             <FieldError formId={formId} field="fileUrl" errors={errors} />
+
+            {validGoogleDriveUrl && !disabled ? (
+              <Button type="button" variant="outline" size="sm" asChild>
+                <a
+                  href={validGoogleDriveUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <ExternalLink className="size-4" />
+                  Periksa link Google Drive
+                </a>
+              </Button>
+            ) : null}
           </div>
 
           <div className="grid gap-5 md:grid-cols-2">
@@ -221,6 +255,10 @@ export function DownloadDocumentFormFields({
                 aria-describedby={getErrorId(formId, "fileName", errors)}
                 required
               />
+
+              <p className="text-xs text-muted-foreground">
+                Nama ini hanya menjadi label yang tampil pada website.
+              </p>
 
               <FieldError formId={formId} field="fileName" errors={errors} />
             </div>
@@ -262,44 +300,11 @@ export function DownloadDocumentFormFields({
                 id={`${formId}-fileType-help`}
                 className="text-xs text-muted-foreground"
               >
-                Gunakan MIME type, misalnya application/pdf.
+                Opsional. Contoh: application/pdf.
               </p>
 
               <FieldError formId={formId} field="fileType" errors={errors} />
             </div>
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor={`${formId}-fileSizeBytes`}>
-              Ukuran file dalam byte
-            </Label>
-
-            <Input
-              id={`${formId}-fileSizeBytes`}
-              name="fileSizeBytes"
-              type="number"
-              defaultValue={values.fileSizeBytes ?? ""}
-              placeholder="Contoh: 1048576"
-              min={0}
-              max={2147483647}
-              step={1}
-              disabled={disabled}
-              aria-invalid={Boolean(errors?.fileSizeBytes?.length)}
-              aria-describedby={
-                errors?.fileSizeBytes?.length
-                  ? `${formId}-fileSizeBytes-error`
-                  : `${formId}-fileSizeBytes-help`
-              }
-            />
-
-            <p
-              id={`${formId}-fileSizeBytes-help`}
-              className="text-xs text-muted-foreground"
-            >
-              Opsional. 1 MB sama dengan 1.048.576 byte.
-            </p>
-
-            <FieldError formId={formId} field="fileSizeBytes" errors={errors} />
           </div>
         </div>
       </div>
@@ -309,7 +314,7 @@ export function DownloadDocumentFormFields({
           <Label htmlFor={`${formId}-isActive`}>Dokumen aktif</Label>
 
           <p className="text-xs text-muted-foreground">
-            Hanya dokumen aktif yang dapat diunduh melalui website publik.
+            Hanya dokumen aktif yang dapat dibuka melalui website publik.
           </p>
         </div>
 

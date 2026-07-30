@@ -22,7 +22,6 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { normalizePpdbGoogleDriveUrl } from "@/features/ppdb/google-drive-url";
 import {
   ppdbFeeTypeLabels,
   ppdbStatusLabels,
@@ -153,12 +152,11 @@ export default async function PublicPpdbPage() {
     );
   }
 
-  const brochureUrl = normalizePpdbGoogleDriveUrl(ppdb.brochureUrl ?? "");
+  const brochureAvailable = isSafePublicUrl(ppdb.brochureUrl);
 
-  const brochureAvailable =
-    brochureUrl !== null && isSafePublicUrl(brochureUrl);
-
-  const externalRegistrationAvailable = false;
+  const externalRegistrationAvailable =
+    ppdb.showExternalRegistrationButton &&
+    isSafePublicUrl(ppdb.externalRegistrationUrl);
 
   const hasContact =
     Boolean(ppdb.contactPerson) ||
@@ -202,7 +200,7 @@ export default async function PublicPpdbPage() {
               {brochureAvailable ? (
                 <Button size="lg" variant="outline" asChild>
                   <a
-                    href={brochureUrl!}
+                    href={ppdb.brochureUrl!}
                     target="_blank"
                     rel="noopener noreferrer"
                   >
@@ -654,7 +652,7 @@ export default async function PublicPpdbPage() {
                   {brochureAvailable ? (
                     <Button variant="secondary" asChild>
                       <a
-                        href={brochureUrl!}
+                        href={ppdb.brochureUrl!}
                         target="_blank"
                         rel="noopener noreferrer"
                       >

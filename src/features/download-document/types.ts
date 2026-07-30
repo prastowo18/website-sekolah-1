@@ -5,7 +5,6 @@ export type DownloadDocumentFieldName =
   | "category"
   | "fileUrl"
   | "fileName"
-  | "fileSizeBytes"
   | "fileType"
   | "isActive";
 

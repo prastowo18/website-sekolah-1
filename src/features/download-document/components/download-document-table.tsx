@@ -1,4 +1,4 @@
-import { Download, File, Files } from "lucide-react";
+import { Download, ExternalLink, File, Files } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -23,29 +23,6 @@ type DownloadDocumentTableProps = {
   fileTypeOptions: string[];
   canEdit: boolean;
 };
-
-function formatFileSize(bytes: number | null): string {
-  if (bytes === null) {
-    return "Ukuran tidak tersedia";
-  }
-
-  if (bytes === 0) {
-    return "0 B";
-  }
-
-  const units = ["B", "KB", "MB", "GB"];
-
-  const unitIndex = Math.min(
-    Math.floor(Math.log(bytes) / Math.log(1024)),
-    units.length - 1,
-  );
-
-  const value = bytes / Math.pow(1024, unitIndex);
-
-  return `${new Intl.NumberFormat("id-ID", {
-    maximumFractionDigits: 2,
-  }).format(value)} ${units[unitIndex]}`;
-}
 
 export function DownloadDocumentTable({
   documents,
@@ -74,8 +51,8 @@ export function DownloadDocumentTable({
           <TableRow>
             <TableHead>Dokumen</TableHead>
             <TableHead>Kategori</TableHead>
-            <TableHead>File</TableHead>
-            <TableHead>Unduhan</TableHead>
+            <TableHead>File Google Drive</TableHead>
+            <TableHead>Dibuka</TableHead>
             <TableHead>Status</TableHead>
             <TableHead className="text-right">Tindakan</TableHead>
           </TableRow>
@@ -118,9 +95,8 @@ export function DownloadDocumentTable({
                     </p>
 
                     <p className="mt-1 text-xs text-muted-foreground">
-                      {document.fileType ?? "Tipe tidak tersedia"}
-                      {" · "}
-                      {formatFileSize(document.fileSizeBytes)}
+                      Google Drive
+                      {document.fileType ? ` · ${document.fileType}` : ""}
                     </p>
                   </div>
                 </div>
@@ -148,10 +124,10 @@ export function DownloadDocumentTable({
                           document.slug,
                         )}/download`}
                         target="_blank"
-                        rel="noreferrer"
+                        rel="noopener noreferrer"
                       >
-                        <Download className="size-4" />
-                        Unduh
+                        <ExternalLink className="size-4" />
+                        Buka
                       </a>
                     </Button>
                   ) : null}
