@@ -1,12 +1,23 @@
-import type { NextConfig } from "next";
+import type { NextConfig } from 'next';
 
 import {
   getSecurityHeaders,
   getSensitiveRouteHeaders,
-} from "./src/lib/security-headers";
+} from './src/lib/security-headers';
 
 const nextConfig: NextConfig = {
   poweredByHeader: false,
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'savegaleri.my.id',
+        port: '',
+        pathname: '/**',
+        search: '',
+      },
+    ],
+  },
 
   async headers() {
     const securityHeaders = getSecurityHeaders();
@@ -15,23 +26,23 @@ const nextConfig: NextConfig = {
 
     return [
       {
-        source: "/:path*",
+        source: '/:path*',
         headers: securityHeaders,
       },
       {
-        source: "/konsol-8m4q7x2k9v6d/:path*",
+        source: '/konsol-8m4q7x2k9v6d/:path*',
         headers: sensitiveRouteHeaders,
       },
       {
-        source: "/login",
+        source: '/login',
         headers: sensitiveRouteHeaders,
       },
       {
-        source: "/ubah-password",
+        source: '/ubah-password',
         headers: sensitiveRouteHeaders,
       },
       {
-        source: "/api/:path*",
+        source: '/api/:path*',
         headers: sensitiveRouteHeaders,
       },
     ];

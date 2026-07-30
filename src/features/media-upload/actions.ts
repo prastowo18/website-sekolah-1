@@ -12,9 +12,18 @@ import { randomUUID } from "node:crypto";
 
 import { requireAdminSession } from "@/lib/auth/require-session";
 import { r2BucketName, r2Client } from "@/lib/storage/r2-client";
+import {
+  deleteR2ObjectByKey,
+  getR2ObjectKeyFromPublicUrl,
+} from "@/lib/storage/r2-object";
 import { getR2PublicUrl } from "@/lib/storage/r2-url";
 
-import { MEDIA_TYPE_RULES, type AllowedMediaType } from "./constants";
+import {
+  MEDIA_DIRECTORIES,
+  MEDIA_TYPE_RULES,
+  type AllowedMediaType,
+  type MediaDirectory,
+} from "./constants";
 import { createMediaUploadSchema, finalizeMediaUploadSchema } from "./schemas";
 import type {
   CreateMediaUploadInput,
@@ -26,6 +35,20 @@ import type {
 const PRESIGNED_URL_DURATION_SECONDS = 5 * 60;
 
 class MediaValidationError extends Error {}
+
+type DiscardPendingMediaInput = {
+  publicUrl: string;
+  directory: MediaDirectory;
+};
+
+export type DiscardPendingMediaResult =
+  | {
+      status: "success";
+    }
+  | {
+      status: "error";
+      message: string;
+    };
 
 function canManageMedia(role: string): boolean {
   return role === "SUPER_ADMIN" || role === "CONTENT_ADMIN";
@@ -66,7 +89,6 @@ function hasValidFileSignature(
     }
 
     const riff = bytesToAscii(bytes.slice(0, 4));
-
     const webp = bytesToAscii(bytes.slice(8, 12));
 
     return riff === "RIFF" && webp === "WEBP";
@@ -78,7 +100,6 @@ function hasValidFileSignature(
     }
 
     const boxType = bytesToAscii(bytes.slice(4, 8));
-
     const brands = bytesToAscii(bytes.slice(8, 32));
 
     return (
@@ -91,6 +112,30 @@ function hasValidFileSignature(
   }
 
   return false;
+}
+
+function encodeCopySource(objectKey: string): string {
+  const encodedKey = objectKey
+    .split("/")
+    .map((segment) => encodeURIComponent(segment))
+    .join("/");
+
+  return `${encodeURIComponent(r2BucketName)}/${encodedKey}`;
+}
+
+function getMediaDirectoryFromTemporaryKey(
+  temporaryKey: string,
+): MediaDirectory {
+  const directory = temporaryKey.split("/")[1];
+
+  if (
+    !directory ||
+    !(MEDIA_DIRECTORIES as readonly string[]).includes(directory)
+  ) {
+    throw new MediaValidationError("Direktori media sementara tidak valid.");
+  }
+
+  return directory as MediaDirectory;
 }
 
 async function deleteTemporaryObject(temporaryKey: string): Promise<void> {
@@ -128,9 +173,7 @@ export async function createMediaUploadAction(
   }
 
   const { directory, contentType } = parsed.data;
-
   const rule = MEDIA_TYPE_RULES[contentType];
-
   const now = new Date();
 
   const year = String(now.getUTCFullYear());
@@ -138,7 +181,6 @@ export async function createMediaUploadAction(
   const month = String(now.getUTCMonth() + 1).padStart(2, "0");
 
   const identifier = randomUUID();
-
   const uploadToken = randomUUID();
 
   const temporaryKey = [
@@ -152,17 +194,14 @@ export async function createMediaUploadAction(
   try {
     const uploadUrl = await getSignedUrl(
       r2Client,
-
       new PutObjectCommand({
         Bucket: r2BucketName,
         Key: temporaryKey,
         ContentType: contentType,
-
         Metadata: {
           "upload-token": uploadToken,
         },
       }),
-
       {
         expiresIn: PRESIGNED_URL_DURATION_SECONDS,
         unhoistableHeaders: new Set(["x-amz-meta-upload-token"]),
@@ -174,7 +213,6 @@ export async function createMediaUploadAction(
       uploadUrl,
       temporaryKey,
       uploadToken,
-
       expiresAt: new Date(
         Date.now() + PRESIGNED_URL_DURATION_SECONDS * 1000,
       ).toISOString(),
@@ -217,10 +255,11 @@ export async function finalizeMediaUploadAction(
   const rule = MEDIA_TYPE_RULES[expectedContentType];
 
   try {
+    const directory = getMediaDirectoryFromTemporaryKey(temporaryKey);
+
     const head = await r2Client.send(
       new HeadObjectCommand({
         Bucket: r2BucketName,
-
         Key: temporaryKey,
       }),
     );
@@ -246,9 +285,7 @@ export async function finalizeMediaUploadAction(
     const object = await r2Client.send(
       new GetObjectCommand({
         Bucket: r2BucketName,
-
         Key: temporaryKey,
-
         Range: "bytes=0-31",
       }),
     );
@@ -265,25 +302,29 @@ export async function finalizeMediaUploadAction(
       );
     }
 
-    const objectKey = temporaryKey.replace(/^temporary\//, "");
+    const validatedObjectKey = temporaryKey.replace(/^temporary\//, "");
+
+    if (!validatedObjectKey.startsWith(`${directory}/`)) {
+      throw new MediaValidationError(
+        "Direktori object hasil validasi tidak sesuai.",
+      );
+    }
+
+    const pendingObjectKey = `pending/${validatedObjectKey}`;
 
     await r2Client.send(
       new CopyObjectCommand({
         Bucket: r2BucketName,
-        Key: objectKey,
-
-        CopySource: `${r2BucketName}/${temporaryKey}`,
-
+        Key: pendingObjectKey,
+        CopySource: encodeCopySource(temporaryKey),
         ContentType: expectedContentType,
-
         ContentDisposition: "inline",
-
         CacheControl: "public, max-age=31536000, immutable",
-
         MetadataDirective: "REPLACE",
-
         Metadata: {
           validated: "true",
+          "upload-token": uploadToken,
+          directory,
         },
       }),
     );
@@ -292,13 +333,11 @@ export async function finalizeMediaUploadAction(
 
     return {
       status: "success",
-      message: "Media berhasil diunggah dan diverifikasi.",
-      objectKey,
-
-      publicUrl: getR2PublicUrl(objectKey),
-
+      message:
+        "Media berhasil diunggah. Simpan formulir untuk menerapkan media.",
+      objectKey: pendingObjectKey,
+      publicUrl: getR2PublicUrl(pendingObjectKey),
       contentType: expectedContentType,
-
       size: expectedSize,
     };
   } catch (error) {
@@ -318,6 +357,60 @@ export async function finalizeMediaUploadAction(
     return {
       status: "error",
       message: "Media belum dapat diverifikasi. Silakan coba kembali.",
+    };
+  }
+}
+
+export async function discardPendingMediaAction(
+  input: DiscardPendingMediaInput,
+): Promise<DiscardPendingMediaResult> {
+  const session = await requireAdminSession();
+
+  if (!canManageMedia(session.user.role)) {
+    return {
+      status: "error",
+      message: "Akun Anda tidak memiliki izin untuk menghapus media sementara.",
+    };
+  }
+
+  if (!(MEDIA_DIRECTORIES as readonly string[]).includes(input.directory)) {
+    return {
+      status: "error",
+      message: "Direktori media tidak valid.",
+    };
+  }
+
+  const objectKey = getR2ObjectKeyFromPublicUrl(input.publicUrl);
+
+  if (!objectKey) {
+    return {
+      status: "success",
+    };
+  }
+
+  const requiredPrefix = `pending/${input.directory}/`;
+
+  if (!objectKey.startsWith(requiredPrefix)) {
+    return {
+      status: "success",
+    };
+  }
+
+  try {
+    await deleteR2ObjectByKey(objectKey);
+
+    return {
+      status: "success",
+    };
+  } catch (error) {
+    console.error("Discard pending media failed:", {
+      objectKey,
+      error,
+    });
+
+    return {
+      status: "error",
+      message: "Media sementara belum dapat dibersihkan.",
     };
   }
 }

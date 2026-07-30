@@ -1,12 +1,6 @@
-import {
-  CalendarClock,
-  Eye,
-  Image as ImageIcon,
-  ImageOff,
-  Newspaper,
-} from "lucide-react";
+import { CalendarClock, Eye, ImageOff, Newspaper } from 'lucide-react';
 
-import { Badge } from "@/components/ui/badge";
+import { Badge } from '@/components/ui/badge';
 import {
   Table,
   TableBody,
@@ -14,15 +8,16 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
+} from '@/components/ui/table';
 import {
   postStatusLabels,
   type PostStatusValue,
-} from "@/features/post/constants";
+} from '@/features/post/constants';
 
-import { PostDeleteDialog } from "./post-delete-dialog";
-import { PostFormDialog, type EditablePost } from "./post-form-dialog";
-import type { PostCategoryOption } from "./post-form-fields";
+import { PostDeleteDialog } from './post-delete-dialog';
+import { PostFormDialog, type EditablePost } from './post-form-dialog';
+import type { PostCategoryOption } from './post-form-fields';
+import Image from 'next/image';
 
 export type PostListItem = EditablePost & {
   categoryName: string | null;
@@ -36,28 +31,28 @@ type PostTableProps = {
 
 function formatDateTime(value: string | null): string {
   if (!value) {
-    return "—";
+    return '—';
   }
 
-  return new Intl.DateTimeFormat("id-ID", {
-    dateStyle: "medium",
-    timeStyle: "short",
-    timeZone: "Asia/Jakarta",
+  return new Intl.DateTimeFormat('id-ID', {
+    dateStyle: 'medium',
+    timeStyle: 'short',
+    timeZone: 'Asia/Jakarta',
   }).format(new Date(value));
 }
 
 function getStatusVariant(
   status: PostStatusValue,
-): "default" | "secondary" | "outline" {
-  if (status === "PUBLISHED") {
-    return "default";
+): 'default' | 'secondary' | 'outline' {
+  if (status === 'PUBLISHED') {
+    return 'default';
   }
 
-  if (status === "SCHEDULED") {
-    return "outline";
+  if (status === 'SCHEDULED') {
+    return 'outline';
   }
 
-  return "secondary";
+  return 'secondary';
 }
 
 export function PostTable({ posts, categories, canEdit }: PostTableProps) {
@@ -97,11 +92,19 @@ export function PostTable({ posts, categories, canEdit }: PostTableProps) {
             <TableRow key={post.id}>
               <TableCell>
                 <div className="flex min-w-80 items-start gap-3">
-                  <div className="flex size-14 shrink-0 items-center justify-center rounded-md border bg-muted">
+                  <div className="relative size-14 shrink-0 overflow-hidden rounded-md border bg-muted">
                     {post.featuredImageUrl ? (
-                      <ImageIcon className="size-5 text-muted-foreground" />
+                      <Image
+                        src={post.featuredImageUrl}
+                        alt={`Gambar utama ${post.title}`}
+                        fill
+                        sizes="56px"
+                        className="object-cover"
+                      />
                     ) : (
-                      <ImageOff className="size-5 text-muted-foreground" />
+                      <div className="flex size-full items-center justify-center">
+                        <ImageOff className="size-5 text-muted-foreground" />
+                      </div>
                     )}
                   </div>
 
@@ -137,7 +140,7 @@ export function PostTable({ posts, categories, canEdit }: PostTableProps) {
 
               <TableCell>
                 <div className="min-w-44 text-sm">
-                  {post.status === "SCHEDULED" ? (
+                  {post.status === 'SCHEDULED' ? (
                     <div className="flex items-center gap-2">
                       <CalendarClock className="size-4 text-muted-foreground" />
                       {formatDateTime(post.scheduledAt)}

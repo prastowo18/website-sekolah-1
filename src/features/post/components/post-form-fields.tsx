@@ -19,6 +19,8 @@ import {
 } from "@/features/post/constants";
 import type { PostFieldName } from "@/features/post/types";
 
+import { PostFeaturedImageField } from "./post-featured-image-field";
+
 export type PostCategoryOption = {
   id: string;
   name: string;
@@ -249,23 +251,12 @@ export function PostFormFields({
         <FieldError formId={formId} field="content" errors={errors} />
       </div>
 
-      <div className="space-y-2">
-        <Label htmlFor={`${formId}-featuredImageUrl`}>URL gambar utama</Label>
-
-        <Input
-          id={`${formId}-featuredImageUrl`}
-          name="featuredImageUrl"
-          type="url"
-          defaultValue={values.featuredImageUrl}
-          placeholder="https://..."
-          maxLength={4000}
-          disabled={disabled}
-          aria-invalid={Boolean(errors?.featuredImageUrl?.length)}
-          aria-describedby={getErrorId(formId, "featuredImageUrl", errors)}
-        />
-
-        <FieldError formId={formId} field="featuredImageUrl" errors={errors} />
-      </div>
+      <PostFeaturedImageField
+        formId={formId}
+        initialValue={values.featuredImageUrl}
+        error={errors?.featuredImageUrl?.[0]}
+        disabled={disabled}
+      />
 
       <div className="grid gap-5 md:grid-cols-2">
         <div className="space-y-2">

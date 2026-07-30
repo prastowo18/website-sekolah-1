@@ -7,11 +7,24 @@ import { UserRole } from "@/generated/prisma/client";
 import { requireAdminRole } from "@/lib/auth/authorization";
 import { prisma } from "@/lib/prisma";
 import { createSlug } from "@/lib/slug";
+import {
+  deleteR2ObjectByKey,
+  getR2ObjectKeyFromPublicUrl,
+} from "@/lib/storage/r2-object";
+import {
+  completePreparedMediaCommit,
+  PendingMediaCommitError,
+  preparePendingMediaCommit,
+  rollbackPreparedMediaCommit,
+  type PreparedMediaCommit,
+} from "@/lib/storage/r2-pending";
 
 import { postFormSchema, postIdSchema, type PostFormInput } from "./schemas";
 import type { PostActionState, PostFieldName } from "./types";
 
 const editableRoles = [UserRole.SUPER_ADMIN, UserRole.CONTENT_ADMIN] as const;
+
+const POST_MEDIA_PREFIX = "posts/";
 
 const postSelect = {
   id: true,
@@ -106,6 +119,16 @@ function invalidCategoryState(): PostActionState {
   };
 }
 
+function invalidPendingImageState(message: string): PostActionState {
+  return {
+    status: "error",
+    message: "Gambar utama belum dapat diterapkan.",
+    fieldErrors: {
+      featuredImageUrl: [message],
+    },
+  };
+}
+
 function hasPrismaErrorCode(error: unknown, code: string): boolean {
   return (
     typeof error === "object" &&
@@ -178,6 +201,35 @@ async function categoryExists(categoryId: string | null): Promise<boolean> {
   return category !== null;
 }
 
+async function cleanupPostImage({
+  previousUrl,
+  nextUrl = null,
+}: {
+  previousUrl: string | null | undefined;
+  nextUrl?: string | null | undefined;
+}): Promise<void> {
+  const previousKey = getR2ObjectKeyFromPublicUrl(previousUrl);
+
+  if (!previousKey || !previousKey.startsWith(POST_MEDIA_PREFIX)) {
+    return;
+  }
+
+  const nextKey = getR2ObjectKeyFromPublicUrl(nextUrl);
+
+  if (nextKey === previousKey) {
+    return;
+  }
+
+  try {
+    await deleteR2ObjectByKey(previousKey);
+  } catch (error) {
+    console.error("Gagal membersihkan gambar berita lama dari R2.", {
+      objectKey: previousKey,
+      error,
+    });
+  }
+}
+
 function revalidatePostPaths(slugs: Array<string | null | undefined>): void {
   revalidatePath("/");
   revalidatePath("/berita");
@@ -210,10 +262,22 @@ export async function createPostAction(
     return invalidSlugState();
   }
 
+  let preparedImageCommit: PreparedMediaCommit | null = null;
+
+  let databaseCommitted = false;
+
   try {
     if (!(await categoryExists(parsed.data.categoryId))) {
       return invalidCategoryState();
     }
+
+    preparedImageCommit = await preparePendingMediaCommit(
+      parsed.data.featuredImageUrl,
+      "posts",
+    );
+
+    const featuredImageUrl =
+      preparedImageCommit?.finalUrl ?? parsed.data.featuredImageUrl;
 
     const publicationDates = resolvePublicationDates({
       status: parsed.data.status,
@@ -227,7 +291,7 @@ export async function createPostAction(
           slug,
           excerpt: parsed.data.excerpt,
           content: parsed.data.content,
-          featuredImageUrl: parsed.data.featuredImageUrl,
+          featuredImageUrl,
           status: parsed.data.status,
           publishedAt: publicationDates.publishedAt,
           scheduledAt: publicationDates.scheduledAt,
@@ -252,6 +316,10 @@ export async function createPostAction(
       return post;
     });
 
+    databaseCommitted = true;
+
+    await completePreparedMediaCommit(preparedImageCommit);
+
     revalidatePostPaths([createdPost.slug]);
 
     const messageByStatus: Record<PostFormInput["status"], string> = {
@@ -267,7 +335,15 @@ export async function createPostAction(
       postId: createdPost.id,
     };
   } catch (error: unknown) {
+    if (!databaseCommitted) {
+      await rollbackPreparedMediaCommit(preparedImageCommit);
+    }
+
     console.error("Gagal menambahkan berita.", error);
+
+    if (error instanceof PendingMediaCommitError) {
+      return invalidPendingImageState(error.message);
+    }
 
     if (hasPrismaErrorCode(error, "P2002")) {
       return uniqueSlugState();
@@ -313,6 +389,10 @@ export async function updatePostAction(
     return invalidSlugState();
   }
 
+  let preparedImageCommit: PreparedMediaCommit | null = null;
+
+  let databaseCommitted = false;
+
   try {
     const currentPost = await prisma.post.findUnique({
       where: {
@@ -332,6 +412,14 @@ export async function updatePostAction(
       return invalidCategoryState();
     }
 
+    preparedImageCommit = await preparePendingMediaCommit(
+      parsed.data.featuredImageUrl,
+      "posts",
+    );
+
+    const featuredImageUrl =
+      preparedImageCommit?.finalUrl ?? parsed.data.featuredImageUrl;
+
     const publicationDates = resolvePublicationDates({
       status: parsed.data.status,
       scheduledAt: parsed.data.scheduledAt,
@@ -348,7 +436,7 @@ export async function updatePostAction(
           slug,
           excerpt: parsed.data.excerpt,
           content: parsed.data.content,
-          featuredImageUrl: parsed.data.featuredImageUrl,
+          featuredImageUrl,
           status: parsed.data.status,
           publishedAt: publicationDates.publishedAt,
           scheduledAt: publicationDates.scheduledAt,
@@ -373,6 +461,15 @@ export async function updatePostAction(
       return post;
     });
 
+    databaseCommitted = true;
+
+    await completePreparedMediaCommit(preparedImageCommit);
+
+    await cleanupPostImage({
+      previousUrl: currentPost.featuredImageUrl,
+      nextUrl: updatedPost.featuredImageUrl,
+    });
+
     revalidatePostPaths([currentPost.slug, updatedPost.slug]);
 
     return {
@@ -388,7 +485,15 @@ export async function updatePostAction(
       postId: updatedPost.id,
     };
   } catch (error: unknown) {
+    if (!databaseCommitted) {
+      await rollbackPreparedMediaCommit(preparedImageCommit);
+    }
+
     console.error("Gagal memperbarui berita.", error);
+
+    if (error instanceof PendingMediaCommitError) {
+      return invalidPendingImageState(error.message);
+    }
 
     if (hasPrismaErrorCode(error, "P2002")) {
       return uniqueSlugState();
@@ -453,6 +558,10 @@ export async function deletePostAction(
           oldValue: toAuditValue(currentPost),
         },
       });
+    });
+
+    await cleanupPostImage({
+      previousUrl: currentPost.featuredImageUrl,
     });
 
     revalidatePostPaths([currentPost.slug]);
