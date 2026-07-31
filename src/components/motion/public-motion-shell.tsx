@@ -22,7 +22,7 @@ type PublicMotionShellProps = {
  * Efek global untuk halaman publik.
  *
  * Seluruh children tetap berasal dari render server. Motion hanya mengatur
- * presentasi visual berupa opacity dan transform, sehingga struktur konten,
+ * presentasi visual berupa transform, sehingga struktur konten,
  * heading, link, dan metadata tetap tersedia pada HTML.
  */
 export function PublicMotionShell({ children }: PublicMotionShellProps) {
@@ -72,12 +72,10 @@ export function PublicMotionShell({ children }: PublicMotionShellProps) {
             shouldReduceMotion
               ? false
               : {
-                  opacity: 0.42,
                   y: 24,
                 }
           }
           animate={{
-            opacity: 1,
             y: 0,
           }}
           transition={{

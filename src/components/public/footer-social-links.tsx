@@ -180,7 +180,7 @@ export function FooterSocialLinks({ links }: FooterSocialLinksProps) {
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <h2
           id="footer-social-links-title"
-          className="text-sm font-semibold text-white"
+          className="text-sm font-semibold text-foreground"
         >
           Ikuti media sosial sekolah
         </h2>

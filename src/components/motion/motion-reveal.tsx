@@ -50,12 +50,10 @@ export function MotionReveal({
           animate={
             isVisible
               ? {
-                  opacity: 1,
                   y: 0,
                   scale: 1,
                 }
               : {
-                  opacity: 0.16,
                   y: distance,
                   scale: 0.96,
                 }

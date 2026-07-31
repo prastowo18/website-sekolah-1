@@ -50,12 +50,10 @@ export function MotionStagger({
               animate={
                 isVisible
                   ? {
-                      opacity: 1,
                       y: 0,
                       scale: 1,
                     }
                   : {
-                      opacity: 0.1,
                       y: distance,
                       scale: 0.95,
                     }

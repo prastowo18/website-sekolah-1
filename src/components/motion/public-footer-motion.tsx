@@ -13,7 +13,7 @@ type PublicFooterMotionProps = {
  * Pembungkus visual untuk footer publik.
  *
  * Isi footer tetap berasal dari Server Component dan tetap tersedia
- * pada HTML. Motion hanya memberikan efek transformasi dan opacity.
+ * pada HTML. Motion hanya memberikan efek transformasi.
  */
 export function PublicFooterMotion({ children }: PublicFooterMotionProps) {
   const shouldReduceMotion = Boolean(useReducedMotion());
@@ -26,7 +26,7 @@ export function PublicFooterMotion({ children }: PublicFooterMotionProps) {
             shouldReduceMotion
               ? false
               : {
-                  opacity: 0.18,
+                  opacity: 1,
                   y: 56,
                 }
           }
@@ -50,7 +50,7 @@ export function PublicFooterMotion({ children }: PublicFooterMotionProps) {
             <m.div
               aria-hidden="true"
               initial={{
-                opacity: 0,
+                opacity: 1,
                 scaleX: 0,
               }}
               whileInView={{

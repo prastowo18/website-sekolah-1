@@ -127,7 +127,7 @@ function MediaCover({
         alt={label}
         fill
         sizes="(max-width: 639px) 100vw, (max-width: 1023px) 50vw, 33vw"
-        quality={75}
+        quality={78}
         className="object-cover"
       />
     </div>
