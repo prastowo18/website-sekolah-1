@@ -14,6 +14,7 @@ import {
   Newspaper,
   Quote,
   Settings,
+  Share2,
   ShieldCheck,
   School,
   Shapes,
@@ -110,6 +111,11 @@ const publicationItems: NavigationItem[] = [
     title: "Testimoni",
     href: "/konsol-8m4q7x2k9v6d/testimoni",
     icon: Quote,
+  },
+  {
+    title: "Media Sosial",
+    href: "/konsol-8m4q7x2k9v6d/media-sosial",
+    icon: Share2,
   },
   {
     title: "Informasi PPDB",

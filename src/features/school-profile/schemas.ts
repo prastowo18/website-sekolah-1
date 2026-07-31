@@ -1,5 +1,7 @@
 import { z } from "zod";
 
+import { normalizeGoogleMapsUrl } from "./google-maps-url";
+
 const currentYear = new Date().getFullYear();
 
 function optionalText(maximumLength: number, message: string) {
@@ -34,6 +36,40 @@ const optionalMediaUrl = z
   .max(4_000, "URL media maksimal 4.000 karakter.")
   .refine(isValidMediaUrl, "URL media tidak valid.")
   .transform((value) => value || null);
+
+const optionalGoogleMapsUrl = z
+  .string()
+  .trim()
+  .max(4_000, "URL Google Maps maksimal 4.000 karakter.")
+  .refine(
+    (value) => value === "" || normalizeGoogleMapsUrl(value) !== null,
+    "Gunakan URL HTTPS Google Maps yang valid.",
+  )
+  .transform((value) => (value ? normalizeGoogleMapsUrl(value) : null));
+
+function optionalCoordinate({
+  label,
+  minimum,
+  maximum,
+}: {
+  label: string;
+  minimum: number;
+  maximum: number;
+}) {
+  return z
+    .string()
+    .trim()
+    .refine((value) => {
+      if (value === "") {
+        return true;
+      }
+
+      const parsed = Number(value);
+
+      return Number.isFinite(parsed) && parsed >= minimum && parsed <= maximum;
+    }, `${label} harus berada antara ${minimum} dan ${maximum}.`)
+    .transform((value) => (value === "" ? null : Number(value)));
+}
 
 const optionalEmail = z
   .string()
@@ -98,11 +134,8 @@ export const schoolProfileSchema = z.object({
     .transform((value) => value || null),
 
   logoUrl: optionalMediaUrl,
-
   faviconUrl: optionalMediaUrl,
-
   heroImageUrl: optionalMediaUrl,
-
   principalPhotoUrl: optionalMediaUrl,
 
   tagline: optionalText(220, "Tagline maksimal 220 karakter."),
@@ -117,9 +150,7 @@ export const schoolProfileSchema = z.object({
   vision: optionalText(5_000, "Visi sekolah maksimal 5.000 karakter."),
 
   mission: multilineList,
-
   goals: multilineList,
-
   schoolValues: multilineList,
 
   accreditation: optionalText(50, "Akreditasi maksimal 50 karakter."),
@@ -162,12 +193,24 @@ export const schoolProfileSchema = z.object({
     .transform((value) => value || null),
 
   phone: optionalPhone,
-
   whatsapp: optionalPhone,
-
   email: optionalEmail,
 
   operationalHours: optionalText(180, "Jam operasional maksimal 180 karakter."),
+
+  mapEmbedUrl: optionalGoogleMapsUrl,
+
+  latitude: optionalCoordinate({
+    label: "Latitude",
+    minimum: -90,
+    maximum: 90,
+  }),
+
+  longitude: optionalCoordinate({
+    label: "Longitude",
+    minimum: -180,
+    maximum: 180,
+  }),
 });
 
 export type SchoolProfileInput = z.infer<typeof schoolProfileSchema>;

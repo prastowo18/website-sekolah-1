@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import {
+  Clock3,
   Mail,
   MapPin,
   MessageCircle,
@@ -11,14 +12,40 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PublicContactForm } from "@/features/contact-message/components/public-contact-form";
+import { GoogleMapFrame } from "@/features/public-site/components/google-map-frame";
 import { getPublicSchoolProfile } from "@/features/public-site/queries";
 import { toPhoneHref, toWhatsAppHref } from "@/lib/public-links";
 
-export const metadata: Metadata = {
-  title: "Kontak",
-  description:
-    "Hubungi sekolah untuk mendapatkan informasi mengenai kegiatan, pelayanan, program pendidikan, dan PPDB.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const profile = await getPublicSchoolProfile();
+
+  const schoolName = profile?.schoolName ?? "Sekolah Dasar";
+
+  return {
+    title: "Kontak",
+    description: `Alamat, telepon, WhatsApp, email, jam layanan, dan lokasi resmi ${schoolName}.`,
+  };
+}
+
+function buildAddress(profile: {
+  address: string | null;
+  village: string | null;
+  district: string | null;
+  city: string | null;
+  province: string | null;
+  postalCode: string | null;
+}): string {
+  return [
+    profile.address,
+    profile.village,
+    profile.district,
+    profile.city,
+    profile.province,
+    profile.postalCode,
+  ]
+    .filter(Boolean)
+    .join(", ");
+}
 
 export default async function ContactPage() {
   const profile = await getPublicSchoolProfile();
@@ -31,6 +58,8 @@ export default async function ContactPage() {
         `Halo ${profile.schoolName}, saya ingin menanyakan informasi mengenai sekolah.`,
       )
     : null;
+
+  const address = profile ? buildAddress(profile) : "";
 
   return (
     <main>
@@ -62,6 +91,20 @@ export default async function ContactPage() {
             </CardHeader>
 
             <CardContent className="space-y-5">
+              {address ? (
+                <div className="flex items-start gap-3">
+                  <MapPin className="mt-0.5 size-5 shrink-0 text-primary" />
+
+                  <div>
+                    <p className="font-medium">Alamat</p>
+
+                    <p className="mt-1 text-sm leading-6 text-muted-foreground">
+                      {address}
+                    </p>
+                  </div>
+                </div>
+              ) : null}
+
               {profile?.phone && phoneHref ? (
                 <div className="flex items-start gap-3">
                   <Phone className="mt-0.5 size-5 shrink-0 text-primary" />
@@ -115,7 +158,25 @@ export default async function ContactPage() {
                 </div>
               ) : null}
 
-              {!profile?.phone && !profile?.whatsapp && !profile?.email ? (
+              {profile?.operationalHours ? (
+                <div className="flex items-start gap-3">
+                  <Clock3 className="mt-0.5 size-5 shrink-0 text-primary" />
+
+                  <div>
+                    <p className="font-medium">Jam layanan</p>
+
+                    <p className="mt-1 text-sm leading-6 text-muted-foreground">
+                      {profile.operationalHours}
+                    </p>
+                  </div>
+                </div>
+              ) : null}
+
+              {!address &&
+              !profile?.phone &&
+              !profile?.whatsapp &&
+              !profile?.email &&
+              !profile?.operationalHours ? (
                 <div className="rounded-lg border border-dashed p-5 text-sm leading-6 text-muted-foreground">
                   Informasi kontak sekolah belum diisi oleh administrator.
                 </div>
@@ -146,20 +207,44 @@ export default async function ContactPage() {
           ) : null}
         </aside>
 
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-2xl">Kirim Pesan</CardTitle>
+        <div className="space-y-8">
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-2xl">Kirim Pesan</CardTitle>
 
-            <p className="leading-7 text-muted-foreground">
-              Sekolah akan meninjau pesan dan memberikan tanggapan melalui email
-              atau nomor telepon yang dicantumkan.
-            </p>
-          </CardHeader>
+              <p className="leading-7 text-muted-foreground">
+                Sekolah akan meninjau pesan dan memberikan tanggapan melalui
+                email atau nomor telepon yang dicantumkan.
+              </p>
+            </CardHeader>
 
-          <CardContent>
-            <PublicContactForm />
-          </CardContent>
-        </Card>
+            <CardContent>
+              <PublicContactForm />
+            </CardContent>
+          </Card>
+
+          {profile ? (
+            <section>
+              <div className="mb-4">
+                <h2 className="text-2xl font-semibold tracking-tight">
+                  Lokasi Sekolah
+                </h2>
+
+                <p className="mt-1 text-sm text-muted-foreground">
+                  Lihat lokasi resmi sekolah melalui Google Maps.
+                </p>
+              </div>
+
+              <GoogleMapFrame
+                schoolName={profile.schoolName}
+                mapUrl={profile.mapEmbedUrl}
+                latitude={profile.latitude?.toString() ?? null}
+                longitude={profile.longitude?.toString() ?? null}
+                address={address}
+              />
+            </section>
+          ) : null}
+        </div>
       </div>
     </main>
   );

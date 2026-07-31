@@ -53,6 +53,9 @@ const profileSelect = {
   whatsapp: true,
   email: true,
   operationalHours: true,
+  mapEmbedUrl: true,
+  latitude: true,
+  longitude: true,
 } as const;
 
 type ProfileMediaField =
@@ -180,6 +183,9 @@ export async function updateSchoolProfileAction(
     whatsapp: formData.get("whatsapp"),
     email: formData.get("email"),
     operationalHours: formData.get("operationalHours"),
+    mapEmbedUrl: formData.get("mapEmbedUrl") ?? "",
+    latitude: formData.get("latitude") ?? "",
+    longitude: formData.get("longitude") ?? "",
   });
 
   if (!parsed.success) {

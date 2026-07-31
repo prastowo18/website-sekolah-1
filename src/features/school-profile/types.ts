@@ -27,7 +27,10 @@ export type SchoolProfileFieldName =
   | "phone"
   | "whatsapp"
   | "email"
-  | "operationalHours";
+  | "operationalHours"
+  | "mapEmbedUrl"
+  | "latitude"
+  | "longitude";
 
 export type SchoolProfileActionState = {
   status: "idle" | "success" | "error";

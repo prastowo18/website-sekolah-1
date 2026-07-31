@@ -23,6 +23,8 @@ import {
 import Link from "next/link";
 import type { ReactNode } from "react";
 
+import { MotionReveal } from "@/components/motion/motion-reveal";
+
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -66,7 +68,7 @@ function SectionHeading({
   description?: string;
 }) {
   return (
-    <div className="mx-auto mb-8 max-w-3xl text-center">
+    <MotionReveal className="mx-auto mb-8 max-w-3xl text-center">
       <p className="text-sm font-semibold uppercase tracking-[0.18em] text-primary">
         {eyebrow}
       </p>
@@ -78,7 +80,7 @@ function SectionHeading({
       {description ? (
         <p className="mt-4 leading-7 text-muted-foreground">{description}</p>
       ) : null}
-    </div>
+    </MotionReveal>
   );
 }
 
@@ -322,7 +324,10 @@ export default async function HomePage() {
       </section>
 
       <section className="border-b bg-background">
-        <div className="mx-auto grid max-w-7xl gap-4 px-4 py-8 sm:grid-cols-2 sm:px-6 lg:grid-cols-4 lg:px-8">
+        <MotionReveal
+          className="mx-auto grid max-w-7xl gap-4 px-4 py-8 sm:grid-cols-2 sm:px-6 lg:grid-cols-4 lg:px-8"
+          delay={0.05}
+        >
           {[
             {
               label: "Guru dan Tenaga Pendidikan",
@@ -361,7 +366,7 @@ export default async function HomePage() {
               </CardContent>
             </Card>
           ))}
-        </div>
+        </MotionReveal>
       </section>
 
       <section id="profil" className="scroll-mt-24 py-16 sm:py-20">

@@ -47,12 +47,56 @@ export default async function SchoolProfilePage() {
       whatsapp: true,
       email: true,
       operationalHours: true,
+      mapEmbedUrl: true,
+      latitude: true,
+      longitude: true,
     },
   });
 
   const canEdit =
     session.user.role === UserRole.SUPER_ADMIN ||
     session.user.role === UserRole.CONTENT_ADMIN;
+
+  const formProfile = profile
+    ? {
+        ...profile,
+        latitude: profile.latitude?.toString() ?? null,
+        longitude: profile.longitude?.toString() ?? null,
+      }
+    : {
+        schoolName: "Nama Sekolah",
+        shortName: null,
+        npsn: null,
+        logoUrl: null,
+        faviconUrl: null,
+        heroImageUrl: null,
+        tagline: null,
+        shortDescription: null,
+        history: null,
+        vision: null,
+        mission: [],
+        goals: [],
+        schoolValues: [],
+        accreditation: null,
+        foundedYear: null,
+        principalName: null,
+        principalTitle: null,
+        principalPhotoUrl: null,
+        principalGreeting: null,
+        address: null,
+        village: null,
+        district: null,
+        city: null,
+        province: null,
+        postalCode: null,
+        phone: null,
+        whatsapp: null,
+        email: null,
+        operationalHours: null,
+        mapEmbedUrl: null,
+        latitude: null,
+        longitude: null,
+      };
 
   return (
     <div className="mx-auto w-full max-w-6xl space-y-6">
@@ -62,47 +106,12 @@ export default async function SchoolProfilePage() {
         </h1>
 
         <p className="mt-1 text-sm text-muted-foreground">
-          Kelola identitas, media, sejarah, visi, kontak, dan informasi kepala
+          Kelola identitas, media, sejarah, lokasi, kontak, dan informasi kepala
           sekolah.
         </p>
       </div>
 
-      <SchoolProfileForm
-        canEdit={canEdit}
-        profile={
-          profile ?? {
-            schoolName: "Nama Sekolah",
-            shortName: null,
-            npsn: null,
-            logoUrl: null,
-            faviconUrl: null,
-            heroImageUrl: null,
-            tagline: null,
-            shortDescription: null,
-            history: null,
-            vision: null,
-            mission: [],
-            goals: [],
-            schoolValues: [],
-            accreditation: null,
-            foundedYear: null,
-            principalName: null,
-            principalTitle: null,
-            principalPhotoUrl: null,
-            principalGreeting: null,
-            address: null,
-            village: null,
-            district: null,
-            city: null,
-            province: null,
-            postalCode: null,
-            phone: null,
-            whatsapp: null,
-            email: null,
-            operationalHours: null,
-          }
-        }
-      />
+      <SchoolProfileForm canEdit={canEdit} profile={formProfile} />
     </div>
   );
 }

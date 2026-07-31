@@ -1,0 +1,139 @@
+import { ExternalLink, MapPin } from "lucide-react";
+
+import { Button } from "@/components/ui/button";
+import { normalizeGoogleMapsUrl } from "@/features/school-profile/google-maps-url";
+
+type GoogleMapFrameProps = {
+  schoolName: string;
+  mapUrl: string | null;
+  latitude: string | null;
+  longitude: string | null;
+};
+
+function getCoordinateUrl(
+  latitude: string | null,
+  longitude: string | null,
+): string | null {
+  if (!latitude || !longitude) {
+    return null;
+  }
+
+  const parsedLatitude = Number(latitude);
+  const parsedLongitude = Number(longitude);
+
+  if (
+    !Number.isFinite(parsedLatitude) ||
+    !Number.isFinite(parsedLongitude) ||
+    parsedLatitude < -90 ||
+    parsedLatitude > 90 ||
+    parsedLongitude < -180 ||
+    parsedLongitude > 180
+  ) {
+    return null;
+  }
+
+  const coordinates = encodeURIComponent(
+    `${parsedLatitude},${parsedLongitude}`,
+  );
+
+  return `https://www.google.com/maps/search/?api=1&query=${coordinates}`;
+}
+
+function getEmbedUrl(value: string | null): string | null {
+  if (!value) {
+    return null;
+  }
+
+  const normalized = normalizeGoogleMapsUrl(value);
+
+  if (!normalized) {
+    return null;
+  }
+
+  try {
+    const url = new URL(normalized);
+
+    const isEmbed =
+      url.pathname.includes("/maps/embed") ||
+      url.searchParams.get("output") === "embed";
+
+    if (!isEmbed) {
+      return null;
+    }
+
+    url.protocol = "https:";
+    url.hostname = "www.google.com";
+    url.port = "";
+
+    return url.toString();
+  } catch {
+    return null;
+  }
+}
+
+export function GoogleMapFrame({
+  schoolName,
+  mapUrl,
+  latitude,
+  longitude,
+}: GoogleMapFrameProps) {
+  const normalizedMapUrl = mapUrl ? normalizeGoogleMapsUrl(mapUrl) : null;
+
+  const coordinateUrl = getCoordinateUrl(latitude, longitude);
+
+  const openMapUrl = normalizedMapUrl ?? coordinateUrl;
+
+  const embedUrl = getEmbedUrl(mapUrl);
+
+  if (!embedUrl) {
+    return (
+      <div className="flex min-h-72 flex-col items-center justify-center rounded-xl border border-dashed bg-muted/20 p-8 text-center">
+        <div className="flex size-14 items-center justify-center rounded-full bg-background shadow-sm">
+          <MapPin className="size-7 text-primary" />
+        </div>
+
+        <h3 className="mt-5 text-lg font-semibold">Lokasi sekolah</h3>
+
+        <p className="mt-2 max-w-md text-sm leading-6 text-muted-foreground">
+          Peta belum dapat ditampilkan langsung. Gunakan tombol berikut untuk
+          membuka lokasi sekolah di Google Maps.
+        </p>
+
+        {openMapUrl ? (
+          <Button className="mt-5" variant="outline" asChild>
+            <a href={openMapUrl} target="_blank" rel="noopener noreferrer">
+              <MapPin className="size-4" />
+              Buka di Google Maps
+              <ExternalLink className="size-4" />
+            </a>
+          </Button>
+        ) : null}
+      </div>
+    );
+  }
+
+  return (
+    <div className="overflow-hidden rounded-xl border">
+      <iframe
+        src={embedUrl}
+        title={`Peta lokasi ${schoolName}`}
+        className="h-[380px] w-full border-0"
+        loading="lazy"
+        referrerPolicy="no-referrer-when-downgrade"
+        allowFullScreen
+      />
+
+      {openMapUrl ? (
+        <div className="flex justify-end border-t bg-background p-4">
+          <Button variant="outline" size="sm" asChild>
+            <a href={openMapUrl} target="_blank" rel="noopener noreferrer">
+              <MapPin className="size-4" />
+              Buka di Google Maps
+              <ExternalLink className="size-4" />
+            </a>
+          </Button>
+        </div>
+      ) : null}
+    </div>
+  );
+}

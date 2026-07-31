@@ -38,10 +38,7 @@ export const getPublicSchoolProfile = cache(async () => {
       whatsapp: true,
       email: true,
       operationalHours: true,
-
       mapEmbedUrl: true,
-      latitude: true,
-      longitude: true,
       updatedAt: true,
     },
   });

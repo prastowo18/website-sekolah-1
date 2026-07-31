@@ -1,0 +1,346 @@
+import { ExternalLink, MapPin } from "lucide-react";
+
+import { Button } from "@/components/ui/button";
+import { normalizeGoogleMapsUrl } from "@/features/school-profile/google-maps-url";
+
+type GoogleMapFrameProps = {
+  schoolName: string;
+  mapUrl: string | null;
+  latitude: string | null;
+  longitude: string | null;
+  address?: string | null;
+};
+
+type Coordinates = {
+  latitude: number;
+  longitude: number;
+};
+
+function validateCoordinates(
+  latitude: number,
+  longitude: number,
+): Coordinates | null {
+  if (
+    !Number.isFinite(latitude) ||
+    !Number.isFinite(longitude) ||
+    latitude < -90 ||
+    latitude > 90 ||
+    longitude < -180 ||
+    longitude > 180
+  ) {
+    return null;
+  }
+
+  return {
+    latitude,
+    longitude,
+  };
+}
+
+function getCoordinates(
+  latitude: string | null,
+  longitude: string | null,
+): Coordinates | null {
+  if (!latitude || !longitude) {
+    return null;
+  }
+
+  return validateCoordinates(Number(latitude), Number(longitude));
+}
+
+function parseCoordinateText(value: string | null): Coordinates | null {
+  if (!value) {
+    return null;
+  }
+
+  const match = value
+    .trim()
+    .match(/^(-?\d+(?:\.\d+)?)\s*,\s*(-?\d+(?:\.\d+)?)$/);
+
+  if (!match) {
+    return null;
+  }
+
+  return validateCoordinates(Number(match[1]), Number(match[2]));
+}
+
+function getCoordinatesFromMapUrl(value: string | null): Coordinates | null {
+  if (!value) {
+    return null;
+  }
+
+  const normalized = normalizeGoogleMapsUrl(value);
+
+  if (!normalized) {
+    return null;
+  }
+
+  try {
+    const url = new URL(normalized);
+    const source = `${url.pathname}${url.search}${url.hash}`;
+
+    const coordinatePatterns = [
+      /@(-?\d+(?:\.\d+)?),(-?\d+(?:\.\d+)?)/,
+      /!3d(-?\d+(?:\.\d+)?)!4d(-?\d+(?:\.\d+)?)/,
+    ];
+
+    for (const pattern of coordinatePatterns) {
+      const match = source.match(pattern);
+
+      if (!match) {
+        continue;
+      }
+
+      const coordinates = validateCoordinates(
+        Number(match[1]),
+        Number(match[2]),
+      );
+
+      if (coordinates) {
+        return coordinates;
+      }
+    }
+
+    const queryCandidates = [
+      url.searchParams.get("q"),
+      url.searchParams.get("query"),
+      url.searchParams.get("destination"),
+      url.searchParams.get("ll"),
+    ];
+
+    for (const candidate of queryCandidates) {
+      const coordinates = parseCoordinateText(candidate);
+
+      if (coordinates) {
+        return coordinates;
+      }
+    }
+
+    return null;
+  } catch {
+    return null;
+  }
+}
+
+function getDirectEmbedUrl(value: string | null): string | null {
+  if (!value) {
+    return null;
+  }
+
+  const normalized = normalizeGoogleMapsUrl(value);
+
+  if (!normalized) {
+    return null;
+  }
+
+  try {
+    const url = new URL(normalized);
+
+    const isEmbedUrl =
+      url.pathname.startsWith("/maps/embed") ||
+      url.searchParams.get("output") === "embed";
+
+    if (!isEmbedUrl) {
+      return null;
+    }
+
+    url.protocol = "https:";
+    url.hostname = "www.google.com";
+    url.port = "";
+
+    return url.toString();
+  } catch {
+    return null;
+  }
+}
+
+function getMapSearchTerm(value: string | null): string | null {
+  if (!value) {
+    return null;
+  }
+
+  const normalized = normalizeGoogleMapsUrl(value);
+
+  if (!normalized) {
+    return null;
+  }
+
+  try {
+    const url = new URL(normalized);
+
+    const candidates = [
+      url.searchParams.get("q"),
+      url.searchParams.get("query"),
+      url.searchParams.get("destination"),
+    ];
+
+    for (const candidate of candidates) {
+      const normalizedCandidate = candidate?.trim();
+
+      if (normalizedCandidate && !parseCoordinateText(normalizedCandidate)) {
+        return normalizedCandidate;
+      }
+    }
+
+    const placeMatch =
+      url.pathname.match(/\/maps\/place\/([^/]+)/i) ??
+      url.pathname.match(/\/maps\/search\/([^/]+)/i);
+
+    if (!placeMatch?.[1]) {
+      return null;
+    }
+
+    return decodeURIComponent(placeMatch[1].replaceAll("+", " ")).trim();
+  } catch {
+    return null;
+  }
+}
+
+function buildSchoolAddressQuery(
+  schoolName: string,
+  address: string | null | undefined,
+): string | null {
+  const normalizedSchoolName = schoolName.trim();
+  const normalizedAddress = address?.trim();
+
+  if (normalizedSchoolName && normalizedAddress) {
+    return `${normalizedSchoolName}, ${normalizedAddress}`;
+  }
+
+  if (normalizedAddress) {
+    return normalizedAddress;
+  }
+
+  if (normalizedSchoolName) {
+    return normalizedSchoolName;
+  }
+
+  return null;
+}
+
+function buildCoordinateQuery(coordinates: Coordinates): string {
+  return `${coordinates.latitude},${coordinates.longitude}`;
+}
+
+function buildEmbedCoordinateQuery(coordinates: Coordinates): string {
+  return `loc:${coordinates.latitude},${coordinates.longitude}`;
+}
+
+function buildOpenMapUrl(query: string): string {
+  return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+    query,
+  )}`;
+}
+
+function buildEmbedUrl(query: string): string {
+  const params = new URLSearchParams({
+    q: query,
+    hl: "id",
+    z: "17",
+    iwloc: "B",
+    output: "embed",
+  });
+
+  return `https://www.google.com/maps?${params.toString()}`;
+}
+
+export function GoogleMapFrame({
+  schoolName,
+  mapUrl,
+  latitude,
+  longitude,
+  address,
+}: GoogleMapFrameProps) {
+  const normalizedMapUrl = mapUrl ? normalizeGoogleMapsUrl(mapUrl) : null;
+
+  const coordinates =
+    getCoordinates(latitude, longitude) ?? getCoordinatesFromMapUrl(mapUrl);
+
+  const schoolAddressQuery = buildSchoolAddressQuery(schoolName, address);
+
+  const mapSearchTerm = getMapSearchTerm(mapUrl);
+
+  /*
+   * URL embed lama dapat berisi Place ID Google yang sudah tidak valid.
+   * Karena itu koordinat dan alamat diprioritaskan untuk menghasilkan
+   * URL iframe baru tanpa bergantung pada Place ID lama.
+   */
+  /*
+   * URL embed resmi yang baru disalin dari Google Maps menjadi
+   * sumber utama karena mempertahankan tempat dan pin yang dipilih.
+   *
+   * Koordinat, nama sekolah, dan alamat hanya digunakan sebagai
+   * fallback apabila URL embed belum tersedia.
+   */
+  const directEmbedUrl = getDirectEmbedUrl(mapUrl);
+
+  const embedUrl =
+    directEmbedUrl ??
+    (coordinates
+      ? buildEmbedUrl(buildEmbedCoordinateQuery(coordinates))
+      : schoolAddressQuery
+        ? buildEmbedUrl(schoolAddressQuery)
+        : mapSearchTerm
+          ? buildEmbedUrl(mapSearchTerm)
+          : null);
+
+  const openMapUrl = coordinates
+    ? buildOpenMapUrl(buildCoordinateQuery(coordinates))
+    : schoolAddressQuery
+      ? buildOpenMapUrl(schoolAddressQuery)
+      : (normalizedMapUrl ??
+        (mapSearchTerm ? buildOpenMapUrl(mapSearchTerm) : null));
+
+  if (!embedUrl) {
+    return (
+      <div className="flex min-h-72 flex-col items-center justify-center rounded-xl border border-dashed bg-muted/20 p-8 text-center">
+        <div className="flex size-14 items-center justify-center rounded-full bg-background shadow-sm">
+          <MapPin className="size-7 text-primary" />
+        </div>
+
+        <h3 className="mt-5 text-lg font-semibold">Lokasi sekolah</h3>
+
+        <p className="mt-2 max-w-md text-sm leading-6 text-muted-foreground">
+          Data lokasi belum cukup untuk menampilkan peta. Masukkan latitude dan
+          longitude titik sekolah melalui Profil Sekolah.
+        </p>
+
+        {openMapUrl ? (
+          <Button className="mt-5" variant="outline" asChild>
+            <a href={openMapUrl} target="_blank" rel="noopener noreferrer">
+              <MapPin className="size-4" />
+              Buka di Google Maps
+              <ExternalLink className="size-4" />
+            </a>
+          </Button>
+        ) : null}
+      </div>
+    );
+  }
+
+  return (
+    <div className="overflow-hidden rounded-xl border bg-muted">
+      <iframe
+        key={embedUrl}
+        src={embedUrl}
+        title={`Peta lokasi ${schoolName}`}
+        className="h-[380px] w-full border-0 md:h-[460px]"
+        loading="lazy"
+        referrerPolicy="strict-origin-when-cross-origin"
+        allowFullScreen
+      />
+
+      {openMapUrl ? (
+        <div className="flex justify-end border-t bg-background p-4">
+          <Button variant="outline" size="sm" asChild>
+            <a href={openMapUrl} target="_blank" rel="noopener noreferrer">
+              <MapPin className="size-4" />
+              Buka di Google Maps
+              <ExternalLink className="size-4" />
+            </a>
+          </Button>
+        </div>
+      ) : null}
+    </div>
+  );
+}

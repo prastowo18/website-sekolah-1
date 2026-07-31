@@ -19,6 +19,7 @@ import { Spinner } from '@/components/ui/spinner';
 import { Textarea } from '@/components/ui/textarea';
 import { updateSchoolProfileAction } from '@/features/school-profile/actions';
 import { SchoolProfileMediaFields } from './school-profile-media-fields';
+import { SchoolProfileLocationFields } from './school-profile-location-fields';
 import {
   initialSchoolProfileActionState,
   type SchoolProfileFieldName,
@@ -54,6 +55,9 @@ type SchoolProfileFormData = {
   whatsapp: string | null;
   email: string | null;
   operationalHours: string | null;
+  mapEmbedUrl: string | null;
+  latitude: string | null;
+  longitude: string | null;
 };
 
 type SchoolProfileFormProps = {
@@ -696,6 +700,21 @@ export function SchoolProfileForm({
             <FieldError field="operationalHours" errors={state.fieldErrors} />
           </div>
         </div>
+      </FormSection>
+
+      <FormSection
+        title="Lokasi sekolah"
+        description="Kelola tautan Google Maps dan koordinat lokasi sekolah."
+      >
+        <SchoolProfileLocationFields
+          values={{
+            mapEmbedUrl: profile.mapEmbedUrl,
+            latitude: profile.latitude,
+            longitude: profile.longitude,
+          }}
+          errors={state.fieldErrors}
+          disabled={disabled}
+        />
       </FormSection>
 
       <FormSection
