@@ -17,6 +17,8 @@ import {
   Users,
 } from "lucide-react";
 
+import { ProfilePageMotionController } from "@/components/motion/profile-page-motion-controller";
+
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { getPublicSchoolProfile } from "@/features/public-site/queries";
@@ -103,6 +105,8 @@ export default async function PublicProfilePage() {
 
   return (
     <main>
+      <ProfilePageMotionController />
+
       <section
         className={
           heroImage

@@ -19,6 +19,8 @@ import {
   Users,
 } from "lucide-react";
 
+import { PublicPageMotionController } from "@/components/motion/public-page-motion-controller";
+
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -129,6 +131,7 @@ export default async function PublicPpdbPage() {
   if (!ppdb) {
     return (
       <main className="min-h-[70svh]">
+        <PublicPageMotionController pageId="ppdb" />
         <section className="border-b bg-muted/30">
           <div className="mx-auto flex max-w-6xl flex-col items-center px-4 py-20 text-center sm:px-6 lg:px-8">
             <div className="flex size-16 items-center justify-center rounded-full bg-primary/10">
@@ -169,6 +172,8 @@ export default async function PublicPpdbPage() {
 
   return (
     <main>
+      <PublicPageMotionController pageId="ppdb" />
+
       <section className="relative overflow-hidden border-b bg-muted/30">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(0,0,0,0.06),transparent_40%)]" />
 

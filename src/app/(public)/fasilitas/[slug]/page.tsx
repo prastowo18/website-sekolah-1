@@ -10,6 +10,8 @@ import {
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
+import { CatalogPagesMotionController } from "@/components/motion/catalog-pages-motion-controller";
+
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -80,6 +82,8 @@ export default async function FacilityDetailPage({
 
   return (
     <main>
+      <CatalogPagesMotionController pageId="facility-detail" />
+
       <header className="border-b bg-muted/30">
         <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 sm:py-16 lg:px-8">
           <Button variant="ghost" size="sm" asChild className="-ml-3">

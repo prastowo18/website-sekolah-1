@@ -13,6 +13,8 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 
+import { ContentListPagesMotionController } from "@/components/motion/content-list-pages-motion-controller";
+
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -156,6 +158,8 @@ export default async function PublicFaqPage({
 
   return (
     <main>
+      <ContentListPagesMotionController pageId="faq" />
+
       {result.faqs.length > 0 ? (
         <script
           type="application/ld+json"

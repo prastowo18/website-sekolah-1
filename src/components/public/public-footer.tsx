@@ -1,11 +1,14 @@
-import { Clock3, ExternalLink, Mail, MapPin, Phone } from "lucide-react";
-import Link from "next/link";
+import { FooterSocialPlatformIcon } from '@/components/public/footer-social-platform-icon';
+import { FooterSocialLinks } from '@/components/public/footer-social-links';
+
+import { Clock3, ExternalLink, Mail, MapPin, Phone } from 'lucide-react';
+import Link from 'next/link';
 
 import {
   getSafePublicUrl,
   toPhoneHref,
   toWhatsAppHref,
-} from "@/lib/public-links";
+} from '@/lib/public-links';
 
 type PublicFooterProps = {
   profile: {
@@ -34,7 +37,7 @@ type PublicFooterProps = {
   }>;
 };
 
-function buildAddress(profile: PublicFooterProps["profile"]): string {
+function buildAddress(profile: PublicFooterProps['profile']): string {
   return [
     profile.address,
     profile.village,
@@ -44,7 +47,7 @@ function buildAddress(profile: PublicFooterProps["profile"]): string {
     profile.postalCode,
   ]
     .filter(Boolean)
-    .join(", ");
+    .join(', ');
 }
 
 export function PublicFooter({ profile, socialLinks }: PublicFooterProps) {
@@ -242,10 +245,23 @@ export function PublicFooter({ profile, socialLinks }: PublicFooterProps) {
                 )}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-2 text-muted-foreground hover:text-foreground"
+                className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground"
               >
-                WhatsApp
-                <ExternalLink className="size-3.5" />
+                <FooterSocialPlatformIcon
+                  href={toWhatsAppHref(
+                    profile.whatsapp,
+                    `Halo ${profile.schoolName}, saya ingin memperoleh informasi lebih lanjut.`,
+                  )}
+                  label="WhatsApp"
+                  className="size-4 shrink-0"
+                />
+
+                <span>WhatsApp</span>
+
+                <ExternalLink
+                  aria-hidden="true"
+                  className="size-3.5 shrink-0"
+                />
               </a>
             ) : null}
 
@@ -262,8 +278,13 @@ export function PublicFooter({ profile, socialLinks }: PublicFooterProps) {
                   href={safeUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center gap-2 text-muted-foreground hover:text-foreground"
+                  className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground"
                 >
+                  <FooterSocialPlatformIcon
+                    href={safeUrl}
+                    label={link.label || link.platform}
+                    className="size-4 shrink-0"
+                  />
                   {link.label || link.platform}
 
                   <ExternalLink className="size-3.5" />
@@ -282,6 +303,9 @@ export function PublicFooter({ profile, socialLinks }: PublicFooterProps) {
 
           <p>Website profil dan pusat informasi resmi sekolah.</p>
         </div>
+      </div>
+      <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
+        <FooterSocialLinks links={socialLinks} />
       </div>
     </footer>
   );

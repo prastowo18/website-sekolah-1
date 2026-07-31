@@ -11,6 +11,8 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 
+import { CatalogPagesMotionController } from "@/components/motion/catalog-pages-motion-controller";
+
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -115,6 +117,8 @@ export default async function ExtracurricularPage({
 
   return (
     <main>
+      <CatalogPagesMotionController pageId="extracurricular-list" />
+
       <section className="border-b bg-muted/30">
         <div className="mx-auto max-w-7xl px-4 py-14 sm:px-6 sm:py-16 lg:px-8">
           <div className="max-w-3xl">

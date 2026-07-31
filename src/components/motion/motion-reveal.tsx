@@ -1,13 +1,10 @@
 "use client";
 
-import {
-  domAnimation,
-  LazyMotion,
-  m,
-  MotionConfig,
-  useReducedMotion,
-} from "motion/react";
+import { m, useInView, useReducedMotion } from "motion/react";
+import { useRef } from "react";
 import type { ReactNode } from "react";
+
+import { useHydrated } from "@/components/motion/use-hydrated";
 
 const defaultEasing = [0.16, 1, 0.3, 1] as const;
 
@@ -19,12 +16,6 @@ type MotionRevealProps = {
   duration?: number;
 };
 
-/**
- * Animasi masuk yang cukup terlihat tetapi tetap profesional.
- *
- * Konten tetap berada di HTML hasil render server. Komponen ini hanya
- * memberikan perubahan visual berupa opacity, translate, dan scale.
- */
 export function MotionReveal({
   children,
   className,
@@ -32,45 +23,54 @@ export function MotionReveal({
   distance = 42,
   duration = 0.78,
 }: MotionRevealProps) {
+  const elementRef = useRef<HTMLDivElement>(null);
+
+  const isInView = useInView(elementRef, {
+    once: true,
+    amount: 0.25,
+    margin: "0px 0px -8% 0px",
+  });
+
+  const isHydrated = useHydrated();
   const shouldReduceMotion = Boolean(useReducedMotion());
 
+  /*
+   * Pada server dan sebelum hydration, konten selalu terlihat.
+   * Setelah browser aktif, elemen di luar viewport dipersiapkan
+   * untuk animasi masuk.
+   */
+  const isVisible = !isHydrated || shouldReduceMotion || isInView;
+
   return (
-    <LazyMotion features={domAnimation} strict>
-      <MotionConfig reducedMotion="user">
+    <>
+      <>
         <m.div
-          initial={
-            shouldReduceMotion
-              ? false
+          ref={elementRef}
+          initial={false}
+          animate={
+            isVisible
+              ? {
+                  opacity: 1,
+                  y: 0,
+                  scale: 1,
+                }
               : {
-                  opacity: 0.18,
+                  opacity: 0.16,
                   y: distance,
                   scale: 0.96,
                 }
           }
-          whileInView={{
-            opacity: 1,
-            y: 0,
-            scale: 1,
-          }}
-          viewport={{
-            once: true,
-            amount: 0.28,
-            margin: "0px 0px -10% 0px",
-          }}
           transition={{
             duration: shouldReduceMotion ? 0 : duration,
-            delay: shouldReduceMotion ? 0 : delay,
+            delay: isVisible && isHydrated && !shouldReduceMotion ? delay : 0,
             ease: defaultEasing,
-          }}
-          style={{
-            willChange: shouldReduceMotion ? undefined : "transform, opacity",
           }}
           className={className}
           data-motion-reveal=""
         >
           {children}
         </m.div>
-      </MotionConfig>
-    </LazyMotion>
+      </>
+    </>
   );
 }

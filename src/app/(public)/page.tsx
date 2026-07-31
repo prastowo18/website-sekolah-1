@@ -24,6 +24,7 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 
 import { MotionReveal } from "@/components/motion/motion-reveal";
+import { MotionStagger } from "@/components/motion/motion-stagger";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -214,7 +215,14 @@ export default async function HomePage() {
     <main>
       {data.announcements.length > 0 ? (
         <section className="border-b bg-muted/40">
-          <div className="mx-auto grid max-w-7xl gap-2 px-4 py-3 sm:px-6 lg:px-8">
+          <MotionStagger
+            className="mx-auto grid max-w-7xl gap-2 px-4 py-3 sm:px-6 lg:px-8"
+            stagger={0.08}
+            distance={28}
+            duration={0.58}
+            hover={false}
+            amount={0.02}
+          >
             {data.announcements.map((announcement) => {
               const attachment = getSafePublicUrl(announcement.attachmentUrl);
 
@@ -257,7 +265,7 @@ export default async function HomePage() {
                 </div>
               );
             })}
-          </div>
+          </MotionStagger>
         </section>
       ) : null}
 
@@ -280,7 +288,14 @@ export default async function HomePage() {
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.18),transparent_38%)]" />
 
         <div className="relative mx-auto flex min-h-[620px] max-w-7xl items-center px-4 py-20 sm:px-6 lg:px-8">
-          <div className="max-w-3xl">
+          <MotionStagger
+            className="max-w-3xl"
+            stagger={0.12}
+            distance={52}
+            duration={0.86}
+            hover={false}
+            amount={0.08}
+          >
             <Badge variant="secondary" className="mb-6 px-3 py-1">
               <School className="size-3.5" />
               Website Resmi Sekolah
@@ -319,7 +334,7 @@ export default async function HomePage() {
                 <Link href="/profil">Mengenal Sekolah</Link>
               </Button>
             </div>
-          </div>
+          </MotionStagger>
         </div>
       </section>
 
@@ -471,7 +486,12 @@ export default async function HomePage() {
               description="Program pendidikan disusun untuk mendukung kemampuan akademik, karakter, kreativitas, dan keterampilan sosial siswa."
             />
 
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            <MotionStagger
+              className="grid gap-6 md:grid-cols-2 lg:grid-cols-3"
+              stagger={0.09}
+              distance={40}
+              duration={0.72}
+            >
               {data.programs.map((program) => (
                 <Card key={program.id} className="overflow-hidden">
                   <MediaCover
@@ -507,7 +527,7 @@ export default async function HomePage() {
                   </CardContent>
                 </Card>
               ))}
-            </div>
+            </MotionStagger>
           </div>
         </section>
       ) : null}
@@ -521,7 +541,12 @@ export default async function HomePage() {
               description="Fasilitas sekolah mendukung kegiatan belajar, pengembangan minat, kesehatan, keamanan, dan kenyamanan siswa."
             />
 
-            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+            <MotionStagger
+              className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4"
+              stagger={0.09}
+              distance={40}
+              duration={0.72}
+            >
               {data.facilities.map((facility) => (
                 <Card key={facility.id} className="overflow-hidden">
                   <MediaCover
@@ -560,7 +585,7 @@ export default async function HomePage() {
                   </CardContent>
                 </Card>
               ))}
-            </div>
+            </MotionStagger>
           </div>
         </section>
       ) : null}
@@ -577,7 +602,12 @@ export default async function HomePage() {
               description="Prestasi merupakan hasil proses belajar, kerja sama, kedisiplinan, dan dukungan seluruh warga sekolah."
             />
 
-            <div className="grid gap-6 md:grid-cols-3">
+            <MotionStagger
+              className="grid gap-6 md:grid-cols-3"
+              stagger={0.09}
+              distance={40}
+              duration={0.72}
+            >
               {data.achievements.map((achievement) => (
                 <Card key={achievement.id} className="overflow-hidden">
                   <MediaCover
@@ -630,7 +660,7 @@ export default async function HomePage() {
                   </CardContent>
                 </Card>
               ))}
-            </div>
+            </MotionStagger>
           </div>
         </section>
       ) : null}
@@ -644,7 +674,12 @@ export default async function HomePage() {
               description="Kegiatan ekstrakurikuler membantu siswa mengembangkan minat, bakat, kepemimpinan, kesehatan, dan kemampuan bekerja sama."
             />
 
-            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+            <MotionStagger
+              className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4"
+              stagger={0.09}
+              distance={40}
+              duration={0.72}
+            >
               {data.extracurriculars.map((activity) => (
                 <Card key={activity.id} className="overflow-hidden">
                   <MediaCover
@@ -687,7 +722,7 @@ export default async function HomePage() {
                   </CardContent>
                 </Card>
               ))}
-            </div>
+            </MotionStagger>
           </div>
         </section>
       ) : null}
@@ -704,7 +739,12 @@ export default async function HomePage() {
               description="Ikuti kegiatan pembelajaran, pencapaian, agenda, serta kabar terbaru dari lingkungan sekolah."
             />
 
-            <div className="grid gap-6 md:grid-cols-3">
+            <MotionStagger
+              className="grid gap-6 md:grid-cols-3"
+              stagger={0.09}
+              distance={40}
+              duration={0.72}
+            >
               {data.posts.map((post) => (
                 <Card key={post.id} className="overflow-hidden">
                   <MediaCover
@@ -750,7 +790,7 @@ export default async function HomePage() {
                   </CardContent>
                 </Card>
               ))}
-            </div>
+            </MotionStagger>
           </div>
         </section>
       ) : null}
@@ -764,7 +804,12 @@ export default async function HomePage() {
               description="Beragam aktivitas pembelajaran, kreativitas, kebersamaan, dan pencapaian warga sekolah."
             />
 
-            <div className="grid gap-6 md:grid-cols-3">
+            <MotionStagger
+              className="grid gap-6 md:grid-cols-3"
+              stagger={0.09}
+              distance={40}
+              duration={0.72}
+            >
               {data.galleryAlbums.map((album) => {
                 const firstMedia = album.media[0];
 
@@ -813,7 +858,7 @@ export default async function HomePage() {
                   </Card>
                 );
               })}
-            </div>
+            </MotionStagger>
           </div>
         </section>
       ) : null}
@@ -827,7 +872,12 @@ export default async function HomePage() {
               description="Pandangan orang tua, alumni, siswa, dan masyarakat mengenai pengalaman bersama sekolah."
             />
 
-            <div className="grid gap-6 md:grid-cols-3">
+            <MotionStagger
+              className="grid gap-6 md:grid-cols-3"
+              stagger={0.09}
+              distance={40}
+              duration={0.72}
+            >
               {data.testimonials.map((testimonial) => (
                 <Card key={testimonial.id}>
                   <CardContent className="pt-6">
@@ -856,7 +906,7 @@ export default async function HomePage() {
                   </CardContent>
                 </Card>
               ))}
-            </div>
+            </MotionStagger>
           </div>
 
           <div className="mt-10 text-center">

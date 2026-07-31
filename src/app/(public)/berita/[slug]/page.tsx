@@ -10,6 +10,8 @@ import {
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
+import { InformationPagesMotionController } from "@/components/motion/information-pages-motion-controller";
+
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -77,6 +79,8 @@ export default async function PostDetailPage({
 
   return (
     <main>
+      <InformationPagesMotionController pageId="news-detail" />
+
       <PostViewTracker slug={post.slug} />
 
       <article>

@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 
+import { PublicMotionProvider } from "@/components/motion/public-motion-provider";
 import { FloatingWhatsAppButton } from "@/components/public/floating-whatsapp-button";
+import { PublicFooterMotion } from "@/components/motion/public-footer-motion";
 import { PublicFooter } from "@/components/public/public-footer";
 import { PublicNavigation } from "@/components/public/public-navigation";
 import { SkipToContent } from "@/components/public/skip-to-content";
@@ -131,29 +133,33 @@ export default async function PublicLayout({
   };
 
   return (
-    <>
-      <SkipToContent />
+    <PublicMotionProvider>
+      <>
+        <SkipToContent />
 
-      <PublicNavigation
-        schoolName={publicProfile.schoolName}
-        shortName={publicProfile.shortName}
-        logoUrl={profile?.logoUrl ?? null}
-        hasPpdb={ppdb !== null}
-      />
-
-      <div id="main-content" tabIndex={-1}>
-        {children}
-      </div>
-
-      <PublicFooter profile={publicProfile} socialLinks={socialLinks} />
-
-      {publicProfile.whatsapp ? (
-        <FloatingWhatsAppButton
-          phone={publicProfile.whatsapp}
+        <PublicNavigation
           schoolName={publicProfile.schoolName}
+          shortName={publicProfile.shortName}
+          logoUrl={profile?.logoUrl ?? null}
+          hasPpdb={ppdb !== null}
         />
-      ) : null}
-    </>
+
+        <div id="main-content" tabIndex={-1}>
+          {children}
+        </div>
+
+        <PublicFooterMotion>
+          <PublicFooter profile={publicProfile} socialLinks={socialLinks} />
+        </PublicFooterMotion>
+
+        {publicProfile.whatsapp ? (
+          <FloatingWhatsAppButton
+            phone={publicProfile.whatsapp}
+            schoolName={publicProfile.schoolName}
+          />
+        ) : null}
+      </>
+    </PublicMotionProvider>
   );
 }
 

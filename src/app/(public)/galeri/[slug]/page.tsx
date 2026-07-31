@@ -3,6 +3,8 @@ import { ArrowLeft, CalendarDays, Images } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
+import { InformationPagesMotionController } from "@/components/motion/information-pages-motion-controller";
+
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { PublicGalleryMedia } from "@/features/gallery/components/public-gallery-media";
@@ -76,6 +78,8 @@ export default async function GalleryDetailPage({
 
   return (
     <main>
+      <InformationPagesMotionController pageId="gallery-detail" />
+
       <header className="border-b bg-muted/30">
         <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 sm:py-16 lg:px-8">
           <Button variant="ghost" size="sm" asChild className="-ml-3">

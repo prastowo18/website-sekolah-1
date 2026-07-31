@@ -13,6 +13,8 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 
+import { TeacherPagesMotionController } from "@/components/motion/teacher-pages-motion-controller";
+
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -134,6 +136,8 @@ export default async function TeacherPage({
 
   return (
     <main>
+      <TeacherPagesMotionController pageId="teacher-list" />
+
       <section className="border-b bg-muted/30">
         <div className="mx-auto max-w-7xl px-4 py-14 sm:px-6 sm:py-16 lg:px-8">
           <div className="max-w-3xl">
