@@ -21,6 +21,9 @@ import { getPublicFacilityList } from "@/features/facility/public-queries";
 import { getSafePublicUrl } from "@/lib/public-links";
 
 export const metadata: Metadata = {
+  alternates: {
+    canonical: "/fasilitas",
+  },
   title: "Fasilitas Sekolah",
   description:
     "Informasi ruang belajar, sarana pendukung, dan fasilitas yang tersedia di sekolah.",

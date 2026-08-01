@@ -1,7 +1,12 @@
 import { NextResponse } from "next/server";
+import { z } from "zod";
 
 import { normalizeGoogleDriveUrl } from "@/features/download-document/google-drive-url";
 import { prisma } from "@/lib/prisma";
+import {
+  buildRequestFingerprint,
+  consumePublicRateLimit,
+} from "@/lib/public-request-security";
 
 export const dynamic = "force-dynamic";
 
@@ -11,8 +16,39 @@ type RouteContext = {
   }>;
 };
 
-export async function GET(_request: Request, context: RouteContext) {
-  const { slug } = await context.params;
+const routeParamsSchema = z.object({
+  slug: z
+    .string()
+    .trim()
+    .min(1)
+    .max(220)
+    .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, "Slug dokumen tidak valid."),
+});
+
+const DOWNLOAD_RATE_LIMIT_WINDOW_MS = 15 * 60 * 1000;
+const DOWNLOAD_RATE_LIMIT_MAX_REQUESTS = 10;
+
+const noStoreHeaders = {
+  "Cache-Control": "private, no-store, max-age=0, must-revalidate",
+  "X-Robots-Tag": "noindex, nofollow, noarchive, nosnippet",
+};
+
+export async function GET(request: Request, context: RouteContext) {
+  const parsed = routeParamsSchema.safeParse(await context.params);
+
+  if (!parsed.success) {
+    return NextResponse.json(
+      {
+        message: "Slug dokumen tidak valid.",
+      },
+      {
+        status: 400,
+        headers: noStoreHeaders,
+      },
+    );
+  }
+
+  const { slug } = parsed.data;
 
   const document = await prisma.downloadDocument.findFirst({
     where: {
@@ -32,6 +68,7 @@ export async function GET(_request: Request, context: RouteContext) {
       },
       {
         status: 404,
+        headers: noStoreHeaders,
       },
     );
   }
@@ -45,20 +82,40 @@ export async function GET(_request: Request, context: RouteContext) {
       },
       {
         status: 422,
+        headers: noStoreHeaders,
       },
     );
   }
 
-  await prisma.downloadDocument.update({
-    where: {
-      id: document.id,
-    },
-    data: {
-      downloadCount: {
-        increment: 1,
-      },
-    },
+  const requestFingerprint = buildRequestFingerprint(request.headers);
+
+  const shouldIncrement = consumePublicRateLimit({
+    scope: "document-download",
+    key: `${requestFingerprint}:${slug}`,
+    windowMs: DOWNLOAD_RATE_LIMIT_WINDOW_MS,
+    maxRequests: DOWNLOAD_RATE_LIMIT_MAX_REQUESTS,
   });
 
-  return NextResponse.redirect(new URL(googleDriveUrl), 307);
+  if (shouldIncrement) {
+    await prisma.downloadDocument.update({
+      where: {
+        id: document.id,
+      },
+      data: {
+        downloadCount: {
+          increment: 1,
+        },
+      },
+    });
+  }
+
+  const response = NextResponse.redirect(new URL(googleDriveUrl), 307);
+
+  for (const [name, value] of Object.entries(noStoreHeaders)) {
+    response.headers.set(name, value);
+  }
+
+  response.headers.set("Referrer-Policy", "no-referrer");
+
+  return response;
 }

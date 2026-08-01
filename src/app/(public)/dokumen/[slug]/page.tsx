@@ -111,6 +111,7 @@ export async function generateMetadata({
   params: Promise<PageParams>;
 }): Promise<Metadata> {
   const { slug } = await params;
+  const canonicalPath = `/dokumen/${encodeURIComponent(slug)}`;
   const document = await getPublicDocumentBySlug(slug);
 
   if (!document) {
@@ -120,6 +121,9 @@ export async function generateMetadata({
   }
 
   return {
+    alternates: {
+      canonical: canonicalPath,
+    },
     title: document.name,
     description: createDescription(document.description),
   };

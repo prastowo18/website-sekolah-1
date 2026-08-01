@@ -31,6 +31,9 @@ import {
 import { getSafePublicUrl } from "@/lib/public-links";
 
 export const metadata: Metadata = {
+  alternates: {
+    canonical: "/ekstrakurikuler",
+  },
   title: "Ekstrakurikuler",
   description:
     "Informasi kegiatan ekstrakurikuler untuk mengembangkan minat, bakat, kreativitas, kesehatan, dan keterampilan sosial siswa.",

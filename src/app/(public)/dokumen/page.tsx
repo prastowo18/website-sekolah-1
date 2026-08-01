@@ -35,6 +35,9 @@ import {
 } from "@/features/download-document/public-queries";
 
 export const metadata: Metadata = {
+  alternates: {
+    canonical: "/dokumen",
+  },
   title: "Dokumen",
   description:
     "Unduh dokumen, formulir, kalender, panduan, dan informasi resmi sekolah.",

@@ -24,6 +24,9 @@ export async function generateMetadata(): Promise<Metadata> {
   const schoolName = profile?.schoolName ?? "Sekolah Dasar";
 
   return {
+    alternates: {
+      canonical: "/kontak",
+    },
     title: "Kontak",
     description: `Alamat, telepon, WhatsApp, email, jam layanan, dan lokasi resmi ${schoolName}.`,
   };

@@ -41,6 +41,7 @@ export async function generateMetadata({
   params: Promise<PageParams>;
 }): Promise<Metadata> {
   const { slug } = await params;
+  const canonicalPath = `/program/${encodeURIComponent(slug)}`;
 
   const program = await getPublicProgramBySlug(slug);
 
@@ -51,6 +52,9 @@ export async function generateMetadata({
   }
 
   return {
+    alternates: {
+      canonical: canonicalPath,
+    },
     title: program.name,
     description: createDescription(
       program.shortDescription,

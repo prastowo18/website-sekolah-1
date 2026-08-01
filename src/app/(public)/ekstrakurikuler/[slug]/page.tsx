@@ -38,6 +38,7 @@ export async function generateMetadata({
   params: Promise<PageParams>;
 }): Promise<Metadata> {
   const { slug } = await params;
+  const canonicalPath = `/ekstrakurikuler/${encodeURIComponent(slug)}`;
 
   const activity = await getPublicExtracurricularBySlug(slug);
 
@@ -50,11 +51,15 @@ export async function generateMetadata({
   const imageUrl = getSafePublicUrl(activity.imageUrl);
 
   return {
+    alternates: {
+      canonical: canonicalPath,
+    },
     title: activity.name,
     description: createDescription(activity.description, activity.name),
 
     openGraph: imageUrl
       ? {
+          url: canonicalPath,
           title: activity.name,
           description: createDescription(activity.description, activity.name),
           images: [imageUrl],

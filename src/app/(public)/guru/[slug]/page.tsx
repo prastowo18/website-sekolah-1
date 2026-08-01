@@ -45,6 +45,7 @@ export async function generateMetadata({
   params: Promise<PageParams>;
 }): Promise<Metadata> {
   const { slug } = await params;
+  const canonicalPath = `/guru/${encodeURIComponent(slug)}`;
 
   const teacher = await getPublicTeacherBySlug(slug);
 
@@ -57,6 +58,9 @@ export async function generateMetadata({
   const photoUrl = getSafePublicUrl(teacher.photoUrl);
 
   return {
+    alternates: {
+      canonical: canonicalPath,
+    },
     title: teacher.name,
     description: createDescription(
       teacher.shortBiography,
@@ -65,6 +69,7 @@ export async function generateMetadata({
     ),
     openGraph: photoUrl
       ? {
+          url: canonicalPath,
           title: teacher.name,
           description: createDescription(
             teacher.shortBiography,

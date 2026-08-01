@@ -39,6 +39,7 @@ export async function generateMetadata({
   params: Promise<PageParams>;
 }): Promise<Metadata> {
   const { slug } = await params;
+  const canonicalPath = `/galeri/${encodeURIComponent(slug)}`;
 
   const album = await getPublicGalleryAlbumBySlug(slug);
 
@@ -51,10 +52,14 @@ export async function generateMetadata({
   const coverUrl = getSafePublicUrl(album.coverImageUrl);
 
   return {
+    alternates: {
+      canonical: canonicalPath,
+    },
     title: album.title,
     description: createDescription(album.description),
     openGraph: coverUrl
       ? {
+          url: canonicalPath,
           title: album.title,
           description: createDescription(album.description),
           images: [coverUrl],

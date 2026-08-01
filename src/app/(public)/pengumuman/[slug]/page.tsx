@@ -84,6 +84,7 @@ export async function generateMetadata({
   params: Promise<PageParams>;
 }): Promise<Metadata> {
   const { slug } = await params;
+  const canonicalPath = `/pengumuman/${encodeURIComponent(slug)}`;
 
   const announcement = await getPublicAnnouncementBySlug(slug);
 
@@ -94,6 +95,9 @@ export async function generateMetadata({
   }
 
   return {
+    alternates: {
+      canonical: canonicalPath,
+    },
     title: announcement.title,
     description: createDescription(announcement.content),
   };

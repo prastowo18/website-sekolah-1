@@ -37,12 +37,18 @@ export async function generateMetadata(): Promise<Metadata> {
 
   if (!ppdb) {
     return {
+      alternates: {
+        canonical: "/ppdb",
+      },
       title: "Informasi PPDB",
       description: "Informasi penerimaan peserta didik baru.",
     };
   }
 
   return {
+    alternates: {
+      canonical: "/ppdb",
+    },
     title: `${ppdb.title} ${ppdb.academicYear}`,
     description:
       ppdb.shortDescription ??

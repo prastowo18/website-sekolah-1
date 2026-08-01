@@ -30,6 +30,9 @@ import {
 import { getSafePublicUrl } from "@/lib/public-links";
 
 export const metadata: Metadata = {
+  alternates: {
+    canonical: "/testimoni",
+  },
   title: "Testimoni",
   description:
     "Pengalaman dan pandangan orang tua, alumni, siswa, serta masyarakat mengenai sekolah.",

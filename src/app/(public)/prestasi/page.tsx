@@ -34,6 +34,9 @@ import {
 import { getSafePublicUrl } from "@/lib/public-links";
 
 export const metadata: Metadata = {
+  alternates: {
+    canonical: "/prestasi",
+  },
   title: "Prestasi Sekolah",
   description:
     "Prestasi siswa, guru, dan sekolah dalam berbagai bidang serta tingkat kompetisi.",

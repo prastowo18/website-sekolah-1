@@ -65,6 +65,7 @@ export async function generateMetadata({
   params: Promise<PageParams>;
 }): Promise<Metadata> {
   const { slug } = await params;
+  const canonicalPath = `/prestasi/${encodeURIComponent(slug)}`;
 
   const achievement = await getPublicAchievementBySlug(slug);
 
@@ -77,10 +78,14 @@ export async function generateMetadata({
   const imageUrl = getSafePublicUrl(achievement.imageUrl);
 
   return {
+    alternates: {
+      canonical: canonicalPath,
+    },
     title: achievement.title,
     description: createDescription(achievement.description, achievement.title),
     openGraph: imageUrl
       ? {
+          url: canonicalPath,
           title: achievement.title,
           description: createDescription(
             achievement.description,

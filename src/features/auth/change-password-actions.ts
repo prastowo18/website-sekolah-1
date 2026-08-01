@@ -14,6 +14,17 @@ import { prisma } from "@/lib/prisma";
 import { changePasswordSchema } from "./change-password-schema";
 import type { ChangePasswordActionState } from "./change-password-types";
 
+function reportServerError(context: string, error: unknown): void {
+  if (process.env.NODE_ENV === "development") {
+    console.error(context, error);
+    return;
+  }
+
+  console.error(context, {
+    name: error instanceof Error ? error.name : "UnknownError",
+  });
+}
+
 export async function changePasswordAction(
   _previousState: ChangePasswordActionState,
   formData: FormData,
@@ -58,7 +69,7 @@ export async function changePasswordAction(
       },
     });
   } catch (error: unknown) {
-    console.error("Gagal membaca akun pengguna.", error);
+    reportServerError("Pembacaan akun pengguna gagal.", error);
 
     return {
       status: "error",
@@ -129,7 +140,7 @@ export async function changePasswordAction(
 
     await createSession(user.id);
   } catch (error: unknown) {
-    console.error("Gagal mengubah password.", error);
+    reportServerError("Perubahan kredensial gagal.", error);
 
     return {
       status: "error",

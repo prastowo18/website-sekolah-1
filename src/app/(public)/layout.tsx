@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { isIndexableDeployment } from "@/lib/site-url";
 
 import { PublicMotionProvider } from "@/components/motion/public-motion-provider";
 import { FloatingWhatsAppButton } from "@/components/public/floating-whatsapp-button";
@@ -44,6 +45,8 @@ export async function generateMetadata(): Promise<Metadata> {
 
   const keywords = parseKeywords(settings.keywords);
 
+  const allowIndexing = isIndexableDeployment() && settings.allowIndexing;
+
   return {
     title: {
       default: defaultTitle,
@@ -60,7 +63,7 @@ export async function generateMetadata(): Promise<Metadata> {
         }
       : undefined,
 
-    robots: settings.allowIndexing
+    robots: allowIndexing
       ? {
           index: true,
           follow: true,

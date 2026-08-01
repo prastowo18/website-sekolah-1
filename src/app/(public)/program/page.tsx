@@ -29,6 +29,9 @@ import { getPublicProgramList } from "@/features/program/public-queries";
 import { getSafePublicUrl } from "@/lib/public-links";
 
 export const metadata: Metadata = {
+  alternates: {
+    canonical: "/program",
+  },
   title: "Program Pendidikan",
   description:
     "Program pendidikan reguler dan unggulan yang mendukung perkembangan akademik, karakter, kreativitas, dan keterampilan siswa.",

@@ -20,6 +20,9 @@ import { getPublicGalleryAlbumList } from "@/features/gallery/public-queries";
 import { getSafePublicUrl } from "@/lib/public-links";
 
 export const metadata: Metadata = {
+  alternates: {
+    canonical: "/galeri",
+  },
   title: "Galeri",
   description:
     "Dokumentasi kegiatan, pembelajaran, prestasi, dan kebersamaan warga sekolah.",

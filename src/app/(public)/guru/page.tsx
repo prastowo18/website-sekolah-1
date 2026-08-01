@@ -34,6 +34,9 @@ import {
 import { getSafePublicUrl } from "@/lib/public-links";
 
 export const metadata: Metadata = {
+  alternates: {
+    canonical: "/guru",
+  },
   title: "Guru dan Tenaga Pendidikan",
   description:
     "Profil kepala sekolah, guru, dan tenaga pendidikan yang mendukung proses pembelajaran serta perkembangan siswa.",

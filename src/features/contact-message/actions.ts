@@ -1,57 +1,23 @@
 "use server";
 
-import { ContactMessageStatus } from "@/generated/prisma/client";
-import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { headers } from "next/headers";
+
+import { ContactMessageStatus, type Prisma } from "@/generated/prisma/client";
+import { prisma } from "@/lib/prisma";
+import {
+  buildRequestFingerprint,
+  consumePublicRateLimit,
+} from "@/lib/public-request-security";
 
 import { publicContactMessageSchema } from "./schemas";
 import type { ContactMessageActionState } from "./types";
 
-type RateLimitEntry = {
-  count: number;
-  resetAt: number;
-};
-
 const RATE_LIMIT_DURATION_MS = 15 * 60 * 1000;
-
 const RATE_LIMIT_MAX_REQUESTS = 5;
 
-const globalForContactMessage = globalThis as unknown as {
-  contactMessageRateLimits?: Map<string, RateLimitEntry>;
-};
-
-const rateLimitStore =
-  globalForContactMessage.contactMessageRateLimits ??
-  new Map<string, RateLimitEntry>();
-
-if (process.env.NODE_ENV !== "production") {
-  globalForContactMessage.contactMessageRateLimits = rateLimitStore;
-}
-
-function consumeRateLimit(key: string): boolean {
-  const now = Date.now();
-  const current = rateLimitStore.get(key);
-
-  if (!current || current.resetAt <= now) {
-    rateLimitStore.set(key, {
-      count: 1,
-      resetAt: now + RATE_LIMIT_DURATION_MS,
-    });
-
-    return true;
-  }
-
-  if (current.count >= RATE_LIMIT_MAX_REQUESTS) {
-    return false;
-  }
-
-  current.count += 1;
-
-  rateLimitStore.set(key, current);
-
-  return true;
-}
+const MINIMUM_FORM_COMPLETION_MS = 3 * 1000;
+const MAXIMUM_FORM_AGE_MS = 24 * 60 * 60 * 1000;
 
 function countUrls(value: string): number {
   const matches = value.match(/(?:https?:\/\/|www\.)/gi);
@@ -63,19 +29,42 @@ function containsRepeatedCharacters(value: string): boolean {
   return /(.)\1{14,}/i.test(value);
 }
 
-function buildRateLimitKey({
-  forwardedFor,
-  realIp,
-  userAgent,
-}: {
-  forwardedFor: string | null;
-  realIp: string | null;
-  userAgent: string | null;
-}): string {
-  const clientIp =
-    forwardedFor?.split(",")[0]?.trim() || realIp?.trim() || "unknown";
+function parseStartedAt(value: string): number | null {
+  if (!value) {
+    return null;
+  }
 
-  return `${clientIp}:${userAgent ?? "unknown"}`.slice(0, 500);
+  const numericValue = Number(value);
+
+  if (Number.isFinite(numericValue)) {
+    if (numericValue >= 1_000_000_000_000) {
+      return numericValue;
+    }
+
+    if (numericValue >= 1_000_000_000) {
+      return numericValue * 1000;
+    }
+  }
+
+  const parsedDate = Date.parse(value);
+
+  return Number.isFinite(parsedDate) ? parsedDate : null;
+}
+
+function hasSuspiciousCompletionTime(startedAt: string): boolean {
+  if (!startedAt) {
+    return false;
+  }
+
+  const parsedStartedAt = parseStartedAt(startedAt);
+
+  if (parsedStartedAt === null) {
+    return true;
+  }
+
+  const elapsed = Date.now() - parsedStartedAt;
+
+  return elapsed < MINIMUM_FORM_COMPLETION_MS || elapsed > MAXIMUM_FORM_AGE_MS;
 }
 
 export async function submitContactMessageAction(
@@ -104,16 +93,16 @@ export async function submitContactMessageAction(
   }
 
   const requestHeaders = await headers();
+  const requestFingerprint = buildRequestFingerprint(requestHeaders);
 
-  const rateLimitKey = buildRateLimitKey({
-    forwardedFor: requestHeaders.get("x-forwarded-for"),
-
-    realIp: requestHeaders.get("x-real-ip"),
-
-    userAgent: requestHeaders.get("user-agent"),
-  });
-
-  if (!consumeRateLimit(rateLimitKey)) {
+  if (
+    !consumePublicRateLimit({
+      scope: "contact-message",
+      key: requestFingerprint,
+      windowMs: RATE_LIMIT_DURATION_MS,
+      maxRequests: RATE_LIMIT_MAX_REQUESTS,
+    })
+  ) {
     return {
       status: "error",
       message:
@@ -121,14 +110,47 @@ export async function submitContactMessageAction(
     };
   }
 
-  const { name, email, phone, subject, message, website } = parsed.data;
+  const { name, email, phone, subject, message, website, startedAt } =
+    parsed.data;
 
   const isSpam =
     Boolean(website) ||
     countUrls(message) > 3 ||
-    containsRepeatedCharacters(message);
+    containsRepeatedCharacters(message) ||
+    hasSuspiciousCompletionTime(startedAt);
 
   try {
+    const identityFilters: Prisma.ContactMessageWhereInput[] = [];
+
+    if (email) {
+      identityFilters.push({
+        email,
+      });
+    }
+
+    if (phone) {
+      identityFilters.push({
+        phone,
+      });
+    }
+
+    const recentIdentityCount = await prisma.contactMessage.count({
+      where: {
+        createdAt: {
+          gte: new Date(Date.now() - RATE_LIMIT_DURATION_MS),
+        },
+        OR: identityFilters,
+      },
+    });
+
+    if (recentIdentityCount >= RATE_LIMIT_MAX_REQUESTS) {
+      return {
+        status: "error",
+        message:
+          "Terlalu banyak pesan dikirim. Silakan coba kembali beberapa saat lagi.",
+      };
+    }
+
     const createdMessage = await prisma.contactMessage.create({
       data: {
         name,
@@ -136,12 +158,9 @@ export async function submitContactMessageAction(
         phone: phone ?? null,
         subject: subject ?? null,
         message,
-
         status: isSpam ? ContactMessageStatus.SPAM : ContactMessageStatus.NEW,
-
         sourcePage: "/kontak",
       },
-
       select: {
         id: true,
         status: true,
@@ -158,7 +177,6 @@ export async function submitContactMessageAction(
     }
 
     revalidatePath("/konsol-8m4q7x2k9v6d/pesan-kontak");
-
     revalidatePath("/konsol-8m4q7x2k9v6d/dashboard");
 
     return {
@@ -167,7 +185,11 @@ export async function submitContactMessageAction(
         "Pesan berhasil dikirim. Pihak sekolah akan menindaklanjuti pesan Anda.",
     };
   } catch (error) {
-    console.error("Create contact message failed:", error);
+    if (process.env.NODE_ENV === "development") {
+      console.error("Create contact message failed:", error);
+    } else {
+      console.error("Create contact message failed.");
+    }
 
     return {
       status: "error",

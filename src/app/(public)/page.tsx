@@ -42,6 +42,9 @@ import {
 } from "@/lib/public-links";
 
 export const metadata: Metadata = {
+  alternates: {
+    canonical: "/",
+  },
   title: "Beranda",
 };
 

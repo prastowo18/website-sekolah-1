@@ -41,3 +41,18 @@ yarn-error.log*
 next-env.d.ts
 
 /src/generated/prisma
+
+# Template environment aman untuk repository
+!.env.example
+!.env.r2.example
+
+# Local audit, report, and rollback artifacts
+/.audit-reports/
+/.backups/
+/.motion-backups/
+/backend-focused-risk-audit-*.txt
+/backend-security-deep-audit-*.txt
+/environment-template-finalization-*.txt
+/production-config-verification-*.txt
+/production-readiness-audit-*.txt
+/protected-route-security-audit-*.txt

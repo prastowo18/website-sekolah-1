@@ -32,6 +32,9 @@ import {
 import { getSafePublicUrl } from "@/lib/public-links";
 
 export const metadata: Metadata = {
+  alternates: {
+    canonical: "/berita",
+  },
   title: "Berita",
   description:
     "Berita, kegiatan, pengumuman, dan informasi terbaru dari sekolah.",

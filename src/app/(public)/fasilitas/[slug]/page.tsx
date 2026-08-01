@@ -46,6 +46,7 @@ export async function generateMetadata({
   params: Promise<PageParams>;
 }): Promise<Metadata> {
   const { slug } = await params;
+  const canonicalPath = `/fasilitas/${encodeURIComponent(slug)}`;
 
   const facility = await getPublicFacilityBySlug(slug);
 
@@ -56,6 +57,9 @@ export async function generateMetadata({
   }
 
   return {
+    alternates: {
+      canonical: canonicalPath,
+    },
     title: facility.name,
     description: createDescription(facility.description, facility.name),
   };

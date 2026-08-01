@@ -43,6 +43,7 @@ export async function generateMetadata({
   params: Promise<PageParams>;
 }): Promise<Metadata> {
   const { slug } = await params;
+  const canonicalPath = `/berita/${encodeURIComponent(slug)}`;
   const post = await getPublicPostBySlug(slug);
 
   if (!post) {
@@ -52,6 +53,9 @@ export async function generateMetadata({
   }
 
   return {
+    alternates: {
+      canonical: canonicalPath,
+    },
     title: post.seoTitle || post.title,
     description:
       post.seoDescription || post.excerpt || createDescription(post.content),

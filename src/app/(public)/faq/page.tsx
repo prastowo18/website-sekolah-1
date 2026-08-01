@@ -34,6 +34,9 @@ import { getPublicSchoolProfile } from "@/features/public-site/queries";
 import { toPhoneHref, toWhatsAppHref } from "@/lib/public-links";
 
 export const metadata: Metadata = {
+  alternates: {
+    canonical: "/faq",
+  },
   title: "Pertanyaan Umum",
   description:
     "Jawaban atas pertanyaan umum mengenai sekolah, kegiatan, pelayanan, pembelajaran, dan informasi PPDB.",
@@ -83,6 +86,15 @@ function buildHref({
   const query = parameters.toString();
 
   return query ? `/faq?${query}` : "/faq";
+}
+
+function sanitizeJsonLd(value: unknown): string {
+  return JSON.stringify(value)
+    .replace(/</g, "\\u003c")
+    .replace(/>/g, "\\u003e")
+    .replace(/&/g, "\\u0026")
+    .replace(/\u2028/g, "\\u2028")
+    .replace(/\u2029/g, "\\u2029");
 }
 
 export default async function PublicFaqPage({
@@ -164,7 +176,7 @@ export default async function PublicFaqPage({
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
-            __html: JSON.stringify(structuredData).replace(/</g, "\\u003c"),
+            __html: sanitizeJsonLd(structuredData),
           }}
         />
       ) : null}

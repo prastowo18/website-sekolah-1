@@ -34,6 +34,9 @@ export async function generateMetadata(): Promise<Metadata> {
   const schoolName = profile?.schoolName ?? "Sekolah Dasar";
 
   return {
+    alternates: {
+      canonical: "/profil",
+    },
     title: "Profil Sekolah",
     description:
       profile?.shortDescription ??

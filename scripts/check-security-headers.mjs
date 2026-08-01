@@ -101,7 +101,7 @@ async function main() {
   });
 
   const adminResult = await inspectRoute({
-    pathname: "/admin/dashboard",
+    pathname: "/konsol-8m4q7x2k9v6d/dashboard",
     allowedStatuses: [200, 301, 302, 303, 307, 308, 401, 403],
     requirements: {
       ...commonRequirements,
