@@ -357,7 +357,7 @@ export function PublicNavigation({
                     aria-current={homeActive ? "page" : undefined}
                     className={
                       homeActive
-                        ? "bg-accent font-semibold text-primary"
+                        ? "bg-accent font-semibold text-amber-700"
                         : undefined
                     }
                     onClick={closeNavigation}
@@ -401,7 +401,7 @@ export function PublicNavigation({
                       aria-controls={menuId}
                       className={
                         groupActive
-                          ? "bg-accent font-semibold text-primary"
+                          ? "bg-accent font-semibold text-amber-700"
                           : undefined
                       }
                       onClick={() => {
@@ -701,7 +701,7 @@ export function PublicNavigation({
                         variant="ghost"
                         className={
                           homeActive
-                            ? "w-full justify-start bg-accent font-semibold text-primary"
+                            ? "w-full justify-start bg-accent font-semibold text-amber-700"
                             : "w-full justify-start"
                         }
                         asChild
@@ -752,7 +752,7 @@ export function PublicNavigation({
                             variant="ghost"
                             className={
                               groupActive
-                                ? "w-full justify-between bg-accent font-semibold text-primary"
+                                ? "w-full justify-between bg-accent font-semibold text-amber-700"
                                 : "w-full justify-between"
                             }
                             aria-expanded={isOpen}

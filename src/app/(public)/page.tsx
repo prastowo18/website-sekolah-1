@@ -74,7 +74,7 @@ function SectionHeading({
 }) {
   return (
     <MotionReveal className="mx-auto mb-8 max-w-3xl text-center">
-      <p className="text-sm font-semibold uppercase tracking-[0.18em] text-primary">
+      <p className="text-sm font-semibold uppercase tracking-[0.18em] text-amber-700">
         {eyebrow}
       </p>
 
@@ -104,11 +104,13 @@ function MediaCover({
   label,
   fallback,
   className = "aspect-[4/3]",
+  sizes = "(max-width: 639px) 100vw, (max-width: 1023px) 50vw, 33vw",
 }: {
   url: string | null | undefined;
   label: string;
   fallback: ReactNode;
   className?: string;
+  sizes?: string;
 }) {
   const safeUrl = getSafePublicUrl(url);
 
@@ -129,7 +131,7 @@ function MediaCover({
         src={safeUrl}
         alt={label}
         fill
-        sizes="(max-width: 639px) 100vw, (max-width: 1023px) 50vw, 33vw"
+        sizes={sizes}
         quality={75}
         className="object-cover"
       />
@@ -243,7 +245,11 @@ export default async function HomePage() {
                 >
                   <Badge
                     variant={getAnnouncementVariant(announcement.priority)}
-                    className="w-fit shrink-0"
+                    className={
+                      announcement.priority === "URGENT"
+                        ? "w-fit shrink-0 border-red-200 bg-red-50 text-red-800"
+                        : "w-fit shrink-0"
+                    }
                   >
                     {announcement.priority === "URGENT"
                       ? "Mendesak"
@@ -412,7 +418,7 @@ export default async function HomePage() {
       <section id="profil" className="scroll-mt-24 py-16 sm:py-20">
         <div className="mx-auto grid max-w-7xl gap-10 px-4 sm:px-6 lg:grid-cols-2 lg:items-center lg:px-8">
           <div>
-            <p className="text-sm font-semibold uppercase tracking-[0.18em] text-primary">
+            <p className="text-sm font-semibold uppercase tracking-[0.18em] text-amber-700">
               Profil Sekolah
             </p>
 
@@ -474,6 +480,7 @@ export default async function HomePage() {
                 }
                 fallback={<GraduationCap className="size-7" />}
                 className="aspect-square sm:aspect-auto sm:min-h-80"
+                sizes="(max-width: 639px) calc(100vw - 2rem), 220px"
               />
 
               <CardContent className="flex flex-col justify-center pt-6">
@@ -807,7 +814,11 @@ export default async function HomePage() {
                       </p>
                     ) : null}
 
-                    <Button variant="link" className="mt-4 h-auto p-0" asChild>
+                    <Button
+                      variant="link"
+                      className="mt-4 h-auto p-0 text-amber-700 hover:text-amber-800"
+                      asChild
+                    >
                       <Link href={`/berita/${post.slug}`}>
                         Baca selengkapnya
                       </Link>
@@ -874,7 +885,7 @@ export default async function HomePage() {
 
                       <Button
                         variant="link"
-                        className="mt-4 h-auto p-0"
+                        className="mt-4 h-auto p-0 text-amber-700 hover:text-amber-800"
                         asChild
                       >
                         <Link href={`/galeri/${album.slug}`}>Buka album</Link>
@@ -1006,7 +1017,7 @@ export default async function HomePage() {
         <section className="border-t bg-muted/30 py-16 sm:py-20">
           <div className="mx-auto grid max-w-7xl gap-10 px-4 sm:px-6 lg:grid-cols-[1fr_420px] lg:px-8">
             <div>
-              <p className="text-sm font-semibold uppercase tracking-[0.18em] text-primary">
+              <p className="text-sm font-semibold uppercase tracking-[0.18em] text-amber-700">
                 Hubungi Kami
               </p>
 
@@ -1109,7 +1120,7 @@ export default async function HomePage() {
 
                       <a
                         href={toPhoneHref(profile.phone)}
-                        className="mt-1 inline-block text-sm text-primary hover:underline"
+                        className="mt-1 inline-block text-sm text-amber-700 hover:text-amber-800 hover:underline"
                       >
                         {profile.phone}
                       </a>
@@ -1126,7 +1137,7 @@ export default async function HomePage() {
 
                       <a
                         href={`mailto:${profile.email}`}
-                        className="mt-1 inline-block break-all text-sm text-primary hover:underline"
+                        className="mt-1 inline-block break-all text-sm text-amber-700 hover:text-amber-800 hover:underline"
                       >
                         {profile.email}
                       </a>
