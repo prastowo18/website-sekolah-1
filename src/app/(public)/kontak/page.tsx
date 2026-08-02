@@ -16,6 +16,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PublicContactForm } from "@/features/contact-message/components/public-contact-form";
 import { GoogleMapFrame } from "@/features/public-site/components/google-map-frame";
 import { getPublicSchoolProfile } from "@/features/public-site/queries";
+import { getPublicWebsiteSettings } from "@/features/website-setting/queries";
 import { toPhoneHref, toWhatsAppHref } from "@/lib/public-links";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -53,7 +54,10 @@ function buildAddress(profile: {
 }
 
 export default async function ContactPage() {
-  const profile = await getPublicSchoolProfile();
+  const [profile, settings] = await Promise.all([
+    getPublicSchoolProfile(),
+    getPublicWebsiteSettings(),
+  ]);
 
   const phoneHref = profile?.phone ? toPhoneHref(profile.phone) : null;
 
@@ -226,7 +230,26 @@ export default async function ContactPage() {
             </CardHeader>
 
             <CardContent>
-              <PublicContactForm />
+              {settings.contactFormEnabled ? (
+                <>
+                  <PublicContactForm />
+                  {settings.privacyPolicyText ? (
+                    <p className="mt-4 text-xs leading-5 text-muted-foreground">
+                      {settings.privacyPolicyText}
+                    </p>
+                  ) : null}
+                </>
+              ) : (
+                <div className="rounded-lg border border-dashed p-5">
+                  <p className="font-medium">
+                    Formulir kontak sedang dinonaktifkan
+                  </p>
+                  <p className="mt-2 text-sm leading-6 text-muted-foreground">
+                    Gunakan WhatsApp, telepon, atau email resmi sekolah untuk
+                    menghubungi kami.
+                  </p>
+                </div>
+              )}
             </CardContent>
           </Card>
 

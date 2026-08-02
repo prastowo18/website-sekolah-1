@@ -5,7 +5,16 @@ export type WebsiteSettingFieldName =
   | "openGraphImageUrl"
   | "allowIndexing"
   | "googleSiteVerification"
-  | "twitterHandle";
+  | "twitterHandle"
+  | "heroPrimaryCtaLabel"
+  | "heroSecondaryCtaLabel"
+  | "homeStatsStudents"
+  | "homeStatsTeachers"
+  | "homeStatsPrograms"
+  | "homeStatsAchievements"
+  | "contactFormEnabled"
+  | "showFloatingWhatsapp"
+  | "privacyPolicyText";
 
 export type WebsiteSettingValues = {
   defaultTitle: string;
@@ -15,6 +24,18 @@ export type WebsiteSettingValues = {
   allowIndexing: boolean;
   googleSiteVerification: string;
   twitterHandle: string;
+
+  heroPrimaryCtaLabel: string;
+  heroSecondaryCtaLabel: string;
+  homeStatsStudents: number;
+  homeStatsTeachers: number;
+  homeStatsPrograms: number;
+  homeStatsAchievements: number;
+
+  contactFormEnabled: boolean;
+  showFloatingWhatsapp: boolean;
+
+  privacyPolicyText: string;
 };
 
 export type WebsiteSettingActionState = {

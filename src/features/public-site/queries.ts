@@ -1,5 +1,6 @@
 import { cache } from "react";
 
+import { getPublicWebsiteSettings } from "@/features/website-setting/queries";
 import { prisma } from "@/lib/prisma";
 
 export const getPublicSchoolProfile = cache(async () => {
@@ -87,6 +88,7 @@ export const getPublicHomepageData = cache(async () => {
 
   const [
     profile,
+    settings,
     announcements,
     programs,
     facilities,
@@ -103,6 +105,7 @@ export const getPublicHomepageData = cache(async () => {
     ppdb,
   ] = await Promise.all([
     getPublicSchoolProfile(),
+    getPublicWebsiteSettings(),
 
     prisma.announcement.findMany({
       where: {
@@ -479,10 +482,21 @@ export const getPublicHomepageData = cache(async () => {
     programs,
     facilities,
     principal,
+    settings,
     statistics: {
-      teachers: teacherCount,
-      achievements: achievementCount,
-      programs: programCount,
+      students: settings.homeStatsStudents,
+      teachers:
+        settings.homeStatsTeachers > 0
+          ? settings.homeStatsTeachers
+          : teacherCount,
+      programs:
+        settings.homeStatsPrograms > 0
+          ? settings.homeStatsPrograms
+          : programCount,
+      achievements:
+        settings.homeStatsAchievements > 0
+          ? settings.homeStatsAchievements
+          : achievementCount,
       facilities: facilityCount,
     },
     achievements,

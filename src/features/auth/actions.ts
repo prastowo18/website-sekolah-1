@@ -3,6 +3,7 @@
 import { redirect } from "next/navigation";
 import { z } from "zod";
 
+import { getAuditRequestContext } from "@/lib/audit/request-context";
 import { verifyPassword } from "@/lib/auth/password";
 import { createSession } from "@/lib/auth/session";
 import { prisma } from "@/lib/prisma";
@@ -19,6 +20,17 @@ import type { AuthActionState } from "./types";
 
 type LoginDestination =
   "/konsol-8m4q7x2k9v6d/dashboard" | "/konsol-8m4q7x2k9v6d/ubah-password";
+
+function reportLoginError(error: unknown): void {
+  if (process.env.NODE_ENV === "development") {
+    console.error("Proses login gagal.", error);
+    return;
+  }
+
+  console.error("Proses login gagal.", {
+    name: error instanceof Error ? error.name : "UnknownError",
+  });
+}
 
 async function recordFailedLogin(
   userId: string,
@@ -115,16 +127,34 @@ export async function loginAction(
       };
     }
 
-    await prisma.user.update({
-      where: {
-        id: user.id,
-      },
-      data: {
-        failedLoginAttempts: 0,
-        lockedUntil: null,
-        lastLoginAt: now,
-      },
-    });
+    const context = await getAuditRequestContext();
+
+    await prisma.$transaction([
+      prisma.user.update({
+        where: {
+          id: user.id,
+        },
+        data: {
+          failedLoginAttempts: 0,
+          lockedUntil: null,
+          lastLoginAt: now,
+        },
+      }),
+
+      prisma.auditLog.create({
+        data: {
+          actorId: user.id,
+          action: "LOGIN_SUCCESS",
+          entity: "User",
+          entityId: user.id,
+          newValue: {
+            lastLoginAt: now.toISOString(),
+          },
+          ipAddress: context.ipAddress,
+          userAgent: context.userAgent,
+        },
+      }),
+    ]);
 
     await createSession(user.id);
 
@@ -132,7 +162,7 @@ export async function loginAction(
       ? "/konsol-8m4q7x2k9v6d/ubah-password"
       : "/konsol-8m4q7x2k9v6d/dashboard";
   } catch (error: unknown) {
-    console.error("Proses login gagal.", error);
+    reportLoginError(error);
 
     return {
       status: "error",

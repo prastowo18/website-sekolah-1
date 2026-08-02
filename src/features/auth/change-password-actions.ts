@@ -3,6 +3,7 @@
 import { redirect } from "next/navigation";
 import { z } from "zod";
 
+import { getAuditRequestContext } from "@/lib/audit/request-context";
 import { hashPassword, verifyPassword } from "@/lib/auth/password";
 import {
   createSession,
@@ -100,6 +101,8 @@ export async function changePasswordAction(
   }
 
   try {
+    const context = await getAuditRequestContext();
+
     const passwordHash = await hashPassword(newPassword);
 
     const changedAt = new Date();
@@ -134,6 +137,8 @@ export async function changePasswordAction(
             passwordChanged: true,
             changedAt: changedAt.toISOString(),
           },
+          ipAddress: context.ipAddress,
+          userAgent: context.userAgent,
         },
       }),
     ]);

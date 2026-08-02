@@ -1,5 +1,6 @@
 "use server";
 
+import { getPublicWebsiteSettingsUncached } from "@/features/website-setting/queries";
 import { revalidatePath } from "next/cache";
 import { headers } from "next/headers";
 
@@ -71,6 +72,15 @@ export async function submitContactMessageAction(
   _previousState: ContactMessageActionState,
   formData: FormData,
 ): Promise<ContactMessageActionState> {
+  const websiteSettings = await getPublicWebsiteSettingsUncached();
+
+  if (!websiteSettings.contactFormEnabled) {
+    return {
+      status: "error",
+      message: "Formulir kontak sedang dinonaktifkan.",
+    };
+  }
+
   const parsed = publicContactMessageSchema.safeParse({
     name: formData.get("name"),
     email: formData.get("email"),

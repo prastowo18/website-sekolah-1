@@ -10,6 +10,21 @@ const booleanFromForm = z
   .optional()
   .transform((value) => value === "on" || value === "true");
 
+const nonNegativeIntegerFromForm = z.preprocess(
+  (value) => {
+    if (typeof value === "string" && value.trim() === "") {
+      return 0;
+    }
+
+    return value;
+  },
+  z.coerce
+    .number()
+    .int("Nilai harus berupa bilangan bulat.")
+    .min(0, "Nilai tidak boleh negatif.")
+    .max(1_000_000, "Nilai maksimal 1.000.000."),
+);
+
 function isPlainText(value: string): boolean {
   return !/[<>]/.test(value);
 }
@@ -85,6 +100,29 @@ export const websiteSettingSchema = z.object({
 
       return value.startsWith("@") ? value : `@${value}`;
     }),
+
+  heroPrimaryCtaLabel: optionalPlainText(
+    80,
+    "Label CTA utama maksimal 80 karakter.",
+  ),
+
+  heroSecondaryCtaLabel: optionalPlainText(
+    80,
+    "Label CTA kedua maksimal 80 karakter.",
+  ),
+
+  homeStatsStudents: nonNegativeIntegerFromForm,
+  homeStatsTeachers: nonNegativeIntegerFromForm,
+  homeStatsPrograms: nonNegativeIntegerFromForm,
+  homeStatsAchievements: nonNegativeIntegerFromForm,
+
+  contactFormEnabled: booleanFromForm,
+  showFloatingWhatsapp: booleanFromForm,
+
+  privacyPolicyText: optionalPlainText(
+    2_000,
+    "Ringkasan kebijakan privasi maksimal 2.000 karakter.",
+  ),
 });
 
 export type WebsiteSettingInput = z.infer<typeof websiteSettingSchema>;

@@ -111,9 +111,10 @@ export default async function PublicLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const [{ profile, socialLinks }, ppdb] = await Promise.all([
+  const [{ profile, socialLinks }, ppdb, settings] = await Promise.all([
     getPublicSiteChrome(),
     getActivePublicPpdb(),
+    getPublicWebsiteSettings(),
   ]);
 
   const publicProfile = profile ?? {
@@ -155,7 +156,7 @@ export default async function PublicLayout({
           <PublicFooter profile={publicProfile} socialLinks={socialLinks} />
         </PublicFooterMotion>
 
-        {publicProfile.whatsapp ? (
+        {settings.showFloatingWhatsapp && publicProfile.whatsapp ? (
           <FloatingWhatsAppButton
             phone={publicProfile.whatsapp}
             schoolName={publicProfile.schoolName}

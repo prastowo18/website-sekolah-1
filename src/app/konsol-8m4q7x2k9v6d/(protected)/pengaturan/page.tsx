@@ -7,28 +7,29 @@ import { requireAdminRole } from "@/lib/auth/authorization";
 
 export const metadata: Metadata = {
   title: "Pengaturan Website | Panel Administrasi",
-  description: "Kelola SEO, metadata, dan indexing website.",
+  description:
+    "Kelola SEO, tampilan beranda, formulir kontak, WhatsApp, dan kebijakan privasi website.",
 };
 
-const allowedRoles = [UserRole.SUPER_ADMIN] as const;
+export const dynamic = "force-dynamic";
 
 export default async function WebsiteSettingPage() {
-  await requireAdminRole(allowedRoles);
+  await requireAdminRole([UserRole.SUPER_ADMIN]);
 
   const settings = await getAdminWebsiteSettings();
 
   return (
-    <div className="mx-auto w-full max-w-5xl space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight md:text-3xl">
+    <div className="space-y-6">
+      <header>
+        <h1 className="text-3xl font-bold tracking-tight">
           Pengaturan Website
         </h1>
-
-        <p className="mt-1 text-sm text-muted-foreground">
-          Kelola metadata SEO, tampilan saat tautan dibagikan, dan akses mesin
-          pencari.
+        <p className="mt-2 max-w-3xl leading-7 text-muted-foreground">
+          Kelola SEO, label tombol beranda, statistik, formulir kontak, tombol
+          WhatsApp, dan ringkasan kebijakan privasi. Seluruh perubahan disimpan
+          pada database dan langsung digunakan website publik.
         </p>
-      </div>
+      </header>
 
       <WebsiteSettingForm settings={settings} />
     </div>

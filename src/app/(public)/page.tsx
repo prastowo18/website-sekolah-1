@@ -204,6 +204,7 @@ export default async function HomePage() {
   const data = await getPublicHomepageData();
 
   const profile = data.profile;
+  const settings = data.settings;
   const schoolName = profile?.schoolName ?? "Sekolah Dasar";
 
   const heroImage = getSafePublicUrl(profile?.heroImageUrl);
@@ -341,7 +342,7 @@ export default async function HomePage() {
             <div className="mt-8 flex flex-wrap gap-3">
               {data.ppdb ? (
                 <Button size="lg" variant="secondary" asChild>
-                  <Link href="/ppdb">Informasi PPDB</Link>
+                  <Link href="/ppdb">{settings.heroPrimaryCtaLabel}</Link>
                 </Button>
               ) : null}
 
@@ -355,7 +356,7 @@ export default async function HomePage() {
                 }
                 asChild
               >
-                <Link href="/profil">Mengenal Sekolah</Link>
+                <Link href="/profil">{settings.heroSecondaryCtaLabel}</Link>
               </Button>
             </div>
           </MotionStagger>
@@ -369,6 +370,11 @@ export default async function HomePage() {
         >
           {[
             {
+              label: "Siswa",
+              value: data.statistics.students,
+              icon: <GraduationCap className="size-5" />,
+            },
+            {
               label: "Guru dan Tenaga Pendidikan",
               value: data.statistics.teachers,
               icon: <Users className="size-5" />,
@@ -377,11 +383,6 @@ export default async function HomePage() {
               label: "Program Pendidikan",
               value: data.statistics.programs,
               icon: <BookOpenCheck className="size-5" />,
-            },
-            {
-              label: "Fasilitas",
-              value: data.statistics.facilities,
-              icon: <Building2 className="size-5" />,
             },
             {
               label: "Prestasi",
