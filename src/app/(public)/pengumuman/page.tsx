@@ -30,14 +30,23 @@ import {
   type PublicAnnouncementPriority,
 } from "@/features/announcement/public-queries";
 import { getSafePublicUrl } from "@/lib/public-links";
+import { buildPublicShareMetadata } from "@/lib/public-share-metadata";
 
-export const metadata: Metadata = {
-  alternates: {
-    canonical: "/pengumuman",
-  },
-  title: "Pengumuman",
-  description: "Informasi dan pengumuman resmi terbaru dari sekolah.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const shareMetadataBase: Metadata = {
+    alternates: {
+      canonical: "/pengumuman",
+    },
+    title: "Pengumuman",
+    description: "Informasi dan pengumuman resmi terbaru dari sekolah.",
+  };
+
+  return buildPublicShareMetadata({
+    baseMetadata: shareMetadataBase,
+    pathname: "/pengumuman",
+    type: "website",
+  });
+}
 
 const PAGE_SIZE = 10;
 

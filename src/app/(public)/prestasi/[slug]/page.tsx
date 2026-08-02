@@ -21,6 +21,7 @@ import {
   getRelatedPublicAchievements,
 } from "@/features/achievement/public-queries";
 import { getSafePublicUrl } from "@/lib/public-links";
+import { buildPublicShareMetadata } from "@/lib/public-share-metadata";
 
 type PageParams = {
   slug: string;
@@ -77,7 +78,7 @@ export async function generateMetadata({
 
   const imageUrl = getSafePublicUrl(achievement.imageUrl);
 
-  return {
+  const shareMetadataBase: Metadata = {
     alternates: {
       canonical: canonicalPath,
     },
@@ -95,6 +96,14 @@ export async function generateMetadata({
         }
       : undefined,
   };
+
+  return buildPublicShareMetadata({
+    baseMetadata: shareMetadataBase,
+    pathname: `/prestasi/${encodeURIComponent(slug)}`,
+    imageUrl: imageUrl,
+    imageAlt: achievement.title,
+    type: "article",
+  });
 }
 
 export default async function AchievementDetailPage({

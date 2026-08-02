@@ -28,15 +28,24 @@ import {
   getPublicTestimonialRoles,
 } from "@/features/testimonial/public-queries";
 import { getSafePublicUrl } from "@/lib/public-links";
+import { buildPublicShareMetadata } from "@/lib/public-share-metadata";
 
-export const metadata: Metadata = {
-  alternates: {
-    canonical: "/testimoni",
-  },
-  title: "Testimoni",
-  description:
-    "Pengalaman dan pandangan orang tua, alumni, siswa, serta masyarakat mengenai sekolah.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const shareMetadataBase: Metadata = {
+    alternates: {
+      canonical: "/testimoni",
+    },
+    title: "Testimoni",
+    description:
+      "Pengalaman dan pandangan orang tua, alumni, siswa, serta masyarakat mengenai sekolah.",
+  };
+
+  return buildPublicShareMetadata({
+    baseMetadata: shareMetadataBase,
+    pathname: "/testimoni",
+    type: "website",
+  });
+}
 
 const PAGE_SIZE = 12;
 

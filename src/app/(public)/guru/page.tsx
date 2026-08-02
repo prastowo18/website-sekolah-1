@@ -32,15 +32,24 @@ import {
   type PublicTeacherRole,
 } from "@/features/teacher/public-queries";
 import { getSafePublicUrl } from "@/lib/public-links";
+import { buildPublicShareMetadata } from "@/lib/public-share-metadata";
 
-export const metadata: Metadata = {
-  alternates: {
-    canonical: "/guru",
-  },
-  title: "Guru dan Tenaga Pendidikan",
-  description:
-    "Profil kepala sekolah, guru, dan tenaga pendidikan yang mendukung proses pembelajaran serta perkembangan siswa.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const shareMetadataBase: Metadata = {
+    alternates: {
+      canonical: "/guru",
+    },
+    title: "Guru dan Tenaga Pendidikan",
+    description:
+      "Profil kepala sekolah, guru, dan tenaga pendidikan yang mendukung proses pembelajaran serta perkembangan siswa.",
+  };
+
+  return buildPublicShareMetadata({
+    baseMetadata: shareMetadataBase,
+    pathname: "/guru",
+    type: "website",
+  });
+}
 
 const PAGE_SIZE = 12;
 

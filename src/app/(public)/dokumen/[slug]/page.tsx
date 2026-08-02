@@ -19,6 +19,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { getPublicDocumentBySlug } from "@/features/download-document/public-queries";
+import { buildPublicShareMetadata } from "@/lib/public-share-metadata";
 
 type PageParams = {
   slug: string;
@@ -120,13 +121,20 @@ export async function generateMetadata({
     };
   }
 
-  return {
+  const shareMetadataBase: Metadata = {
     alternates: {
       canonical: canonicalPath,
     },
     title: document.name,
     description: createDescription(document.description),
   };
+
+  return buildPublicShareMetadata({
+    baseMetadata: shareMetadataBase,
+    pathname: `/dokumen/${encodeURIComponent(slug)}`,
+    imageAlt: document.name,
+    type: "website",
+  });
 }
 
 export default async function DocumentDetailPage({

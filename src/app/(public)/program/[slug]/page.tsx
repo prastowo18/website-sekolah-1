@@ -20,6 +20,7 @@ import {
   getRelatedPublicPrograms,
 } from "@/features/program/public-queries";
 import { getSafePublicUrl } from "@/lib/public-links";
+import { buildPublicShareMetadata } from "@/lib/public-share-metadata";
 
 type PageParams = {
   slug: string;
@@ -51,7 +52,7 @@ export async function generateMetadata({
     };
   }
 
-  return {
+  const shareMetadataBase: Metadata = {
     alternates: {
       canonical: canonicalPath,
     },
@@ -61,6 +62,14 @@ export async function generateMetadata({
       program.description,
     ),
   };
+
+  return buildPublicShareMetadata({
+    baseMetadata: shareMetadataBase,
+    pathname: `/program/${encodeURIComponent(slug)}`,
+    imageUrl: program.imageUrl,
+    imageAlt: program.name,
+    type: "website",
+  });
 }
 
 export default async function ProgramDetailPage({

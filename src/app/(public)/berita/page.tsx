@@ -30,15 +30,24 @@ import {
   getPublicPostList,
 } from "@/features/post/public-queries";
 import { getSafePublicUrl } from "@/lib/public-links";
+import { buildPublicShareMetadata } from "@/lib/public-share-metadata";
 
-export const metadata: Metadata = {
-  alternates: {
-    canonical: "/berita",
-  },
-  title: "Berita",
-  description:
-    "Berita, kegiatan, pengumuman, dan informasi terbaru dari sekolah.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const shareMetadataBase: Metadata = {
+    alternates: {
+      canonical: "/berita",
+    },
+    title: "Berita",
+    description:
+      "Berita, kegiatan, pengumuman, dan informasi terbaru dari sekolah.",
+  };
+
+  return buildPublicShareMetadata({
+    baseMetadata: shareMetadataBase,
+    pathname: "/berita",
+    type: "website",
+  });
+}
 
 const PAGE_SIZE = 9;
 

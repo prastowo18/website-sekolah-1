@@ -19,15 +19,24 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { getPublicFacilityList } from "@/features/facility/public-queries";
 import { getSafePublicUrl } from "@/lib/public-links";
+import { buildPublicShareMetadata } from "@/lib/public-share-metadata";
 
-export const metadata: Metadata = {
-  alternates: {
-    canonical: "/fasilitas",
-  },
-  title: "Fasilitas Sekolah",
-  description:
-    "Informasi ruang belajar, sarana pendukung, dan fasilitas yang tersedia di sekolah.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const shareMetadataBase: Metadata = {
+    alternates: {
+      canonical: "/fasilitas",
+    },
+    title: "Fasilitas Sekolah",
+    description:
+      "Informasi ruang belajar, sarana pendukung, dan fasilitas yang tersedia di sekolah.",
+  };
+
+  return buildPublicShareMetadata({
+    baseMetadata: shareMetadataBase,
+    pathname: "/fasilitas",
+    type: "website",
+  });
+}
 
 const PAGE_SIZE = 9;
 

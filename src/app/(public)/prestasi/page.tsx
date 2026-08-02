@@ -32,15 +32,24 @@ import {
   type PublicCompetitionLevel,
 } from "@/features/achievement/public-queries";
 import { getSafePublicUrl } from "@/lib/public-links";
+import { buildPublicShareMetadata } from "@/lib/public-share-metadata";
 
-export const metadata: Metadata = {
-  alternates: {
-    canonical: "/prestasi",
-  },
-  title: "Prestasi Sekolah",
-  description:
-    "Prestasi siswa, guru, dan sekolah dalam berbagai bidang serta tingkat kompetisi.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const shareMetadataBase: Metadata = {
+    alternates: {
+      canonical: "/prestasi",
+    },
+    title: "Prestasi Sekolah",
+    description:
+      "Prestasi siswa, guru, dan sekolah dalam berbagai bidang serta tingkat kompetisi.",
+  };
+
+  return buildPublicShareMetadata({
+    baseMetadata: shareMetadataBase,
+    pathname: "/prestasi",
+    type: "website",
+  });
+}
 
 const PAGE_SIZE = 9;
 

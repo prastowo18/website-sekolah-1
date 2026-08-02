@@ -27,15 +27,24 @@ import {
 } from "@/components/ui/select";
 import { getPublicProgramList } from "@/features/program/public-queries";
 import { getSafePublicUrl } from "@/lib/public-links";
+import { buildPublicShareMetadata } from "@/lib/public-share-metadata";
 
-export const metadata: Metadata = {
-  alternates: {
-    canonical: "/program",
-  },
-  title: "Program Pendidikan",
-  description:
-    "Program pendidikan reguler dan unggulan yang mendukung perkembangan akademik, karakter, kreativitas, dan keterampilan siswa.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const shareMetadataBase: Metadata = {
+    alternates: {
+      canonical: "/program",
+    },
+    title: "Program Pendidikan",
+    description:
+      "Program pendidikan reguler dan unggulan yang mendukung perkembangan akademik, karakter, kreativitas, dan keterampilan siswa.",
+  };
+
+  return buildPublicShareMetadata({
+    baseMetadata: shareMetadataBase,
+    pathname: "/program",
+    type: "website",
+  });
+}
 
 const PAGE_SIZE = 9;
 

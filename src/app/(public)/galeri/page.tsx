@@ -18,15 +18,24 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { getPublicGalleryAlbumList } from "@/features/gallery/public-queries";
 import { getSafePublicUrl } from "@/lib/public-links";
+import { buildPublicShareMetadata } from "@/lib/public-share-metadata";
 
-export const metadata: Metadata = {
-  alternates: {
-    canonical: "/galeri",
-  },
-  title: "Galeri",
-  description:
-    "Dokumentasi kegiatan, pembelajaran, prestasi, dan kebersamaan warga sekolah.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const shareMetadataBase: Metadata = {
+    alternates: {
+      canonical: "/galeri",
+    },
+    title: "Galeri",
+    description:
+      "Dokumentasi kegiatan, pembelajaran, prestasi, dan kebersamaan warga sekolah.",
+  };
+
+  return buildPublicShareMetadata({
+    baseMetadata: shareMetadataBase,
+    pathname: "/galeri",
+    type: "website",
+  });
+}
 
 const PAGE_SIZE = 9;
 

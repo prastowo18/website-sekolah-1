@@ -32,15 +32,24 @@ import {
 } from "@/features/faq/public-queries";
 import { getPublicSchoolProfile } from "@/features/public-site/queries";
 import { toPhoneHref, toWhatsAppHref } from "@/lib/public-links";
+import { buildPublicShareMetadata } from "@/lib/public-share-metadata";
 
-export const metadata: Metadata = {
-  alternates: {
-    canonical: "/faq",
-  },
-  title: "Pertanyaan Umum",
-  description:
-    "Jawaban atas pertanyaan umum mengenai sekolah, kegiatan, pelayanan, pembelajaran, dan informasi PPDB.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const shareMetadataBase: Metadata = {
+    alternates: {
+      canonical: "/faq",
+    },
+    title: "Pertanyaan Umum",
+    description:
+      "Jawaban atas pertanyaan umum mengenai sekolah, kegiatan, pelayanan, pembelajaran, dan informasi PPDB.",
+  };
+
+  return buildPublicShareMetadata({
+    baseMetadata: shareMetadataBase,
+    pathname: "/faq",
+    type: "website",
+  });
+}
 
 const PAGE_SIZE = 12;
 

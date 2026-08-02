@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { PublicGalleryMedia } from "@/features/gallery/components/public-gallery-media";
 import { getPublicGalleryAlbumBySlug } from "@/features/gallery/public-queries";
 import { getSafePublicUrl } from "@/lib/public-links";
+import { buildPublicShareMetadata } from "@/lib/public-share-metadata";
 
 type PageParams = {
   slug: string;
@@ -51,7 +52,7 @@ export async function generateMetadata({
 
   const coverUrl = getSafePublicUrl(album.coverImageUrl);
 
-  return {
+  const shareMetadataBase: Metadata = {
     alternates: {
       canonical: canonicalPath,
     },
@@ -66,6 +67,14 @@ export async function generateMetadata({
         }
       : undefined,
   };
+
+  return buildPublicShareMetadata({
+    baseMetadata: shareMetadataBase,
+    pathname: `/galeri/${encodeURIComponent(slug)}`,
+    imageUrl: coverUrl,
+    imageAlt: album.title,
+    type: "website",
+  });
 }
 
 export default async function GalleryDetailPage({

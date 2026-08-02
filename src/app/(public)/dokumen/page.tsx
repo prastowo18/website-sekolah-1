@@ -33,15 +33,24 @@ import {
   getPublicDocumentFilters,
   getPublicDocumentList,
 } from "@/features/download-document/public-queries";
+import { buildPublicShareMetadata } from "@/lib/public-share-metadata";
 
-export const metadata: Metadata = {
-  alternates: {
-    canonical: "/dokumen",
-  },
-  title: "Dokumen",
-  description:
-    "Unduh dokumen, formulir, kalender, panduan, dan informasi resmi sekolah.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const shareMetadataBase: Metadata = {
+    alternates: {
+      canonical: "/dokumen",
+    },
+    title: "Dokumen",
+    description:
+      "Unduh dokumen, formulir, kalender, panduan, dan informasi resmi sekolah.",
+  };
+
+  return buildPublicShareMetadata({
+    baseMetadata: shareMetadataBase,
+    pathname: "/dokumen",
+    type: "website",
+  });
+}
 
 const PAGE_SIZE = 10;
 

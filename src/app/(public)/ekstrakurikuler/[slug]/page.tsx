@@ -20,6 +20,7 @@ import {
   getRelatedPublicExtracurriculars,
 } from "@/features/extracurricular/public-queries";
 import { getSafePublicUrl } from "@/lib/public-links";
+import { buildPublicShareMetadata } from "@/lib/public-share-metadata";
 
 type PageParams = {
   slug: string;
@@ -50,7 +51,7 @@ export async function generateMetadata({
 
   const imageUrl = getSafePublicUrl(activity.imageUrl);
 
-  return {
+  const shareMetadataBase: Metadata = {
     alternates: {
       canonical: canonicalPath,
     },
@@ -66,6 +67,14 @@ export async function generateMetadata({
         }
       : undefined,
   };
+
+  return buildPublicShareMetadata({
+    baseMetadata: shareMetadataBase,
+    pathname: `/ekstrakurikuler/${encodeURIComponent(slug)}`,
+    imageUrl: imageUrl,
+    imageAlt: activity.name,
+    type: "website",
+  });
 }
 
 export default async function ExtracurricularDetailPage({

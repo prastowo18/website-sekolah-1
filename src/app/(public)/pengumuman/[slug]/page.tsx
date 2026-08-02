@@ -20,6 +20,7 @@ import {
   getRelatedPublicAnnouncements,
 } from "@/features/announcement/public-queries";
 import { getSafePublicUrl } from "@/lib/public-links";
+import { buildPublicShareMetadata } from "@/lib/public-share-metadata";
 
 type PageParams = {
   slug: string;
@@ -94,13 +95,20 @@ export async function generateMetadata({
     };
   }
 
-  return {
+  const shareMetadataBase: Metadata = {
     alternates: {
       canonical: canonicalPath,
     },
     title: announcement.title,
     description: createDescription(announcement.content),
   };
+
+  return buildPublicShareMetadata({
+    baseMetadata: shareMetadataBase,
+    pathname: `/pengumuman/${encodeURIComponent(slug)}`,
+    imageAlt: announcement.title,
+    type: "article",
+  });
 }
 
 export default async function AnnouncementDetailPage({

@@ -31,6 +31,7 @@ import {
   type PpdbStatusValue,
 } from "@/features/ppdb/constants";
 import { getActivePublicPpdb } from "@/features/ppdb/public-queries";
+import { buildPublicShareMetadata } from "@/lib/public-share-metadata";
 
 export async function generateMetadata(): Promise<Metadata> {
   const ppdb = await getActivePublicPpdb();
@@ -45,15 +46,19 @@ export async function generateMetadata(): Promise<Metadata> {
     };
   }
 
-  return {
-    alternates: {
-      canonical: "/ppdb",
+  return buildPublicShareMetadata({
+    baseMetadata: {
+      alternates: {
+        canonical: "/ppdb",
+      },
+      title: `${ppdb.title} ${ppdb.academicYear}`,
+      description:
+        ppdb.shortDescription ??
+        `Informasi PPDB tahun ajaran ${ppdb.academicYear}.`,
     },
-    title: `${ppdb.title} ${ppdb.academicYear}`,
-    description:
-      ppdb.shortDescription ??
-      `Informasi PPDB tahun ajaran ${ppdb.academicYear}.`,
-  };
+    pathname: "/ppdb",
+    type: "website",
+  });
 }
 
 function getStatusVariant(

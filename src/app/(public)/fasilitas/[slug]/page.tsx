@@ -20,6 +20,7 @@ import {
   getRelatedPublicFacilities,
 } from "@/features/facility/public-queries";
 import { getSafePublicUrl } from "@/lib/public-links";
+import { buildPublicShareMetadata } from "@/lib/public-share-metadata";
 
 type PageParams = {
   slug: string;
@@ -56,13 +57,21 @@ export async function generateMetadata({
     };
   }
 
-  return {
+  const shareMetadataBase: Metadata = {
     alternates: {
       canonical: canonicalPath,
     },
     title: facility.name,
     description: createDescription(facility.description, facility.name),
   };
+
+  return buildPublicShareMetadata({
+    baseMetadata: shareMetadataBase,
+    pathname: `/fasilitas/${encodeURIComponent(slug)}`,
+    imageUrl: facility.imageUrl,
+    imageAlt: facility.name,
+    type: "website",
+  });
 }
 
 export default async function FacilityDetailPage({

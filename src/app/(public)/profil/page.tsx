@@ -27,21 +27,26 @@ import {
   toPhoneHref,
   toWhatsAppHref,
 } from "@/lib/public-links";
+import { buildPublicShareMetadata } from "@/lib/public-share-metadata";
 
 export async function generateMetadata(): Promise<Metadata> {
   const profile = await getPublicSchoolProfile();
 
   const schoolName = profile?.schoolName ?? "Sekolah Dasar";
 
-  return {
-    alternates: {
-      canonical: "/profil",
+  return buildPublicShareMetadata({
+    baseMetadata: {
+      alternates: {
+        canonical: "/profil",
+      },
+      title: "Profil Sekolah",
+      description:
+        profile?.shortDescription ??
+        `Profil, sejarah, visi, misi, dan informasi resmi ${schoolName}.`,
     },
-    title: "Profil Sekolah",
-    description:
-      profile?.shortDescription ??
-      `Profil, sejarah, visi, misi, dan informasi resmi ${schoolName}.`,
-  };
+    pathname: "/profil",
+    type: "website",
+  });
 }
 
 function buildAddress(profile: {

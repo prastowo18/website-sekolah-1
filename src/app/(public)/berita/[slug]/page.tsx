@@ -21,6 +21,7 @@ import {
   getRelatedPublicPosts,
 } from "@/features/post/public-queries";
 import { getSafePublicUrl } from "@/lib/public-links";
+import { buildPublicShareMetadata } from "@/lib/public-share-metadata";
 
 type PageParams = {
   slug: string;
@@ -52,7 +53,7 @@ export async function generateMetadata({
     };
   }
 
-  return {
+  const shareMetadataBase: Metadata = {
     alternates: {
       canonical: canonicalPath,
     },
@@ -60,6 +61,14 @@ export async function generateMetadata({
     description:
       post.seoDescription || post.excerpt || createDescription(post.content),
   };
+
+  return buildPublicShareMetadata({
+    baseMetadata: shareMetadataBase,
+    pathname: `/berita/${encodeURIComponent(slug)}`,
+    imageUrl: post.featuredImageUrl,
+    imageAlt: post.seoTitle || post.title,
+    type: "article",
+  });
 }
 
 export default async function PostDetailPage({

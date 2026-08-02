@@ -40,13 +40,22 @@ import {
   toPhoneHref,
   toWhatsAppHref,
 } from "@/lib/public-links";
+import { buildPublicShareMetadata } from "@/lib/public-share-metadata";
 
-export const metadata: Metadata = {
-  alternates: {
-    canonical: "/",
-  },
-  title: "Beranda",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const shareMetadataBase: Metadata = {
+    alternates: {
+      canonical: "/",
+    },
+    title: "Beranda",
+  };
+
+  return buildPublicShareMetadata({
+    baseMetadata: shareMetadataBase,
+    pathname: "/",
+    type: "website",
+  });
+}
 
 const achievementTypeLabels = {
   STUDENT: "Prestasi Siswa",

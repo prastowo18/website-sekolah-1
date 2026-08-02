@@ -29,15 +29,24 @@ import {
   getPublicExtracurricularList,
 } from "@/features/extracurricular/public-queries";
 import { getSafePublicUrl } from "@/lib/public-links";
+import { buildPublicShareMetadata } from "@/lib/public-share-metadata";
 
-export const metadata: Metadata = {
-  alternates: {
-    canonical: "/ekstrakurikuler",
-  },
-  title: "Ekstrakurikuler",
-  description:
-    "Informasi kegiatan ekstrakurikuler untuk mengembangkan minat, bakat, kreativitas, kesehatan, dan keterampilan sosial siswa.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const shareMetadataBase: Metadata = {
+    alternates: {
+      canonical: "/ekstrakurikuler",
+    },
+    title: "Ekstrakurikuler",
+    description:
+      "Informasi kegiatan ekstrakurikuler untuk mengembangkan minat, bakat, kreativitas, kesehatan, dan keterampilan sosial siswa.",
+  };
+
+  return buildPublicShareMetadata({
+    baseMetadata: shareMetadataBase,
+    pathname: "/ekstrakurikuler",
+    type: "website",
+  });
+}
 
 const PAGE_SIZE = 9;
 

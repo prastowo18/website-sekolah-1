@@ -18,19 +18,24 @@ import { GoogleMapFrame } from "@/features/public-site/components/google-map-fra
 import { getPublicSchoolProfile } from "@/features/public-site/queries";
 import { getPublicWebsiteSettings } from "@/features/website-setting/queries";
 import { toPhoneHref, toWhatsAppHref } from "@/lib/public-links";
+import { buildPublicShareMetadata } from "@/lib/public-share-metadata";
 
 export async function generateMetadata(): Promise<Metadata> {
   const profile = await getPublicSchoolProfile();
 
   const schoolName = profile?.schoolName ?? "Sekolah Dasar";
 
-  return {
-    alternates: {
-      canonical: "/kontak",
+  return buildPublicShareMetadata({
+    baseMetadata: {
+      alternates: {
+        canonical: "/kontak",
+      },
+      title: "Kontak",
+      description: `Alamat, telepon, WhatsApp, email, jam layanan, dan lokasi resmi ${schoolName}.`,
     },
-    title: "Kontak",
-    description: `Alamat, telepon, WhatsApp, email, jam layanan, dan lokasi resmi ${schoolName}.`,
-  };
+    pathname: "/kontak",
+    type: "website",
+  });
 }
 
 function buildAddress(profile: {
